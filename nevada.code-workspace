@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"filehandler.h": "c",
+			"stdio.h": "c",
+			"time.h": "c",
+			"writebinary.h": "c",
+			"loghandler.h": "c",
+			"writestruct.h": "c",
+			"game.h": "c"
+		}
+	}
+}

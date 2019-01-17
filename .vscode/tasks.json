@@ -1,0 +1,57 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "create object",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-g",
+                "-Wall",
+                "-Werror",
+                "-IC:\\mingw_dev_lib\\include\\SDL2",
+                "-LC:\\mingw_dev_lib\\lib",
+                "-lmingw32",
+                "-lSDL2main",
+                "-lSDL2",
+                "-lSDL2_image",
+                "-c",
+                "${fileDirname}\\${fileBasename}",
+                "-o",
+                ".\\obj\\${fileBasenameNoExtension}.o"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "build app",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-Werror",
+                ".\\obj\\*.o",
+                "-IC:\\mingw_dev_lib\\include\\SDL2",
+                "-LC:\\mingw_dev_lib\\lib",
+                "-lmingw32",
+                "-lSDL2main",
+                "-lSDL2",
+                "-lSDL2_image",
+                "-o",
+                ".\\main.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}

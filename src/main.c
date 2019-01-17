@@ -166,17 +166,30 @@ int main(int argc, char* args[]) {
 		currentWalkAnim = walkingLeft;
 
 
-		int level[6][8] = {
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 1, 0, 0, 0, 0, 0, 0},
-			{0, 0, 3, 0, 0, 0, 0, 0},
-			{0, 0, 0, 2, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0}
+		int level[8][12] = {
+			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
+			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
+			{19, 18, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
+			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
+			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
+			{19, 19, 19, 19, 19, 19, 19, 19, 18, 19, 19, 19},
+			{19, 19, 19, 19, 18, 19, 19, 19, 19, 19, 19, 19},
+			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19}
 		};
 
-		const int sizeOfLevelX = 8;
-		const int sizeOfLevelY = 6;
+		const int sizeOfLevelX = 12;
+		const int sizeOfLevelY = 8;
+
+		// MAGIC :D
+		SDL_Rect* l1[12][8];
+
+		for (int j = 0; j < sizeOfLevelY; j++) {
+			for (int i = 0; i < sizeOfLevelX; i++) {
+				l1[i][j] = getSpriteI(backgroundSpriteSheet, level[j][i], 64, 64);
+			}
+		}
+
+		
 
 
 
@@ -276,20 +289,19 @@ int main(int argc, char* args[]) {
 			SDL_RenderClear(game->gRenderer);
 
 			/**
-			 * RENDER HERR ...
+			 * RENDER ...
 			 */ 
 			
 			for (int i = 0; i < sizeOfLevelX; i++) {
 				for (int j = 0; j < sizeOfLevelY; j++) {
-					//renderTexture(backgroundSpriteSheet, game, bg1, i * 64, j * 64, 64, 64);
-					renderTexture(backgroundSpriteSheet, game, getSpriteI(backgroundSpriteSheet, level[i][j], 64, 64), i * 64, j * 64, 64, 64);
+					renderTexture(backgroundSpriteSheet, game, l1[i][j], i * 64, j * 64, 64, 64);
 				}
 			}
 
 			renderTexture(playerSpriteSheet, game, &currentWalkAnim[animPlayerClip], playerX, playerY, 52, 72);
 		
 			
-			renderText(font1, game, 250, 70);
+			renderText(font1, game, 100, 50);
 
 			if (walking == 1) {
 				counter++;

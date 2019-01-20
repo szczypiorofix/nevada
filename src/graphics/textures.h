@@ -1,8 +1,8 @@
 #ifndef TEXTURES_H_
 #define TEXTURES_H_
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "../core/game.h"
 
 typedef struct
@@ -21,7 +21,7 @@ void freeTexture(Texture* t);
 
 void nextFrame(Texture* t);
 
-SDL_Rect* getSpriteCR(Texture* t, int col, int row, int width, int height);
+SDL_Rect* getSpriteXY(Texture* t, int x, int y, int width, int height);
 
 SDL_Rect* getSpriteI(Texture* t, int index, int width, int height);
 

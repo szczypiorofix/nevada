@@ -8,6 +8,8 @@
         "font.h": "c",
         "textures.h": "c",
         "readbinary.h": "c",
-        "writestruct.h": "c"
+        "writestruct.h": "c",
+        "level.h": "c",
+        "main.h": "c"
     }
 }

@@ -4,6 +4,8 @@
 #include "main.h"
 #include "graphics/textures.h"
 #include "graphics/font.h"
+#include "core/level.h"
+#include "sounds/music.h"
 
 
 
@@ -20,7 +22,6 @@ void close(SDL_Game* g);
 
 
 
-
 char* getCurrentTime() {
 	time_t t;
     time(&t);
@@ -32,20 +33,14 @@ void close(SDL_Game* g) {
 	Mix_FreeMusic(g->gMusic);
     g->gMusic = NULL;
 
-	printf("Destroying renderer\n");
     SDL_DestroyRenderer(g->gRenderer);
-	printf("Destroying window\n");
     SDL_DestroyWindow(g->gWindow);
 
-	printf("NULL something...\n");
     g->gWindow = NULL;
     g->gRenderer = NULL;
 	
-	printf("TTF_Quit\n");
 	TTF_Quit();
-	printf("IMG_Quit\n");
     IMG_Quit();
-	printf("SDL_Quit\n");
     SDL_Quit();
 }
 
@@ -75,113 +70,69 @@ int main(int argc, char* args[]) {
 
 		short quit = 0;
 
+
 		const int WALK_LEFT = 0;
 		const int WALK_RIGHT = 1;
 		const int WALK_UP = 2;
 		const int WALK_DOWN = 3;
 
 		int walking = 0;
-
 		int currentWalk = WALK_LEFT;
-
 		short animPlayerClip = 0, counter = 0;
 		
-		//SDL_Rect* bg1 = getSpriteI(backgroundSpriteSheet, 18, 64, 64);
-		
-		// bg1.x = 192;
-		// bg1.y = 64;
-		// bg1.w = 64;
-		// bg1.h = 64;
-
-		SDL_Rect* currentWalkAnim;
 
 		// WALKING LEFT
-		SDL_Rect walkingLeft[3];
-		walkingLeft[0].x = 0;
-		walkingLeft[0].y = 72;
-		walkingLeft[0].w = 52;
-		walkingLeft[0].h = 72;
-
-		walkingLeft[1].x = 52;
-		walkingLeft[1].y = 72;
-		walkingLeft[1].w = 52;
-		walkingLeft[1].h = 72;
-
-		walkingLeft[2].x = 104;
-		walkingLeft[2].y = 72;
-		walkingLeft[2].w = 52;
-		walkingLeft[2].h = 72;
+		SDL_Rect* walkingLeft[3];
+		walkingLeft[0] = getSpriteI(playerSpriteSheet, 12, 52, 72);
+		walkingLeft[1] = getSpriteI(playerSpriteSheet, 13, 52, 72);
+		walkingLeft[2] = getSpriteI(playerSpriteSheet, 14, 52, 72);
 
 		// WALKING RIGHT
-		SDL_Rect walkingRight[3];
-		walkingRight[0].x = 0;
-		walkingRight[0].y = 144;
-		walkingRight[0].w = 52;
-		walkingRight[0].h = 72;
-
-		walkingRight[1].x = 52;
-		walkingRight[1].y = 144;
-		walkingRight[1].w = 52;
-		walkingRight[1].h = 72;
-
-		walkingRight[2].x = 104;
-		walkingRight[2].y = 144;
-		walkingRight[2].w = 52;
-		walkingRight[2].h = 72;
+		SDL_Rect* walkingRight[3];
+		walkingRight[0] = getSpriteI(playerSpriteSheet, 24, 52, 72);
+		walkingRight[1] = getSpriteI(playerSpriteSheet, 25, 52, 72);
+		walkingRight[2] = getSpriteI(playerSpriteSheet, 26, 52, 72);
 
 		// WALKING UP
-		SDL_Rect walkingUp[3];
-		walkingUp[0].x = 0;
-		walkingUp[0].y = 216;
-		walkingUp[0].w = 52;
-		walkingUp[0].h = 72;
-
-		walkingUp[1].x = 52;
-		walkingUp[1].y = 216;
-		walkingUp[1].w = 52;
-		walkingUp[1].h = 72;
-
-		walkingUp[2].x = 104;
-		walkingUp[2].y = 216;
-		walkingUp[2].w = 52;
-		walkingUp[2].h = 72;
+		SDL_Rect* walkingUp[3];
+		walkingUp[0] = getSpriteI(playerSpriteSheet, 36, 52, 72);
+		walkingUp[1] = getSpriteI(playerSpriteSheet, 37, 52, 72);
+		walkingUp[2] = getSpriteI(playerSpriteSheet, 38, 52, 72);
 
 		// WALKING DOWN
-		SDL_Rect walkingDown[3];
-		walkingDown[0].x = 0;
-		walkingDown[0].y = 0;
-		walkingDown[0].w = 52;
-		walkingDown[0].h = 72;
+		SDL_Rect* walkingDown[3];
+		walkingDown[0] = getSpriteI(playerSpriteSheet, 0, 52, 72);
+		walkingDown[1] = getSpriteI(playerSpriteSheet, 1, 52, 72);
+		walkingDown[2] = getSpriteI(playerSpriteSheet, 2, 52, 72);
 
-		walkingDown[1].x = 52;
-		walkingDown[1].y = 0;
-		walkingDown[1].w = 52;
-		walkingDown[1].h = 72;
-
-		walkingDown[2].x = 104;
-		walkingDown[2].y = 0;
-		walkingDown[2].w = 52;
-		walkingDown[2].h = 72;
-
-		currentWalkAnim = walkingLeft;
+		SDL_Rect currentWalkAnim[3];
+		currentWalkAnim[0] = *walkingLeft[0];
+		currentWalkAnim[1] = *walkingLeft[1];
+		currentWalkAnim[2] = *walkingLeft[2];
 
 
-		int level[8][12] = {
-			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
-			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
-			{19, 18, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
-			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
-			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
-			{19, 19, 19, 19, 19, 19, 19, 19, 18, 19, 19, 19},
-			{19, 19, 19, 19, 18, 19, 19, 19, 19, 19, 19, 19},
-			{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19}
+		int level[16][20] = {
+			{17, 19, 17, 18, 17, 19, 17, 19, 17, 19, 17, 19, 17, 17, 17, 19, 17, 17, 17, 17},
+			{19, 17, 17, 17, 19, 17, 19, 17, 17, 17, 19, 17, 17, 17, 18, 17, 17, 17, 17, 17},
+			{17, 17, 17, 17, 17, 19, 17, 17, 19, 17, 17, 17, 17, 17, 17, 17, 18, 17, 18, 17},
+			{19,  0,  1,  1,  2,  3,  4, 17, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17},
+			{17, 16, 50, 50, 51, 50, 20, 18, 17, 17, 19, 17, 17, 17, 17, 19, 17, 17, 17, 17},
+			{17, 48, 50, 51, 50, 50, 52, 17, 17, 17, 17, 17, 18, 18, 17, 17, 17, 17, 17, 17},
+			{19, 64, 67, 65, 66, 67, 68, 17, 19, 17, 19, 17, 17, 17, 18, 19, 17, 19, 17, 17},
+			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 19, 17, 17, 17, 17, 19, 17},
+			{17, 17, 19, 17, 17, 17, 19, 17, 17, 19, 17, 19, 17, 17, 17, 17, 17, 18, 17, 17},
+			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 19, 17, 17, 17, 17, 17, 17, 17},
+			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 19, 17, 17, 17, 18, 19, 17},
+			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 17, 17, 19, 17, 17, 17, 17},
+			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 17, 17, 17, 19, 17, 17, 17},
+			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 18, 17, 19, 17, 17, 17, 17}
 		};
 
-		const int sizeOfLevelX = 12;
-		const int sizeOfLevelY = 8;
+		const int sizeOfLevelX = 20;
+		const int sizeOfLevelY = 16;
 
 		// MAGIC :D
-		SDL_Rect* l1[12][8];
+		SDL_Rect* l1[20][16];
 
 		for (int j = 0; j < sizeOfLevelY; j++) {
 			for (int i = 0; i < sizeOfLevelX; i++) {
@@ -190,9 +141,6 @@ int main(int argc, char* args[]) {
 		}
 
 		
-
-
-
 		SDL_Event e;
 
 		while(!quit) {
@@ -268,16 +216,24 @@ int main(int argc, char* args[]) {
 			if (currentWalk == WALK_RIGHT || currentWalk == WALK_LEFT || currentWalk == WALK_DOWN || currentWalk == WALK_UP) {
 				walking = 1;
 				if (currentWalk == WALK_RIGHT) {
-					currentWalkAnim = walkingRight;
+					currentWalkAnim[0] = *walkingRight[0];
+					currentWalkAnim[1] = *walkingRight[1];
+					currentWalkAnim[2] = *walkingRight[2];
 				}
 				if (currentWalk == WALK_LEFT) {
-					currentWalkAnim = walkingLeft;
+					currentWalkAnim[0] = *walkingLeft[0];
+					currentWalkAnim[1] = *walkingLeft[1];
+					currentWalkAnim[2] = *walkingLeft[2];
 				}
 				if (currentWalk == WALK_UP) {
-					currentWalkAnim = walkingUp;
+					currentWalkAnim[0] = *walkingUp[0];
+					currentWalkAnim[1] = *walkingUp[1];
+					currentWalkAnim[2] = *walkingUp[2];
 				}
 				if (currentWalk == WALK_DOWN) {
-					currentWalkAnim = walkingDown;
+					currentWalkAnim[0] = *walkingDown[0];
+					currentWalkAnim[1] = *walkingDown[1];
+					currentWalkAnim[2] = *walkingDown[2];
 				}
 			}
 
@@ -317,7 +273,7 @@ int main(int argc, char* args[]) {
 		}
 
 		printf("Exiting game ...\n");
-		
+
 		freeTexture(playerSpriteSheet);
 		playerSpriteSheet = NULL;
 

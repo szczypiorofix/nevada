@@ -12,7 +12,9 @@
 			"writebinary.h": "c",
 			"loghandler.h": "c",
 			"writestruct.h": "c",
-			"game.h": "c"
+			"game.h": "c",
+			"level.h": "c",
+			"textures.h": "c"
 		}
 	}
 }

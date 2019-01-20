@@ -8,7 +8,7 @@ void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, int
 Texture* loadTexture(const char* fileName, SDL_Game* game);
 void freeTexture(Texture* t);
 
-SDL_Rect* getSpriteCR(Texture* t, int col, int row, int width, int height);
+SDL_Rect* getSpriteCR(Texture* t, int x, int y, int width, int height);
 SDL_Rect* getSpriteI(Texture* t, int index, int width, int height);
 
 
@@ -55,10 +55,10 @@ void nextFrame(Texture* t) {
 
 }
 
-SDL_Rect* getSpriteCR(Texture* t, int col, int row, int width, int height) {
+SDL_Rect* getSpriteXY(Texture* t, int x, int y, int width, int height) {
     SDL_Rect* r = malloc(sizeof(SDL_Rect));
-    r->x = col * width;
-    r->y = row * height;
+    r->x = x * width;
+    r->y = y * height;
     r->w = width;
     r->h = height;
     return r;
@@ -67,10 +67,10 @@ SDL_Rect* getSpriteCR(Texture* t, int col, int row, int width, int height) {
 SDL_Rect* getSpriteI(Texture* t, int index, int width, int height) {
     SDL_Rect* r = malloc(sizeof(SDL_Rect));
     int col = t->width / width;
-    int row = t->height / height;
+    //int row = t->height / height;
     r->x = (index % col) * width;
     r->y = (index / col) * height;
-    printf("Cols: %i, Rows: %i, index:%i, x:%i, y:%i\n", col, row, index, r->x, r->y);
+    //printf("Cols: %i, Rows: %i, index:%i, x:%i, y:%i, w:%i, h:%i\n", col, row, index, r->x, r->y, width, height);
     r->w = width;
     r->h = height;
     return r;

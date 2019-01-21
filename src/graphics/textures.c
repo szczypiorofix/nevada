@@ -5,12 +5,15 @@
 
 
 void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, int width, int height);
-Texture* loadTexture(const char* fileName, SDL_Game* game);
+Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned short spriteWidth, unsigned short spriteHeigth);
 void freeTexture(Texture* t);
 void nextFrame(Texture* t);
 
 SDL_Rect* getSpriteCR(Texture* t, int x, int y, int width, int height);
 SDL_Rect* getSpriteI(Texture* t, int index, int width, int height);
+
+SDL_Rect* createRectsForSprites(Level* level, const short size, Texture* t);
+
 
 
 
@@ -29,7 +32,7 @@ void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, int
     SDL_RenderCopy(game->gRenderer, t->mTexture, clip, &renderQuad);
 }
 
-Texture* loadTexture(const char* fileName, SDL_Game* game) {
+Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned short spriteWidth, unsigned short spriteHeigth) {
     Texture* t = malloc(sizeof(Texture));
     SDL_Texture* newTexture = NULL;
     SDL_Surface* loadedSurface = IMG_Load(fileName);
@@ -48,6 +51,8 @@ Texture* loadTexture(const char* fileName, SDL_Game* game) {
         SDL_FreeSurface(loadedSurface);
     }
     t->mTexture = newTexture;
+    t->sWidth = spriteWidth;
+    t->sHeight = spriteHeigth;
     return t;
 }
 
@@ -75,4 +80,11 @@ SDL_Rect* getSpriteI(Texture* t, int index, int width, int height) {
     r->w = width;
     r->h = height;
     return r;
+}
+
+SDL_Rect* createRectsForSprites(Level* level, const short size, Texture* t) {
+    SDL_Rect* l = malloc(sizeof(SDL_Rect) * size);
+    for (int i = 0; i < level->size; i++)
+        l[i] = *getSpriteI(t, level->content[i], t->sWidth, t->sHeight);
+    return l;
 }

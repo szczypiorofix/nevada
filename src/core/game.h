@@ -6,11 +6,23 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
+/**
+ * #################################################
+ * ................... CONSTANTS ...................
+ * #################################################
+ * */
+static const int SCREEN_WIDTH = 800;
+static const int SCREEN_HEIGHT = 600;
+static const int WALK_LEFT = 0;
+static const int WALK_RIGHT = 1;
+static const int WALK_UP = 2;
+static const int WALK_DOWN = 3;
 
-//extern const int SCREEN_WIDTH;
-//extern const int SCREEN_HEIGHT;
-
-
+/**
+ * #################################################
+ * .................... STRUCTS ....................
+ * #################################################
+ * */
 
 typedef struct SDL_Game {
     short success;
@@ -19,8 +31,7 @@ typedef struct SDL_Game {
     Mix_Music *gMusic;
 } SDL_Game;
 
-typedef struct Level
-{
+typedef struct Level {
     int* content;
     unsigned short width;
     unsigned short height;
@@ -28,20 +39,33 @@ typedef struct Level
 } Level;
 
 
-typedef struct Camera
-{
+typedef struct Camera {
     int x;
     int y;
     int offsetX;
     int offsetY;
 } Camera;
 
+typedef struct Player {
+    int x;
+    int y;
+    int velX;
+    int velY;
+    int width;
+    int height;
+} Player;
+
+
+
+/**
+ * #################################################
+ * ................... FUNCTIONS ...................
+ * #################################################
+ * */
 
 Level* getLevel(short n);
 
-void updateCamera(Camera* c, int x, int y, int offsetX, int offsetY);
-
-
+void updateCamera(Camera* c, Player player, int offsetX, int offsetY);
 
 SDL_Game* initGame();
 

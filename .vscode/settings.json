@@ -10,6 +10,7 @@
         "readbinary.h": "c",
         "writestruct.h": "c",
         "level.h": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "music.h": "c"
     }
 }

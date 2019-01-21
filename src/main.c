@@ -1,19 +1,12 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 #include "main.h"
 #include "graphics/textures.h"
 #include "graphics/font.h"
-#include "core/level.h"
-#include "sounds/music.h"
 
 
-
-// #include "core/filehandler.h"
-// #include "modules/writebinary.h"
-// #include "modules/readbinary.h"
-// #include "core/loghandler.h"
-// #include "modules/writestruct.h"
 
 
 // FORWARD DECLARATION
@@ -49,8 +42,21 @@ void close(SDL_Game* g) {
 
 int main(int argc, char* args[]) {
 
-	int playerX = 250, playerY = 150;
+	int playerX = 400, playerY = 300;
 	int playerVelX = 0, playerVelY = 0;
+
+	int offsetX = 0;
+	int offsetY = 0;
+
+
+	Camera cam;
+	cam.x = 0;
+	cam.y = 0;
+	cam.offsetX = 0;
+	cam.offsetY = 0;
+
+
+
 	const short SPEED = 2;
 
 	SDL_Game* game = initGame();
@@ -111,36 +117,15 @@ int main(int argc, char* args[]) {
 		currentWalkAnim[2] = *walkingLeft[2];
 
 
-		int level[16][20] = {
-			{17, 19, 17, 18, 17, 19, 17, 19, 17, 19, 17, 19, 17, 17, 17, 19, 17, 17, 17, 17},
-			{19, 17, 17, 17, 19, 17, 19, 17, 17, 17, 19, 17, 17, 17, 18, 17, 17, 17, 17, 17},
-			{17, 17, 17, 17, 17, 19, 17, 17, 19, 17, 17, 17, 17, 17, 17, 17, 18, 17, 18, 17},
-			{19,  0,  1,  1,  2,  3,  4, 17, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17},
-			{17, 16, 50, 50, 51, 50, 20, 18, 17, 17, 19, 17, 17, 17, 17, 19, 17, 17, 17, 17},
-			{17, 48, 50, 51, 50, 50, 52, 17, 17, 17, 17, 17, 18, 18, 17, 17, 17, 17, 17, 17},
-			{19, 64, 67, 65, 66, 67, 68, 17, 19, 17, 19, 17, 17, 17, 18, 19, 17, 19, 17, 17},
-			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 19, 17, 17, 17, 17, 19, 17},
-			{17, 17, 19, 17, 17, 17, 19, 17, 17, 19, 17, 19, 17, 17, 17, 17, 17, 18, 17, 17},
-			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 19, 17, 17, 17, 17, 17, 17, 17},
-			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 19, 17, 17, 17, 18, 19, 17},
-			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 17, 17, 19, 17, 17, 17, 17},
-			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 17, 17, 17, 19, 17, 17, 17},
-			{17, 18, 17, 19, 17, 19, 17, 17, 18, 17, 18, 17, 17, 18, 17, 19, 17, 17, 17, 17}
-		};
 
-		const int sizeOfLevelX = 20;
-		const int sizeOfLevelY = 16;
+		// LEVEL STUFF...
+		Level* level = getLevel(0);
 
-		// MAGIC :D
-		SDL_Rect* l1[20][16];
-
-		for (int j = 0; j < sizeOfLevelY; j++) {
-			for (int i = 0; i < sizeOfLevelX; i++) {
-				l1[i][j] = getSpriteI(backgroundSpriteSheet, level[j][i], 64, 64);
-			}
+		SDL_Rect* l1[level->size];
+		for (int i = 0; i < level->size; i++) {
+			l1[i] = getSpriteI(backgroundSpriteSheet, level->content[i], 64, 64);
 		}
 
-		
 		SDL_Event e;
 
 		while(!quit) {
@@ -237,6 +222,13 @@ int main(int argc, char* args[]) {
 				}
 			}
 
+
+
+			updateCamera(&cam, playerX, playerY, offsetX, offsetY);
+
+
+
+
 			if (Mix_PlayingMusic() == 0) {
 				Mix_PlayMusic(game->gMusic, -1);
 			}
@@ -248,13 +240,11 @@ int main(int argc, char* args[]) {
 			 * RENDER ...
 			 */ 
 			
-			for (int i = 0; i < sizeOfLevelX; i++) {
-				for (int j = 0; j < sizeOfLevelY; j++) {
-					renderTexture(backgroundSpriteSheet, game, l1[i][j], i * 64, j * 64, 64, 64);
-				}
+			for (int i = 0; i < level->size; i++) {
+				renderTexture(backgroundSpriteSheet, game, l1[i], ((i % level->width) * 64) + cam.offsetX, ((i / level->width) * 64) + cam.offsetY, 64, 64);
 			}
 
-			renderTexture(playerSpriteSheet, game, &currentWalkAnim[animPlayerClip], playerX, playerY, 52, 72);
+			renderTexture(playerSpriteSheet, game, &currentWalkAnim[animPlayerClip], playerX + cam.offsetX, playerY + cam.offsetY, 52, 72);
 		
 			
 			renderText(font1, game, 100, 50);
@@ -287,65 +277,6 @@ int main(int argc, char* args[]) {
 		free(game);
 		game = NULL;
 	}
-
-
-
-
-	// writeStruct();
-
-	// FILE *infile; 
-    // Person input; 
-
-    // infile = fopen ("person.dat", "r"); 
-    // if (infile == NULL) 
-    // { 
-    //     fprintf(stderr, "\nError opening file\n"); 
-    //     exit(1); 
-    // } 
-
-    // // while(fread(&input, sizeof(Person), 1, infile)) {
-    // //     printf ("id = %d name = %s %s\n", input.id, input.fname, input.lname); 
-    // // }
-
-	// fread(&input, sizeof(Person), 1, infile);
-	// printf("Id: %d fname: %s, lname: %s\n", input.id, input.fname, input.lname);
-        
-    // fclose (infile);
-
-
-
-
-	// const char fileName[] = "test.bin";
-
-	// BinaryFile* bf = writeBinaryFile(fileName);
-
-	// if (bf->success) {
-	// 	printf("Writing binary file '%s' - OK!\nFile size: %i bytes.\n", bf->name, bf->size);
-	// }
-
-	// bf = NULL;
-	// bf = readBinaryFile(fileName);
-	
-	// if (bf->success) {
-	// 	printf("Reading binary file '%s' - OK! File size: %i bytes.\n", bf->name, bf->size);
-	// }
-
-	// printf("Data (binary):\n");
-	// for (int i = 0; i < bf->size; i++) {
-	// 	printf("%u ", bf->content[i]);
-	// }
-	// printf("\nData (decoded text):\n");
-	// for (int i = 0; i < bf->size; i++) {
-	// 	printf("%c ", bf->content[i]);
-	// }
-	// printf("\n");
-	
-	// free(bf);
-
-	// /*
-    //  * LOG FILE...
-    //  */
-	// writeLog(strcat(getCurrentTime(), "An error occured!"));
 
 	return 0;
 }

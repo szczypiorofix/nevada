@@ -6,6 +6,8 @@
 // FORWARD DECLARATION
 
 SDL_Game* initGame();
+Level* getLevel(short n);
+void updateCamera(Camera* c, int x, int y, int offsetX, int offsetY);
 
 
 const int SCREEN_WIDTH = 800;
@@ -64,4 +66,44 @@ SDL_Game* initGame() {
     }
 
     return game;
+}
+
+
+
+Level* getLevel(short n) {
+	
+    Level* level = malloc(sizeof(Level));
+    const int w = 14;
+    const int h = 10;
+
+    level->width = w;
+    level->height = h;
+    level->size = w * h;
+
+    // 14 x 10
+    int l[] = {
+			17, 19, 18, 17, 17, 17, 17, 17, 18, 17, 17, 17, 17 ,17,
+			17, 17, 19, 17, 17, 17, 17, 18, 17, 17, 17, 17, 17 ,17,
+            17, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17 ,17,
+            17, 17, 17, 17, 19, 17, 17, 17, 17, 17, 17, 17, 17 ,17,
+            17, 17, 19, 17, 17, 17, 17, 19, 17, 17, 17, 17, 17 ,17,
+            17, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17 ,17,
+            17, 17, 19, 17, 17, 17, 17, 18, 17, 17, 17, 17, 17 ,17,
+            17, 17, 17, 17, 19, 17, 17, 17, 17, 17, 17, 17, 17 ,17,
+            17, 17, 17, 17, 19, 17, 17, 17, 17, 17, 17, 17, 17 ,17,
+            17, 17, 17, 17, 17, 18, 17, 17, 17, 17, 17, 17, 17 ,17
+	};
+    for (int i = 0; i < w * h; i++) {
+        level->content[i] = *(&l[i]);
+    }
+
+    return level;
+}
+
+
+void updateCamera(Camera* c, int x, int y, int offsetX, int offsetY) {
+    c->x = - x + 400;
+    c->y =  - y + 300;
+    c->offsetX = - x + 400;
+    c->offsetY = - y + 300;
 }

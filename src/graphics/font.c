@@ -16,7 +16,7 @@ void renderText(Texture* t, SDL_Game* game, int x, int y) {
 }
 
 Texture* loadFromRenderedText(const char* textureText, SDL_Game* game) {
-    Texture* t = (Texture *)malloc(sizeof(Texture));
+    Texture* t = malloc(sizeof(Texture));
     TTF_Font *gFont = NULL;
     gFont = TTF_OpenFont("res/vinque.ttf", 28);
     if (gFont == NULL) {

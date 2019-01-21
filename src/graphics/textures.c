@@ -7,6 +7,7 @@
 void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, int width, int height);
 Texture* loadTexture(const char* fileName, SDL_Game* game);
 void freeTexture(Texture* t);
+void nextFrame(Texture* t);
 
 SDL_Rect* getSpriteCR(Texture* t, int x, int y, int width, int height);
 SDL_Rect* getSpriteI(Texture* t, int index, int width, int height);
@@ -25,11 +26,11 @@ void freeTexture(Texture* t) {
 
 void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, int width, int height) {
     SDL_Rect renderQuad = {x, y, width, height};
-    SDL_RenderCopy(game->gRenderer, t->mTexture, clip, &renderQuad );
+    SDL_RenderCopy(game->gRenderer, t->mTexture, clip, &renderQuad);
 }
 
 Texture* loadTexture(const char* fileName, SDL_Game* game) {
-    Texture* t = (Texture *)malloc(sizeof(Texture));
+    Texture* t = malloc(sizeof(Texture));
     SDL_Texture* newTexture = NULL;
     SDL_Surface* loadedSurface = IMG_Load(fileName);
     if (loadedSurface == NULL) {

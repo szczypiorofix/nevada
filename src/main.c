@@ -2,6 +2,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+// #include <libxml/parser.h>
+// #include <libxml/xmlIO.h>
+// #include <libxml/xinclude.h>
+// #include <libxml/tree.h>
 #include "main.h"
 #include "textures.h"
 #include "font.h"
@@ -12,8 +16,22 @@
 // FORWARD DECLARATION
 char* getCurrentTime();
 void close(SDL_Game* g);
+Player* resetPlayer(Texture* t);
 
 
+
+
+
+Player* resetPlayer(Texture* t) {
+    Player* p = malloc(sizeof(Player));
+    p->x = SCREEN_WIDTH / 2;
+    p->y = SCREEN_HEIGHT / 2;
+    p->velX = 0;
+    p->velY = 0;
+    p->width = 52;
+	p->height = 72;
+    return p;
+}
 
 
 char* getCurrentTime() {
@@ -22,9 +40,17 @@ char* getCurrentTime() {
 	return asctime(localtime(&t));
 }
 
+int parsing()
+{
+	//xmlDocPtr doc;
+	//xmlNodePtr cur;
 
+	return 0;
+}
 
 int main(int argc, char* args[]) {
+
+	parsing();
 
 	SDL_Game* game = initGame();
 	if (!game) {
@@ -42,23 +68,23 @@ int main(int argc, char* args[]) {
 
 		Texture* font1 = loadFromRenderedText("THE TEMPLE OF THE LOST PUPPY", game);
 
-
+		
+		Player* player = resetPlayer(playerSpriteSheet);
 		// PLAYER
-		Player player;
-		player.x = (float) (SCREEN_WIDTH / 2);
-		player.y = (float) (SCREEN_HEIGHT / 2);
-		//player.x = 0.0f;
-		//player.y = 0.0f;
-		player.velX = 0.0f;
-		player.velY = 0.0f;
-		player.width = playerSpriteSheet->sWidth;
-		player.height = playerSpriteSheet->sHeight;
+		// Player player;
+		// player.x = (SCREEN_WIDTH / 2);
+		// player.y = (SCREEN_HEIGHT / 2);
+		// player.velX = 0;
+		// player.velY = 0;
+		// player->width = playerSpriteSheet->sWidth;
+		// player->height = playerSpriteSheet->sHeight;
+
 
 		Camera cam;
-		cam.x = 0.0f;
-		cam.y = 0.0f;
-		cam.offsetX = 0.0f;
-		cam.offsetY = 0.0f;
+		cam.x = 0;
+		cam.y = 0;
+		cam.offsetX = 0;
+		cam.offsetY = 0;
 
 		int walking = 0;
 		int currentWalk = WALK_LEFT;
@@ -71,33 +97,32 @@ int main(int argc, char* args[]) {
 		SDL_Rect* levelBackgroundRects = createRectsForSprites(level, level->size, backgroundSpriteSheet);
 
 		short quit = 0;
-		
-		char str[80];
-  		sprintf(str, "TileX: %i", getTileX(&player, &cam, level));
+
 
 		// WALKING LEFT
 		SDL_Rect* walkingLeft[3];
-		walkingLeft[0] = getSpriteI(playerSpriteSheet, 12, player.width, player.height);
-		walkingLeft[1] = getSpriteI(playerSpriteSheet, 13, player.width, player.height);
-		walkingLeft[2] = getSpriteI(playerSpriteSheet, 14, player.width, player.height);
+		walkingLeft[0] = getSpriteI(playerSpriteSheet, 15, player->width, player->height);
+		walkingLeft[1] = getSpriteI(playerSpriteSheet, 16, player->width, player->height);
+		walkingLeft[2] = getSpriteI(playerSpriteSheet, 17, player->width, player->height);
 
 		// WALKING RIGHT
 		SDL_Rect* walkingRight[3];
-		walkingRight[0] = getSpriteI(playerSpriteSheet, 24, player.width, player.height);
-		walkingRight[1] = getSpriteI(playerSpriteSheet, 25, player.width, player.height);
-		walkingRight[2] = getSpriteI(playerSpriteSheet, 26, player.width, player.height);
+		walkingRight[0] = getSpriteI(playerSpriteSheet, 27, player->width, player->height);
+		walkingRight[1] = getSpriteI(playerSpriteSheet, 28, player->width, player->height);
+		walkingRight[2] = getSpriteI(playerSpriteSheet, 29, player->width, player->height);
 
 		// WALKING UP
 		SDL_Rect* walkingUp[3];
-		walkingUp[0] = getSpriteI(playerSpriteSheet, 36, player.width, player.height);
-		walkingUp[1] = getSpriteI(playerSpriteSheet, 37, player.width, player.height);
-		walkingUp[2] = getSpriteI(playerSpriteSheet, 38, player.width, player.height);
+		walkingUp[0] = getSpriteI(playerSpriteSheet, 39, player->width, player->height);
+		walkingUp[1] = getSpriteI(playerSpriteSheet, 40, player->width, player->height);
+		walkingUp[2] = getSpriteI(playerSpriteSheet, 41, player->width, player->height);
 
 		// WALKING DOWN
 		SDL_Rect* walkingDown[3];
-		walkingDown[0] = getSpriteI(playerSpriteSheet, 0, player.width, player.height);
-		walkingDown[1] = getSpriteI(playerSpriteSheet, 1, player.width, player.height);
-		walkingDown[2] = getSpriteI(playerSpriteSheet, 2, player.width, player.height);
+		walkingDown[0] = getSpriteI(playerSpriteSheet, 3, player->width, player->height);
+		walkingDown[1] = getSpriteI(playerSpriteSheet, 4, player->width, player->height);
+		walkingDown[2] = getSpriteI(playerSpriteSheet, 5, player->width, player->height);
+
 
 		SDL_Rect currentWalkAnim[3];
 		currentWalkAnim[0] = *walkingLeft[0];
@@ -118,16 +143,16 @@ int main(int argc, char* args[]) {
 							quit = 1;
 						}
 						if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a) {
-							player.velX = -SPEED;
+							player->velX = -SPEED;
 						}
 						if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d) {
-							player.velX = SPEED;
+							player->velX = SPEED;
 						}
 						if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w) {
-							player.velY = -SPEED;
+							player->velY = -SPEED;
 						}
 						if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s) {
-							player.velY = SPEED;
+							player->velY = SPEED;
 						}
 						if (e.key.keysym.sym == SDLK_SPACE) {
                             if (Mix_PlayingMusic() == 0) {
@@ -143,37 +168,37 @@ int main(int argc, char* args[]) {
 					}
 					if (e.type == SDL_KEYUP) {
 						if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d) {
-							if (player.velX > 0) player.velX = 0;
+							if (player->velX > 0) player->velX = 0;
 						}
 						if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a) {
-							if (player.velX < 0) player.velX = 0;
+							if (player->velX < 0) player->velX = 0;
 						}
 						if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w) {
-							if (player.velY < 0) player.velY = 0;
+							if (player->velY < 0) player->velY = 0;
 						}
 						if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s) {
-							if (player.velY > 0) player.velY = 0;
+							if (player->velY > 0) player->velY = 0;
 						}
 					}
 				}
 			}
 
 		
-			player.x += player.velX;
-			player.y += player.velY;
+			player->x += player->velX;
+			player->y += player->velY;
 
 			currentWalk = -1;
 			walking = 0;
 
-			if (player.velX == SPEED) {
+			if (player->velX == SPEED) {
 				currentWalk = WALK_RIGHT;
-			} else if (player.velX == -SPEED) {
+			} else if (player->velX == -SPEED) {
 				currentWalk = WALK_LEFT;
 			}
 
-			if (player.velY == SPEED) {
+			if (player->velY == SPEED) {
 				currentWalk = WALK_DOWN;
-			} else if (player.velY == -SPEED) {
+			} else if (player->velY == -SPEED) {
 				currentWalk = WALK_UP;
 			}
 
@@ -203,7 +228,7 @@ int main(int argc, char* args[]) {
 
 
 
-			updateCamera(&cam, player);
+			updateCamera(&cam, *player);
 			
 
 
@@ -220,36 +245,65 @@ int main(int argc, char* args[]) {
 			 */ 
 			
 
-			// BUT I NEED TO RENDER ONLY VISIBLE SPRITES ...
-			for (int i = 0; i < level->size; i++) {
-				renderTexture(
-					backgroundSpriteSheet,
-					game,
-					&levelBackgroundRects[i],
-					((i % level->width) * backgroundSpriteSheet->sWidth) + cam.offsetX,
-					((i / level->width) * backgroundSpriteSheet->sHeight) + cam.offsetY,
-					backgroundSpriteSheet->sWidth,
-					backgroundSpriteSheet->sHeight
-				);
-			}
-
-			// renderTexture(
+			// for (int i = 0; i < level->size; i++) {
+			// 	renderTexture(
 			// 		backgroundSpriteSheet,
 			// 		game,
-			// 		&levelBackgroundRects[1],
-			// 		(( ((int )player.x / 64) % level->width) * backgroundSpriteSheet->sWidth) + cam.offsetX,
-			// 		(( ((int )player.y / 64) / level->width) * backgroundSpriteSheet->sHeight) + cam.offsetY,
+			// 		&levelBackgroundRects[i],
+			// 		((i % level->width) * backgroundSpriteSheet->sWidth) + cam.offsetX,
+			// 		((i / level->width) * backgroundSpriteSheet->sHeight) + cam.offsetY,
 			// 		backgroundSpriteSheet->sWidth,
 			// 		backgroundSpriteSheet->sHeight
-			// );
+			// 	);
+			// }
 
-			renderTexture(playerSpriteSheet, game, &currentWalkAnim[animPlayerClip], player.x + cam.offsetX, player.y + cam.offsetY, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight);
+			// BUT I NEED TO RENDER ONLY VISIBLE SPRITES ...
+			player->tileX = getTileX(player, &cam, level, backgroundSpriteSheet->sWidth);
+			player->tileY = getTileY(player, &cam, level, backgroundSpriteSheet->sHeight);
+			player->tileIndex = player->tileY * level->width + player->tileX;
+
+
+			for (int i = -7; i < 8; i++) {
+				for (int j = -5; j < 6; j++) {
+					// if (
+					// 	player.y + (j * 64) + (player.height / 2) < backgroundSpriteSheet->height &&
+					// 	player.x + (i * 64) + (player.width / 2) < backgroundSpriteSheet->width
+					// 	) {
+						renderTexture(
+							backgroundSpriteSheet,
+							game,
+							&levelBackgroundRects[(player->tileY + j) * level->width + player->tileX + i],
+							(( ((player->x + (i * 64) + (player->width / 2)) / 64) % backgroundSpriteSheet->sWidth) * 64) + cam.offsetX,
+							(( ((player->y + (j * 64) + (player->height / 2)) / 64) % backgroundSpriteSheet->sHeight) * 64) + cam.offsetY,
+							backgroundSpriteSheet->sWidth,
+							backgroundSpriteSheet->sHeight
+						);
+					//}
+				}
+			}
+
+
+
+			// RENDER PLAYER
+			renderTexture(
+				playerSpriteSheet,
+				game,
+				&currentWalkAnim[animPlayerClip],
+				player->x + cam.offsetX,
+				player->y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
 		
 			
 			renderText(font1, game, 100, 50);
 
 			if (walking == 1) {
-				printf("TileX: %i, TileY: %i\n", getTileX(&player, &cam, level), getTileY(&player, &cam, level));
+				printf("px: %i, py: %i, pindex: %i\n", 
+					player->tileX,
+					player->tileY,
+					player->tileIndex
+				);
 				counter++;
 				if (counter <= 10) animPlayerClip = 0;
 				if (counter > 10 && counter <= 20) animPlayerClip = 1;

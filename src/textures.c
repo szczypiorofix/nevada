@@ -31,6 +31,7 @@ void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, uns
     SDL_RenderCopy(game->gRenderer, t->mTexture, clip, &renderQuad);
 }
 
+
 Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned short spriteWidth, unsigned short spriteHeigth) {
     Texture* t = malloc(sizeof(Texture));
     SDL_Texture* newTexture = NULL;

@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "main.h"
-#include "graphics/textures.h"
-#include "graphics/font.h"
+#include "textures.h"
+#include "font.h"
 
 
 
@@ -14,7 +14,6 @@ char* getCurrentTime();
 void close(SDL_Game* g);
 
 
-const short SPEED = 2;
 
 
 char* getCurrentTime() {
@@ -22,23 +21,6 @@ char* getCurrentTime() {
     time(&t);
 	return asctime(localtime(&t));
 }
-
-void close(SDL_Game* g) {
-
-	Mix_FreeMusic(g->gMusic);
-    g->gMusic = NULL;
-
-    SDL_DestroyRenderer(g->gRenderer);
-    SDL_DestroyWindow(g->gWindow);
-
-    g->gWindow = NULL;
-    g->gRenderer = NULL;
-	
-	TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
-}
-
 
 
 
@@ -49,7 +31,8 @@ int main(int argc, char* args[]) {
 		printf("ERROR!\n");
 		exit(1);
 	} else {
-		printf("Initialization SDL - OK!\nGame.success -> %i\n", game->success);		
+		printf("Initialization SDL - OK!\nGame.success -> %i\n", game->success);
+		
 
 		Texture* playerSpriteSheet = loadSpriteSheet("res/images/animals1.png", game, 52, 72);
 		printf("Player spritesheet Width: %i, height: %i\n", playerSpriteSheet->width, playerSpriteSheet->height);
@@ -59,30 +42,38 @@ int main(int argc, char* args[]) {
 
 		Texture* font1 = loadFromRenderedText("THE TEMPLE OF THE LOST PUPPY", game);
 
-		short quit = 0;
-		
+
 		// PLAYER
 		Player player;
-		player.x = SCREEN_WIDTH / 2;
-		player.y = SCREEN_HEIGHT / 2;
-		player.velX = 0;
-		player.velY = 0;
+		player.x = (float) (SCREEN_WIDTH / 2);
+		player.y = (float) (SCREEN_HEIGHT / 2);
+		//player.x = 0.0f;
+		//player.y = 0.0f;
+		player.velX = 0.0f;
+		player.velY = 0.0f;
 		player.width = playerSpriteSheet->sWidth;
 		player.height = playerSpriteSheet->sHeight;
 
-		int offsetX = 0;
-		int offsetY = 0;
-
 		Camera cam;
-		cam.x = 0;
-		cam.y = 0;
-		cam.offsetX = 0;
-		cam.offsetY = 0;
+		cam.x = 0.0f;
+		cam.y = 0.0f;
+		cam.offsetX = 0.0f;
+		cam.offsetY = 0.0f;
 
 		int walking = 0;
 		int currentWalk = WALK_LEFT;
 		short animPlayerClip = 0, counter = 0;
+
 		
+
+		// LEVEL STUFF...
+		Level* level = getLevel(0);
+		SDL_Rect* levelBackgroundRects = createRectsForSprites(level, level->size, backgroundSpriteSheet);
+
+		short quit = 0;
+		
+		char str[80];
+  		sprintf(str, "TileX: %i", getTileX(&player, &cam, level));
 
 		// WALKING LEFT
 		SDL_Rect* walkingLeft[3];
@@ -113,11 +104,6 @@ int main(int argc, char* args[]) {
 		currentWalkAnim[1] = *walkingLeft[1];
 		currentWalkAnim[2] = *walkingLeft[2];
 
-
-		// LEVEL STUFF...
-		Level* level = getLevel(0);
-
-		SDL_Rect* levelBackgroundRects = createRectsForSprites(level, level->size, backgroundSpriteSheet);
 
 		SDL_Event e;
 		
@@ -217,8 +203,8 @@ int main(int argc, char* args[]) {
 
 
 
-			updateCamera(&cam, player, offsetX, offsetY);
-
+			updateCamera(&cam, player);
+			
 
 
 
@@ -233,6 +219,8 @@ int main(int argc, char* args[]) {
 			 * RENDER ...
 			 */ 
 			
+
+			// BUT I NEED TO RENDER ONLY VISIBLE SPRITES ...
 			for (int i = 0; i < level->size; i++) {
 				renderTexture(
 					backgroundSpriteSheet,
@@ -245,12 +233,23 @@ int main(int argc, char* args[]) {
 				);
 			}
 
+			// renderTexture(
+			// 		backgroundSpriteSheet,
+			// 		game,
+			// 		&levelBackgroundRects[1],
+			// 		(( ((int )player.x / 64) % level->width) * backgroundSpriteSheet->sWidth) + cam.offsetX,
+			// 		(( ((int )player.y / 64) / level->width) * backgroundSpriteSheet->sHeight) + cam.offsetY,
+			// 		backgroundSpriteSheet->sWidth,
+			// 		backgroundSpriteSheet->sHeight
+			// );
+
 			renderTexture(playerSpriteSheet, game, &currentWalkAnim[animPlayerClip], player.x + cam.offsetX, player.y + cam.offsetY, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight);
 		
 			
 			renderText(font1, game, 100, 50);
 
 			if (walking == 1) {
+				printf("TileX: %i, TileY: %i\n", getTileX(&player, &cam, level), getTileY(&player, &cam, level));
 				counter++;
 				if (counter <= 10) animPlayerClip = 0;
 				if (counter > 10 && counter <= 20) animPlayerClip = 1;
@@ -272,12 +271,27 @@ int main(int argc, char* args[]) {
 		backgroundSpriteSheet = NULL;
 
 		freeTexture(font1);
-		
 		font1 = NULL;
+
 		close(game);
 		free(game);
 		game = NULL;
 	}
 
 	return 0;
+}
+
+void close(SDL_Game* g) {
+	Mix_FreeMusic(g->gMusic);
+    g->gMusic = NULL;
+
+    SDL_DestroyRenderer(g->gRenderer);
+    SDL_DestroyWindow(g->gWindow);
+
+    g->gWindow = NULL;
+    g->gRenderer = NULL;
+	
+	TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
 }

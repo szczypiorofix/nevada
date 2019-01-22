@@ -40,19 +40,21 @@ typedef struct Level {
 
 
 typedef struct Camera {
-    int x;
-    int y;
-    int offsetX;
-    int offsetY;
+    float x;
+    float y;
+    float offsetX;
+    float offsetY;
 } Camera;
 
 typedef struct Player {
-    int x;
-    int y;
-    int velX;
-    int velY;
-    int width;
-    int height;
+    float x;
+    float y;
+    float velX;
+    float velY;
+    unsigned int width;
+    unsigned int height;
+    int tileX;
+    int tileY;
 } Player;
 
 
@@ -65,9 +67,23 @@ typedef struct Player {
 
 Level* getLevel(short n);
 
-void updateCamera(Camera* c, Player player, int offsetX, int offsetY);
+void updateCamera(Camera* c, Player player);
 
 SDL_Game* initGame();
+
+// Player* resetPlayer(Texture* t) {
+//     Player* p = malloc(sizeof(Player));
+//     p->x = (float) (SCREEN_WIDTH / 2);
+//     p->y = (float) (SCREEN_HEIGHT / 2);
+//     p->velX = 0.0f;
+//     p->velY = 0.0f;
+//     //p->width = t->sW
+//     return p;
+// }
+
+int getTileX(Player* p, Camera* c, Level* l);
+
+int getTileY(Player* p, Camera* c, Level* l);
 
 
 #endif

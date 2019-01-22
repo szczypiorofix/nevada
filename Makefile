@@ -11,17 +11,17 @@ all: main.exe
 main.exe: main.o game.o textures.o font.o
 	$(CC) $(CWARNFLAGS) $(ODIR)/main.o $(ODIR)/game.o $(ODIR)/textures.o $(ODIR)/font.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o main.exe
 
-main.o: src/main.c src/main.h src/core/game.h
+main.o: src/main.c src/main.h src/game.h
 	$(CC) $(CFLAGS) $(CWARNFLAGS) src/main.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/main.o
 
-game.o: src/core/game.c src/core/game.h
-	$(CC) $(CFLAGS) $(CWARNFLAGS) src/core/game.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/game.o
+game.o: src/game.c src/game.h
+	$(CC) $(CFLAGS) $(CWARNFLAGS) src/game.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/game.o
 
-textures.o: src/graphics/textures.c src/graphics/textures.h
-	$(CC) $(CFLAGS) $(CWARNFLAGS) src/graphics/textures.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/textures.o
+textures.o: src/textures.c src/textures.h
+	$(CC) $(CFLAGS) $(CWARNFLAGS) src/textures.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/textures.o
 
-font.o: src/graphics/font.c src/graphics/font.h
-	$(CC) $(CFLAGS) $(CWARNFLAGS) src/graphics/font.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/font.o
+font.o: src/font.c src/font.h
+	$(CC) $(CFLAGS) $(CWARNFLAGS) src/font.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/font.o
 
 clean:
 	del $(ODIR)\*.o main.exe

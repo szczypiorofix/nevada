@@ -1,7 +1,10 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include "core/game.h"
+#include "game.h"
+
+
+static const float SPEED = 2.0f;
 
 
 

@@ -7,14 +7,17 @@
 
 SDL_Game* initGame();
 Level* getLevel(short n);
-void updateCamera(Camera* c, Player player, int offsetX, int offsetY);
+void updateCamera(Camera* c, Player player);
+
+int getTileX(Player* p, Camera* c, Level* l);
+int getTileY(Player* p, Camera* c, Level* l);
 
 
 
 
 
 SDL_Game* initGame() {
-    SDL_Game * game = (SDL_Game*)malloc(sizeof(SDL_Game));
+    SDL_Game * game = malloc(sizeof(SDL_Game));
     game->success = 1;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError());
@@ -72,6 +75,7 @@ Level* getLevel(short n) {
     level->height = h;
     level->size = w * h;
     
+    level->content = malloc(sizeof *level->content * w * h);
     // 14 x 10
     int l[] = {
 			17, 19, 18, 17, 17, 17, 17, 17, 18, 17, 17, 17, 17 ,17,
@@ -94,9 +98,17 @@ Level* getLevel(short n) {
 }
 
 
-void updateCamera(Camera* c, Player player, int offsetX, int offsetY) {
-    c->x = - player.x + (SCREEN_WIDTH / 2);
-    c->y = - player.y + (SCREEN_HEIGHT / 2);
-    c->offsetX = - player.x + (SCREEN_WIDTH / 2) - 32;
-    c->offsetY = - player.y + (SCREEN_HEIGHT / 2) - 32;
+void updateCamera(Camera* c, Player player) {
+    c->x = - player.x + (SCREEN_WIDTH / 2) - (player.width / 2);
+    c->y = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
+    c->offsetX = - player.x + (SCREEN_WIDTH / 2) - (player.width / 2);
+    c->offsetY = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
+}
+
+int getTileX(Player* p, Camera* c, Level* l) {
+    return ((p->x / l->width) + c->offsetX) / 64;
+}
+
+int getTileY(Player* p, Camera* c, Level* l) {
+    return ((p->y / l->height) + c->offsetY) / 64;
 }

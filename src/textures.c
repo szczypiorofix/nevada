@@ -4,15 +4,14 @@
 
 
 
-void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, int width, int height);
+void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, unsigned short width, unsigned short height);
 Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned short spriteWidth, unsigned short spriteHeigth);
 void freeTexture(Texture* t);
 void nextFrame(Texture* t);
 
-SDL_Rect* getSpriteCR(Texture* t, int x, int y, int width, int height);
-SDL_Rect* getSpriteI(Texture* t, int index, int width, int height);
+SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short height);
 
-SDL_Rect* createRectsForSprites(Level* level, const short size, Texture* t);
+SDL_Rect* createRectsForSprites(Level* level, const unsigned short size, Texture* t);
 
 
 
@@ -27,7 +26,7 @@ void freeTexture(Texture* t) {
 }
 
 
-void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, int width, int height) {
+void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, unsigned short width, unsigned short height) {
     SDL_Rect renderQuad = {x, y, width, height};
     SDL_RenderCopy(game->gRenderer, t->mTexture, clip, &renderQuad);
 }
@@ -61,16 +60,8 @@ void nextFrame(Texture* t) {
 
 }
 
-SDL_Rect* getSpriteXY(Texture* t, int x, int y, int width, int height) {
-    SDL_Rect* r = malloc(sizeof(SDL_Rect));
-    r->x = x * width;
-    r->y = y * height;
-    r->w = width;
-    r->h = height;
-    return r;
-}
 
-SDL_Rect* getSpriteI(Texture* t, int index, int width, int height) {
+SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short height) {
     SDL_Rect* r = malloc(sizeof(SDL_Rect));
     int col = t->width / width;
     //int row = t->height / height;
@@ -82,7 +73,7 @@ SDL_Rect* getSpriteI(Texture* t, int index, int width, int height) {
     return r;
 }
 
-SDL_Rect* createRectsForSprites(Level* level, const short size, Texture* t) {
+SDL_Rect* createRectsForSprites(Level* level, const unsigned short size, Texture* t) {
     SDL_Rect* l = malloc(sizeof(SDL_Rect) * size);
     for (int i = 0; i < level->size; i++)
         l[i] = *getSpriteI(t, level->content[i], t->sWidth, t->sHeight);

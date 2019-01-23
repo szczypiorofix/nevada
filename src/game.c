@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "main.h"
-
+#include "textures.h"
 
 
 // FORWARD DECLARATION
@@ -11,8 +11,8 @@ Level* getLevel(short n);
 void updateCamera(Camera* c, Player player);
 int getTileX(Player* p, Camera* c, Level* l, unsigned int tw);
 int getTileY(Player* p, Camera* c, Level* l, unsigned int t);
-Animation* prepareAnimation(Texture* t, short speed, int sw, int sh, int index, ...);
-
+Animation* prepareAnimation(Texture* t, int speed, int sw, int sh, const int size, int* frames);
+int nextFrame(Animation* an);
 
 
 // RENDERER FLAGS
@@ -151,28 +151,30 @@ int getTileY(Player* p, Camera* c, Level* l, unsigned int th) {
     return ( (p->y + (p->height / 2)) / th );
 }
 
-Animation* prepareAnimation(Texture* t, short speed, int sw, int sh, int index, ...) {
-    
-    // SDL_Rect* animFrames1[3] = {
-	// 		getSpriteI(playerSpriteSheet, 27, player->width, player->height),
-	// 		getSpriteI(playerSpriteSheet, 28, player->width, player->height),
-	// 		getSpriteI(playerSpriteSheet, 29, player->width, player->height)
-	// 	};
-
+Animation* prepareAnimation(Texture* t, int speed, int sw, int sh, const int size, int* frames) {
     Animation* anim = malloc(sizeof(Animation));
     if (anim == NULL) return NULL;
-    
-    // SDL_Rect* f = malloc(sizeof(SDL_Rect) * size);
-    // if (f == NULL) return NULL;
-    
-    // int sum = 0;
-    // for (int i = 0; i < size; i++) {
-    //   printf("VA: %i\n", frames[i].x);
-    //   //f = &t;
-    //   //f[i] = va_arg(valist, int);
-    // }
-    // printf("Suma : %i\n", sum);
-    // anim->frames = f;
-    // anim->size = size;
+
+    anim->size = size;
+    anim->speed = speed;
+
+    SDL_Rect* r = malloc(sizeof(SDL_Rect) * size);
+    if (r == NULL) return NULL;
+    for (int i = 0; i < size; i++) {
+        r[i] = *getSpriteI(t, frames[i], sw, sh);
+    }
+    anim->frames = r;
     return anim;
+}
+
+int nextFrame(Animation* an) {
+    an->counter++;
+    if (an->counter > an->speed) {
+        an->counter = 0;
+        an->curFrame++;
+        if (an->curFrame >= an->size) {
+            an->curFrame = 0;
+        }
+    }
+    return an->curFrame;
 }

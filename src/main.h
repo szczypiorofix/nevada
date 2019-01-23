@@ -71,9 +71,6 @@ typedef struct NPC {
     int velY;
     unsigned int width;
     unsigned int height;
-    int tileX;
-    int tileY;
-    int tileIndex;
 } NPC;
 
 
@@ -81,6 +78,8 @@ typedef struct Animation {
     unsigned short size;
     SDL_Rect* frames;
     unsigned short speed;
+    unsigned short curFrame;
+    unsigned int counter;
 } Animation;
 
 

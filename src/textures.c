@@ -4,11 +4,10 @@
 #include "textures.h"
 
 
-
+// FORWARD DECLARATION
 void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, unsigned short width, unsigned short height);
 Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned short spriteWidth, unsigned short spriteHeigth);
 void freeTexture(Texture* t);
-void nextFrame(Texture* t);
 SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short height);
 SDL_Rect* createRectsForSprites(Level* level, const unsigned short size, Texture* t);
 Texture* loadFromRenderedText(const char* textureText, SDL_Game* game);
@@ -57,11 +56,6 @@ Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned short sp
 }
 
 
-void nextFrame(Texture* t) {
-
-}
-
-
 SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short height) {
     SDL_Rect* r = malloc(sizeof(SDL_Rect));
     int col = t->width / width;
@@ -91,9 +85,9 @@ Texture* loadFromRenderedText(const char* textureText, SDL_Game* game) {
     Texture* t = malloc(sizeof(Texture));
     if (t == NULL) return NULL;
     TTF_Font *gFont = NULL;
-    gFont = TTF_OpenFont("res/vinque.ttf", 28);
+    gFont = TTF_OpenFont("res/camingo.ttf", 28);
     if (gFont == NULL) {
-        printf("Unable to create texture from %s! SDL Error: %s\n", "vinque.ttf", SDL_GetError());
+        printf("Unable to create texture from %s! SDL Error: %s\n", "res/camingo.ttf", SDL_GetError());
     }
     SDL_Color textColor = {0xFF, 0x65, 0x00};
     SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText, textColor);

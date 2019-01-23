@@ -11,9 +11,6 @@ Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned short sp
 
 void freeTexture(Texture* t);
 
-void nextFrame(Texture* t);
-
-
 SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short height);
 
 SDL_Rect* createRectsForSprites(Level* level, const unsigned short size, Texture* t);

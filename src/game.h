@@ -21,7 +21,8 @@ int getTileX(Player* p, Camera* c, Level* l, unsigned int tw);
 
 int getTileY(Player* p, Camera* c, Level* l, unsigned int th);
 
-Animation* prepareAnimation(Texture* t, short speed, int sw, int sh, int index, ...);
+Animation* prepareAnimation(Texture* t, int speed, int sw, int sh, const int size, int* frames);
 
+int nextFrame(Animation* an);
 
 #endif

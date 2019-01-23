@@ -14,7 +14,8 @@
 			"writestruct.h": "c",
 			"game.h": "c",
 			"level.h": "c",
-			"textures.h": "c"
+			"textures.h": "c",
+			"main.h": "c"
 		}
 	}
 }

@@ -1,17 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "game.h"
+
+#include "main.h"
 
 
 
 // FORWARD DECLARATION
-
 SDL_Game* initGame();
 Level* getLevel(short n);
 void updateCamera(Camera* c, Player player);
-
 int getTileX(Player* p, Camera* c, Level* l, unsigned int tw);
 int getTileY(Player* p, Camera* c, Level* l, unsigned int t);
+Animation* prepareAnimation(Texture* t, short speed, int sw, int sh, int index, ...);
 
 
 
@@ -22,6 +22,7 @@ Uint32 flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 
 SDL_Game* initGame() {
     SDL_Game * game = malloc(sizeof(SDL_Game));
+    if (game == NULL) return NULL;
     game->success = 1;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError());
@@ -72,6 +73,8 @@ SDL_Game* initGame() {
 
 Level* getLevel(short n) {
     Level* level = malloc(sizeof(Level));
+    if (level == NULL) return NULL;
+
     const int w = 54;
     const int h = 40;
 
@@ -80,6 +83,7 @@ Level* getLevel(short n) {
     level->size = w * h;
     
     level->content = malloc(sizeof *level->content * w * h);
+    if (level->content == NULL) return NULL;
     // 54 x 40
     int l[] = {
 			17, 19, 18, 17, 17, 17, 17, 17, 18, 17, 17, 17, 17 ,17, 17, 17, 17, 17, 18, 17, 17, 17, 17, 17, 17, 19, 18, 17, 17, 17, 17, 17, 18, 17, 17, 17, 17 ,17, 17, 17, 17, 17, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17,
@@ -145,4 +149,30 @@ int getTileX(Player* p, Camera* c, Level* l, unsigned int tw) {
 
 int getTileY(Player* p, Camera* c, Level* l, unsigned int th) {
     return ( (p->y + (p->height / 2)) / th );
+}
+
+Animation* prepareAnimation(Texture* t, short speed, int sw, int sh, int index, ...) {
+    
+    // SDL_Rect* animFrames1[3] = {
+	// 		getSpriteI(playerSpriteSheet, 27, player->width, player->height),
+	// 		getSpriteI(playerSpriteSheet, 28, player->width, player->height),
+	// 		getSpriteI(playerSpriteSheet, 29, player->width, player->height)
+	// 	};
+
+    Animation* anim = malloc(sizeof(Animation));
+    if (anim == NULL) return NULL;
+    
+    // SDL_Rect* f = malloc(sizeof(SDL_Rect) * size);
+    // if (f == NULL) return NULL;
+    
+    // int sum = 0;
+    // for (int i = 0; i < size; i++) {
+    //   printf("VA: %i\n", frames[i].x);
+    //   //f = &t;
+    //   //f[i] = va_arg(valist, int);
+    // }
+    // printf("Suma : %i\n", sum);
+    // anim->frames = f;
+    // anim->size = size;
+    return anim;
 }

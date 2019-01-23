@@ -2,14 +2,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <libxml/parser.h>
-// #include <libxml/xmlIO.h>
-// #include <libxml/xinclude.h>
-// #include <libxml/tree.h>
-#include "main.h"
-#include "textures.h"
-#include "font.h"
 
+#include "main.h"
+#include "game.h"
+#include "textures.h"
 
 
 
@@ -24,6 +20,7 @@ Player* resetPlayer(Texture* t);
 
 Player* resetPlayer(Texture* t) {
     Player* p = malloc(sizeof(Player));
+	if (p == NULL) return NULL;
     p->x = SCREEN_WIDTH / 2;
     p->y = SCREEN_HEIGHT / 2;
     p->velX = 0;
@@ -40,17 +37,9 @@ char* getCurrentTime() {
 	return asctime(localtime(&t));
 }
 
-int parsing()
-{
-	//xmlDocPtr doc;
-	//xmlNodePtr cur;
 
-	return 0;
-}
 
 int main(int argc, char* args[]) {
-
-	parsing();
 
 	SDL_Game* game = initGame();
 	if (!game) {
@@ -68,17 +57,38 @@ int main(int argc, char* args[]) {
 
 		Texture* font1 = loadFromRenderedText("THE TEMPLE OF THE LOST PUPPY", game);
 
-		
-		Player* player = resetPlayer(playerSpriteSheet);
-		// PLAYER
-		// Player player;
-		// player.x = (SCREEN_WIDTH / 2);
-		// player.y = (SCREEN_HEIGHT / 2);
-		// player.velX = 0;
-		// player.velY = 0;
-		// player->width = playerSpriteSheet->sWidth;
-		// player->height = playerSpriteSheet->sHeight;
+		Texture* barkText = loadFromRenderedText("woof-woof !!!", game);
+		Texture* catText = loadFromRenderedText("??", game);
 
+		
+		// PLAYER
+		Player* player = resetPlayer(playerSpriteSheet);
+
+
+		int bark = 0;
+		int barkCounter = 0;
+
+		int catQuestion = 0;
+		int catQuestionCounter = - 20;
+		int catQuestionEnd = 0;
+
+		NPC npc1;
+		npc1.x = 400;
+		npc1.y = 280;
+		npc1.velX = 0;
+		npc1.velY = 0;
+		npc1.width = playerSpriteSheet->sWidth;
+		npc1.height = playerSpriteSheet->sHeight;
+		SDL_Rect* npcRect;
+		npcRect = getSpriteI(playerSpriteSheet, 82, npc1.width, npc1.height);
+
+		SDL_Rect* npcWalkLeftRec[3];
+		npcWalkLeftRec[0] = getSpriteI(playerSpriteSheet, 69, player->width, player->height);
+		npcWalkLeftRec[1] = getSpriteI(playerSpriteSheet, 70, player->width, player->height);
+		npcWalkLeftRec[2] = getSpriteI(playerSpriteSheet, 71, player->width, player->height);
+		int npc1WalkingAway = 0;
+		int npc1WalkingAnimCounter = 0;
+		int npc1WalkingAnimFrame = 0;
 
 		Camera cam;
 		cam.x = 0;
@@ -104,6 +114,11 @@ int main(int argc, char* args[]) {
 		walkingLeft[0] = getSpriteI(playerSpriteSheet, 15, player->width, player->height);
 		walkingLeft[1] = getSpriteI(playerSpriteSheet, 16, player->width, player->height);
 		walkingLeft[2] = getSpriteI(playerSpriteSheet, 17, player->width, player->height);
+
+		
+
+		Animation* an1 = prepareAnimation(playerSpriteSheet, 3, player->width, player->height, 27, 28, 29);
+		printf("Size: %i\n", an1->size);
 
 		// WALKING RIGHT
 		SDL_Rect* walkingRight[3];
@@ -164,6 +179,9 @@ int main(int argc, char* args[]) {
                                     Mix_PauseMusic();
                                 }
                             }
+						}
+						if (e.key.keysym.sym == SDLK_RETURN) {
+							bark = 1;
 						}
 					}
 					if (e.type == SDL_KEYUP) {
@@ -282,7 +300,47 @@ int main(int argc, char* args[]) {
 				}
 			}
 
+			if (npc1WalkingAway == 0 && catQuestion > -1) {
+				renderTexture(
+					playerSpriteSheet,
+					game,
+					npcRect,
+					npc1.x + cam.offsetX,
+					npc1.y + cam.offsetY,
+					playerSpriteSheet->sWidth,
+					playerSpriteSheet->sHeight
+				);
+			} else {
+				npc1.x += - SPEED;
 
+				npc1WalkingAnimCounter++;
+				if (npc1WalkingAnimCounter <= 10) npc1WalkingAnimFrame = 0;
+				if (npc1WalkingAnimCounter > 10 && npc1WalkingAnimCounter <= 20) npc1WalkingAnimFrame = 1;
+				if (npc1WalkingAnimCounter > 20 && npc1WalkingAnimCounter <= 30) npc1WalkingAnimFrame = 2;
+
+				if (npc1WalkingAnimCounter > 30) npc1WalkingAnimCounter = 0;
+
+
+				renderTexture(
+					playerSpriteSheet,
+					game,
+					npcWalkLeftRec[npc1WalkingAnimFrame],
+					npc1.x + cam.offsetX,
+					npc1.y + cam.offsetY,
+					playerSpriteSheet->sWidth,
+					playerSpriteSheet->sHeight
+				);
+			}
+
+			if (bark == 1) {
+				catQuestion = 1;
+				renderText(barkText, game, player->x + cam.offsetX, player->y + cam.offsetY - 5, 170, 40);
+				barkCounter++;
+				if (barkCounter > 30) {
+					barkCounter = 0;
+					bark = 0;
+				}
+			}
 
 			// RENDER PLAYER
 			renderTexture(
@@ -295,15 +353,31 @@ int main(int argc, char* args[]) {
 				playerSpriteSheet->sHeight
 			);
 		
+			if (catQuestionEnd > 2) {
+				catQuestion = -1;
+				catQuestionCounter = -30;
+			}
 			
-			renderText(font1, game, 100, 50);
+			renderText(font1, game, 100, 50, 400, 50);
+			
+			if (catQuestion == 1) {
+				if (catQuestionCounter > 30) {
+					renderText(catText, game, npc1.x + cam.offsetX, npc1.y + cam.offsetY - 5, 60, 25);
+				}
+				catQuestionCounter++;
+				if (catQuestionCounter > 80) {
+					catQuestionCounter = - 30;
+					catQuestion = 0;
+					catQuestionEnd++;
+				}
+			}
 
 			if (walking == 1) {
-				printf("px: %i, py: %i, pindex: %i\n", 
-					player->tileX,
-					player->tileY,
-					player->tileIndex
-				);
+				// printf("px: %i, py: %i, pindex: %i\n", 
+				// 	player->tileX,
+				// 	player->tileY,
+				// 	player->tileIndex
+				// );
 				counter++;
 				if (counter <= 10) animPlayerClip = 0;
 				if (counter > 10 && counter <= 20) animPlayerClip = 1;
@@ -326,6 +400,11 @@ int main(int argc, char* args[]) {
 
 		freeTexture(font1);
 		font1 = NULL;
+
+		free(level->content);
+		level->content = NULL;
+		free(level);
+		level = NULL;
 
 		close(game);
 		free(game);

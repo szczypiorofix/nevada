@@ -17,7 +17,6 @@
                 "-lSDL2_image",
                 "-lSDL2_mixer",
                 "-lSDL2_ttf",
-                "-llua",
                 "-c",
                 "${fileDirname}\\${fileBasename}",
                 "-o",
@@ -47,7 +46,6 @@
                 "-lSDL2_image",
                 "-lSDL2_mixer",
                 "-lSDL2_ttf",
-                "-llua",
                 "-o",
                 ".\\main.exe"
             ],

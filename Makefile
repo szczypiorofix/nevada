@@ -4,7 +4,7 @@ CWARNFLAGS=-Wall -Werror
 ODIR=obj
 LIBRARYPATH=-LC:\\mingw_dev_lib\\lib
 INCLUDEPATH=-IC:\\mingw_dev_lib\\include
-LINKERFLAGS=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lxml2
+LINKERFLAGS=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -llibxml2 -liconv
 OPTIMIZEFLAG=-Os
 
 all: main.exe

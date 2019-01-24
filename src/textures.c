@@ -60,8 +60,8 @@ SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short
     SDL_Rect* r = malloc(sizeof(SDL_Rect));
     int col = t->width / width;
     //int row = t->height / height;
-    r->x = (index % col) * width;
-    r->y = (index / col) * height;
+    r->x = ((index - 1) % col) * width;
+    r->y = ((index - 1) / col) * height;
     //printf("Cols: %i, Rows: %i, index:%i, x:%i, y:%i, w:%i, h:%i\n", col, row, index, r->x, r->y, width, height);
     r->w = width;
     r->h = height;

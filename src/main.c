@@ -2,6 +2,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libxml/parser.h>
+#include <libxml/xmlIO.h>
+#include <libxml/xinclude.h>
+#include <libxml/tree.h>
 
 #include "main.h"
 #include "game.h"
@@ -9,13 +13,45 @@
 
 
 
+
+#define WALK_LEFT 0
+#define WALK_RIGHT 1
+#define WALK_UP 2
+#define WALK_DOWN 3
+#define SPEED 2
+
+#define FPS_MAX 60
+
+
+
+
 // FORWARD DECLARATION
 char* getCurrentTime();
 void close(SDL_Game* g);
 Player* resetPlayer(Texture* t);
+void UpdateDeltaTime();
 
 
 
+unsigned long int startTick, endTick;
+unsigned short int fpsCounter;
+float delayTime = 0.0f;
+float deltaTime = 0.0f;
+unsigned short int fps = 0;
+
+
+void UpdateDeltaTime() {
+    startTick = SDL_GetPerformanceCounter();
+    deltaTime = (float)(startTick - endTick) / SDL_GetPerformanceFrequency();
+    endTick = startTick;
+    fpsCounter++;
+    delayTime += deltaTime;
+    if (delayTime >= 1.0f) {
+        delayTime -= 1.0f;
+        fps = fpsCounter;
+        fpsCounter = 0;
+    }
+}
 
 
 Player* resetPlayer(Texture* t) {
@@ -37,9 +73,74 @@ char* getCurrentTime() {
 	return asctime(localtime(&t));
 }
 
+void print_list(LinkedList* list) {
+    ListItem* current = list->lastItem;
+	int c = 1;
+	while (current != NULL) {
+        printf("Item no: %i, val = %d, previous pointer: %p\n", c, current->val, &current->next);
+        current = current->next;
+		c++;
+    }
+}
 
+bool addToList(LinkedList* list, ListItem* item) {
+	printf("Add to list ... value: %i, next pointer: %p \n", item->val, &item->next);	
+	if (list->size == 0) {
+		list->lastItem = NULL;
+		list->lastItem = malloc(sizeof(LinkedList));
+		if (list->lastItem == NULL) return FALSE;
+
+		list->lastItem->val = item->val;
+		list->lastItem->next = item->next;
+	}
+
+	list->size++;
+	printf("List size: %i\n", list->size);
+	return TRUE;
+}
+
+
+void endProgram() {
+    printf("ERROR !!!\n");
+    exit(1);
+}
+
+
+void parsing(const char* fileName) {
+	printf("Parsing xml %s file ... ", fileName);
+	
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+
+	doc = xmlParseFile("res/images/map.tmx");
+    if (doc == NULL ) {
+		fprintf(stderr,"Document not parsed successfully. \n");
+        endProgram();
+    }
+
+    cur = xmlDocGetRootElement(doc);
+    
+    if (cur == NULL) {
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(doc);
+		endProgram();
+	}
+
+    if (xmlStrcmp(cur->name, (const xmlChar *) "map")) {
+		fprintf(stderr,"document of the wrong type, root node != map !!! \n");
+		xmlFreeDoc(doc);
+		endProgram();
+	}
+
+	printf("done.\n");
+}
 
 int main(int argc, char* args[]) {
+
+	//LinkedList list = {0, NULL};
+
+	parsing("res/map.tmx");
+
 
 	SDL_Game* game = initGame();
 	if (!game) {
@@ -47,7 +148,6 @@ int main(int argc, char* args[]) {
 		exit(1);
 	} else {
 		printf("Initialization SDL - OK!\nGame.success -> %i\n", game->success);
-		
 
 		Texture* playerSpriteSheet = loadSpriteSheet("res/images/animals1.png", game, 52, 72);
 		printf("Player spritesheet Width: %i, height: %i\n", playerSpriteSheet->width, playerSpriteSheet->height);
@@ -56,7 +156,6 @@ int main(int argc, char* args[]) {
 		printf("Background spritesheet Width: %i, height: %i\n", backgroundSpriteSheet->width, backgroundSpriteSheet->height);
 
 		Texture* font1 = loadFromRenderedText("THE TEMPLE OF THE LOST PUPPY", game);
-
 
 		// PLAYER
 		Player* player = resetPlayer(playerSpriteSheet);
@@ -77,7 +176,6 @@ int main(int argc, char* args[]) {
 
 		short quit = 0;
 
-
 		// DOGS
 		NPC dogs[] = {
 			{650, 280, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
@@ -86,10 +184,10 @@ int main(int argc, char* args[]) {
 			{400, 360, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
 		};
 
-		int framesDog1[] = {72, 73, 74};
-		int framesDog2[] = {18, 19, 20};
-		int framesDog3[] = {21, 22, 23};
-		int framesDog4[] = {33, 34, 35};
+		int framesDog1[] = {73, 74, 75};
+		int framesDog2[] = {19, 20, 21};
+		int framesDog3[] = {22, 23, 24};
+		int framesDog4[] = {34, 35, 36};
 
 		Animation* dogsAnim[] = {
 			prepareAnimation(playerSpriteSheet, 1, player->width, player->height, 3, framesDog1),
@@ -99,16 +197,16 @@ int main(int argc, char* args[]) {
 		};
 
 
-		int framesPlayerLeft[] = {15, 16, 17};
+		int framesPlayerLeft[] = {16, 17, 18};
 		Animation* walkingLeftAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);
 
-		int framesPlayerRight[] = {27, 28, 29};
+		int framesPlayerRight[] = {28, 29, 30};
 		Animation* walkingRightAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
 
-		int framesPlayerUp[] = {39, 40, 41};
+		int framesPlayerUp[] = {40, 41, 42};
 		Animation* walkingUpAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
 
-		int framesPlayerDown[] = {3, 4, 5};
+		int framesPlayerDown[] = {4, 5, 6};
 		Animation* walkingDownAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
 
 
@@ -119,6 +217,7 @@ int main(int argc, char* args[]) {
 		
 		while(!quit) {
 			
+			UpdateDeltaTime();
 
 			/**
 			 * #################################################
@@ -194,7 +293,7 @@ int main(int argc, char* args[]) {
 
 			if (player->velY == SPEED) {
 				currentWalk = WALK_DOWN;
-			} else if (player->velY == -SPEED) {
+			} else if (player->velY == - SPEED) {
 				currentWalk = WALK_UP;
 			}
 
@@ -286,6 +385,11 @@ int main(int argc, char* args[]) {
 			
 			renderText(font1, game, 100, 50, 400, 50);
 		
+
+			// FPS LIMIT
+			float frameRate = 1000.0f / FPS_MAX;
+        	if (deltaTime < frameRate)
+            SDL_Delay ((int)(frameRate - deltaTime));
 
 			SDL_RenderPresent(game->gRenderer);
 		}

@@ -1,6 +1,11 @@
-#ifndef GAME_H_
-#define GAME_H_
+#pragma once
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
+
+#include "defines.h"
 #include "main.h"
 
 
@@ -24,5 +29,3 @@ int getTileY(Player* p, Camera* c, Level* l, unsigned int th);
 Animation* prepareAnimation(Texture* t, int speed, int sw, int sh, const int size, int* frames);
 
 int nextFrame(Animation* an);
-
-#endif

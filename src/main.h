@@ -1,6 +1,4 @@
-#ifndef MAIN_H_
-#define MAIN_H_
-
+#pragma once
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -8,20 +6,14 @@
 #include <SDL2/SDL_ttf.h>
 
 
+// Booleans
+#define FALSE 0
+#define TRUE  1
+typedef unsigned char bool;
 
-/**
- * #################################################
- * ................... CONSTANTS ...................
- * #################################################
- * */
-static const short SCREEN_WIDTH = 800;
-static const short SCREEN_HEIGHT = 600;
-static const short WALK_LEFT = 0;
-static const short WALK_RIGHT = 1;
-static const short WALK_UP = 2;
-static const short WALK_DOWN = 3;
-static const short SPEED = 2;
 
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
 /**
  * #################################################
@@ -35,6 +27,7 @@ typedef struct SDL_Game {
     SDL_Renderer* gRenderer;
     Mix_Music *gMusic;
 } SDL_Game;
+
 
 typedef struct Level {
     int* content;
@@ -50,6 +43,7 @@ typedef struct Camera {
     int offsetX;
     int offsetY;
 } Camera;
+
 
 typedef struct Player {
     int x;
@@ -83,8 +77,7 @@ typedef struct Animation {
 } Animation;
 
 
-typedef struct Texture
-{
+typedef struct Texture {
     SDL_Texture* mTexture;
     unsigned short width;
     unsigned short height;
@@ -93,10 +86,26 @@ typedef struct Texture
 } Texture;
 
 
+typedef struct ListItem {
+    int val;
+    struct ListItem * next;
+} ListItem;
+
+
+typedef struct LinkedList {
+    unsigned int size;
+    ListItem* lastItem;
+} LinkedList;
 
 
 
 
+
+/**
+ * #################################################
+ * ................... FUNCTIONS ...................
+ * #################################################
+ * */
 
 
 char* getCurrentTime();
@@ -105,5 +114,3 @@ void close(SDL_Game* g);
 
 Player* resetPlayer(Texture* t);
 
-
-#endif

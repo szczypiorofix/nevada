@@ -2,18 +2,14 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libxml/parser.h>
-#include <libxml/xmlIO.h>
-#include <libxml/xinclude.h>
-#include <libxml/tree.h>
 
 #include "main.h"
 #include "game.h"
 #include "textures.h"
+#include "level.h"
 
 
-
-
+#define NO_WALK -1
 #define WALK_LEFT 0
 #define WALK_RIGHT 1
 #define WALK_UP 2
@@ -100,47 +96,11 @@ bool addToList(LinkedList* list, ListItem* item) {
 }
 
 
-void endProgram() {
-    printf("ERROR !!!\n");
-    exit(1);
-}
 
-
-void parsing(const char* fileName) {
-	printf("Parsing xml %s file ... ", fileName);
-	
-	xmlDocPtr doc;
-	xmlNodePtr cur;
-
-	doc = xmlParseFile("res/images/map.tmx");
-    if (doc == NULL ) {
-		fprintf(stderr,"Document not parsed successfully. \n");
-        endProgram();
-    }
-
-    cur = xmlDocGetRootElement(doc);
-    
-    if (cur == NULL) {
-		fprintf(stderr,"empty document\n");
-		xmlFreeDoc(doc);
-		endProgram();
-	}
-
-    if (xmlStrcmp(cur->name, (const xmlChar *) "map")) {
-		fprintf(stderr,"document of the wrong type, root node != map !!! \n");
-		xmlFreeDoc(doc);
-		endProgram();
-	}
-
-	printf("done.\n");
-}
 
 int main(int argc, char* args[]) {
 
 	//LinkedList list = {0, NULL};
-
-	parsing("res/map.tmx");
-
 
 	SDL_Game* game = initGame();
 	if (!game) {
@@ -211,6 +171,8 @@ int main(int argc, char* args[]) {
 
 
 		Animation* currentWalkAnim = walkingLeftAnimation;
+		// Hardcoded first frame of the player, without this line the dog is invisible at the beginning
+		currentWalkAnim->curFrame = 1;
 
 
 		SDL_Event e;
@@ -282,7 +244,7 @@ int main(int argc, char* args[]) {
 			player->x += player->velX;
 			player->y += player->velY;
 
-			currentWalk = -1;
+			currentWalk = NO_WALK;
 			walking = 0;
 
 			if (player->velX == SPEED) {

@@ -88,6 +88,11 @@ Level* getLevel(short n) {
     
     level->content = malloc(sizeof *level->content * w * h);
     if (level->content == NULL) return NULL;
+    
+    // parsing map
+    parsing("res/images/map.tmx");
+
+
     // 32 x 16
     int l[] = {
 18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,

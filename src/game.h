@@ -7,6 +7,7 @@
 
 #include "defines.h"
 #include "main.h"
+#include "level.h"
 
 
 /**

@@ -5,6 +5,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
+#include "level.h"
 
 // Booleans
 #define FALSE 0
@@ -28,13 +29,6 @@ typedef struct SDL_Game {
     Mix_Music *gMusic;
 } SDL_Game;
 
-
-typedef struct Level {
-    int* content;
-    unsigned short width;
-    unsigned short height;
-    unsigned int size;
-} Level;
 
 
 typedef struct Camera {

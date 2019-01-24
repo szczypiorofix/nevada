@@ -9,6 +9,9 @@
         "readbinary.h": "c",
         "writestruct.h": "c",
         "main.h": "c",
-        "defines.h": "c"
+        "defines.h": "c",
+        "grassland.tsx": "xml",
+        "level.h": "c",
+        "stdio.h": "c"
     }
 }

@@ -89,7 +89,7 @@ int* convertDataStringToArray(const xmlChar* s) {
 	char *ptr = strtok(cleanCharsArray, delim);
 	int* n = malloc(sizeof(int) * numbers);
 	if (n == NULL) {
-		//printf("Malloc error !!!\n");
+		printf("Malloc 'numbers' error !!!\n");
 		return NULL;
 	}
 	while(ptr != NULL) {
@@ -129,7 +129,7 @@ TiledMap* parseMap(const char* fileName) {
 	xmlNodePtr cur;
 
 	doc = xmlParseFile("res/images/map.tmx");
-    if (doc == NULL ) {
+    if (doc == NULL) {
 		fprintf(stderr,"Document not parsed successfully. \n");
         exit(0);
     }
@@ -150,6 +150,10 @@ TiledMap* parseMap(const char* fileName) {
 
 
 	TiledMap* tiledMap = malloc(sizeof (TiledMap));
+	if (tiledMap == NULL) {
+		printf("Malloc (creating TiledMap) error !!!\n");
+		return NULL;
+	}
 	tiledMap->width = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "width"));
 	tiledMap->height = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "height"));
 	tiledMap->tileWidth = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tilewidth"));
@@ -157,31 +161,34 @@ TiledMap* parseMap(const char* fileName) {
 
     cur = cur->xmlChildrenNode;
 
-	xmlChar* layerId;
-	xmlChar* layerName;
-	xmlChar* layerWidth;
-	xmlChar* layerHeight;
+	Layer* layer = malloc(sizeof(Layer));
+	if (layer == NULL) {
+		printf("Malloc (creating Layer) error !!!\n");
+		return NULL;
+	}
 
-	xmlChar* tilesetFirstGid;
-	xmlChar* tilesetSource;
+	TileSet* tileSet = malloc(sizeof(TileSet));
+	if (tileSet == NULL) {
+		printf("Malloc (creating TileSetSource) error !!!\n");
+		return NULL;
+	}
 
     while (cur != NULL) {
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"tileset"))) {
-			tilesetFirstGid = xmlGetProp(cur, (const xmlChar *) "firstgid");
-			tilesetSource = xmlGetProp(cur, (const xmlChar *) "source");
-			printf("Tileset: firstgid=%s, source=%s\n", tilesetFirstGid, tilesetSource);
+			tileSet->firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
+			tileSet->source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
+			printf("Tileset: firstgid=%i, source=%s\n", tileSet->firstGid, tileSet->source);
 		}
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"layer"))) {
-			layerId = xmlGetProp(cur,  (const xmlChar *) "id");
-			layerName = xmlGetProp(cur,  (const xmlChar *) "name");
-			layerWidth = xmlGetProp(cur,  (const xmlChar *) "width");
-			layerHeight = xmlGetProp(cur,  (const xmlChar *) "height");
-			
-
-			printf("Layer id: %i\n", xmlCharToInt(layerId));
-			printf("Layer name: %s\n", layerName);
-			printf("Layer width: %i\n", xmlCharToInt(layerWidth));
-			printf("Layer height: %i\n", xmlCharToInt(layerHeight));
+			layer->id = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "id"));
+			layer->name = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
+			layer->width = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "width"));
+			layer->height = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "height"));
+			tiledMap->layer = layer;
+			printf("Layer id: %i\n", layer->id);
+			printf("Layer name: %s\n", layer->name);
+			printf("Layer width: %i\n", layer->width);
+			printf("Layer height: %i\n", layer->height);
 			parseData(doc, cur);
 		}
 	    cur = cur->next;

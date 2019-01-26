@@ -26,6 +26,7 @@ typedef struct TileSetSource {
 typedef struct TileSet {
     int firstGid;
     char* source;
+    TileSetSource* tileSetSource;
 } TileSet;
 
 typedef struct Layer {

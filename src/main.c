@@ -137,24 +137,24 @@ int main(int argc, char* args[]) {
 		short quit = 0;
 
 		// DOGS
-		NPC dogs[] = {
-			{650, 280, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
-			{400, 210, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
-			{500, 290, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
-			{400, 360, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
-		};
+		// NPC dogs[] = {
+		// 	{650, 280, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
+		// 	{400, 210, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
+		// 	{500, 290, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
+		// 	{400, 360, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
+		// };
 
-		int framesDog1[] = {73, 74, 75};
-		int framesDog2[] = {19, 20, 21};
-		int framesDog3[] = {22, 23, 24};
-		int framesDog4[] = {34, 35, 36};
+		// int framesDog1[] = {73, 74, 75};
+		// int framesDog2[] = {19, 20, 21};
+		// int framesDog3[] = {22, 23, 24};
+		// int framesDog4[] = {34, 35, 36};
 
-		Animation* dogsAnim[] = {
-			prepareAnimation(playerSpriteSheet, 1, player->width, player->height, 3, framesDog1),
-			prepareAnimation(playerSpriteSheet, 3, player->width, player->height, 3, framesDog2),
-			prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesDog3),
-			prepareAnimation(playerSpriteSheet, 9, player->width, player->height, 3, framesDog4),
-		};
+		// Animation* dogsAnim[] = {
+		// 	prepareAnimation(playerSpriteSheet, 1, player->width, player->height, 3, framesDog1),
+		// 	prepareAnimation(playerSpriteSheet, 3, player->width, player->height, 3, framesDog2),
+		// 	prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesDog3),
+		// 	prepareAnimation(playerSpriteSheet, 9, player->width, player->height, 3, framesDog4),
+		// };
 
 
 		int framesPlayerLeft[] = {16, 17, 18};
@@ -317,8 +317,8 @@ int main(int argc, char* args[]) {
 			}
 
 			// NPCs
-			for (int i = 0; i < 4; i++)
-				renderTexture(playerSpriteSheet, game, &dogsAnim[i]->frames[nextFrame(dogsAnim[i])], dogs[i].x + cam.offsetX, dogs[i].y + cam.offsetY, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight);
+			// for (int i = 0; i < 4; i++)
+			// 	renderTexture(playerSpriteSheet, game, &dogsAnim[i]->frames[nextFrame(dogsAnim[i])], dogs[i].x + cam.offsetX, dogs[i].y + cam.offsetY, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight);
 
 
 			// RENDER PLAYER

@@ -90,7 +90,8 @@ Level* getLevel(short n) {
     if (level->content == NULL) return NULL;
     
     // parsing map
-    parsing("res/images/map.tmx");
+    TiledMap* tiledMap = parseMap("res/images/map.tmx");
+    printf("TiledMap width: %i x height:%i, tileWidth:%i, tileHeight:%i\n", tiledMap->width, tiledMap->height, tiledMap->tileWidth, tiledMap->tileHeight);
 
 
     // 32 x 16

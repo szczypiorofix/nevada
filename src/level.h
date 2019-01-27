@@ -53,3 +53,5 @@ typedef struct TiledMap {
 int xmlCharToInt(const xmlChar a[]);
 
 TiledMap* parseMap(const char* fileName);
+
+void freeLevel(Level* level);

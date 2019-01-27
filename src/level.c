@@ -13,8 +13,13 @@
 int xmlCharToInt(const xmlChar a[]);
 int* parseData(xmlDocPtr doc, xmlNodePtr cur);
 TiledMap* parseMap(const char* fileName);
+void freeLevel(Level* level);
 
 
+
+void freeLevel(Level* level) {
+	// Free TileSetSourceImage, TileSetSource, TileLayer etc...
+} 
 
 int xmlCharToInt(const xmlChar a[]) {
 	int c = 0, sign = 0, offset = 0, n = 0;
@@ -121,6 +126,15 @@ int* parseData(xmlDocPtr doc, xmlNodePtr cur) {
     return arr;
 }
 
+TileSetSource* getTileSetSource(const char* tsxFileName) {
+	TileSetSource* tileSetSource = malloc(sizeof(TileSetSource));
+	if (tileSetSource == NULL) {
+		printf("Malloc (creating TileSetSource) error !!!\n");
+		return NULL;
+	}
+	
+	return tileSetSource;
+}
 
 TiledMap* parseMap(const char* fileName) {
 	printf("Parsing xml %s file.\n", fileName);
@@ -178,6 +192,9 @@ TiledMap* parseMap(const char* fileName) {
 			tileSet->firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
 			tileSet->source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
 			printf("Tileset: firstgid=%i, source=%s\n", tileSet->firstGid, tileSet->source);
+			printf("Parsine tileSet file: %s.\n", tileSet->source);
+			TileSetSource* tss = getTileSetSource(tileSet->source);
+			tileSet->tileSetSource = tss;
 		}
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"layer"))) {
 			layer->id = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "id"));

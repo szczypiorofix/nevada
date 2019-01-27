@@ -21,6 +21,7 @@ typedef struct TileSetSource {
     int tileHeight;
     int tileCount;
     int columns;
+    TileSetSourceImage* tileSetSourceImage;
 } TileSetSource;
 
 typedef struct TileSet {

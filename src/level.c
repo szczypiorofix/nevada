@@ -127,24 +127,75 @@ int* parseData(xmlDocPtr doc, xmlNodePtr cur) {
 }
 
 TileSetSource* getTileSetSource(const char* tsxFileName) {
+	
 	TileSetSource* tileSetSource = malloc(sizeof(TileSetSource));
 	if (tileSetSource == NULL) {
 		printf("Malloc (creating TileSetSource) error !!!\n");
 		return NULL;
 	}
+	printf("Parsing tsx file: %s\n", tsxFileName);
+	
+	xmlDocPtr tsxDoc;
+	xmlNodePtr tsxCurNode;
+
+	tsxDoc = xmlParseFile("res/images/grassland.tsx");
+	if (tsxDoc == NULL) {
+		fprintf(stderr, "Document not parsed successfully.\n");
+        exit(0);
+    }
+	
+	tsxCurNode = xmlDocGetRootElement(tsxDoc);
+    if (tsxCurNode == NULL) {
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(tsxDoc);
+		exit(0);
+	}
+	
+	if (xmlStrcmp(tsxCurNode->name, (const xmlChar *) "tileset")) {
+		fprintf(stderr,"document of the wrong type, root node != map !!! \n");
+		xmlFreeDoc(tsxDoc);
+		exit(0);
+	}
+	tileSetSource->name = (char *)xmlGetProp(tsxCurNode, (const xmlChar *) "name");
+	tileSetSource->tileWidth = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilewidth"));
+	tileSetSource->tileHeight = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tileheight"));
+	tileSetSource->tileCount = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilecount"));
+	tileSetSource->columns = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "columns"));
+
+	printf("TileSet props: name: %s, tileWidth: %i, tileHeight: %i, tileCount: %i, columns: %i\n", tileSetSource->name, tileSetSource->tileWidth, tileSetSource->tileHeight, tileSetSource->tileCount, tileSetSource->columns);
+	
+	TileSetSourceImage* tileSetSourceImage = malloc(sizeof(TileSetSourceImage));
+	if (tileSetSourceImage == NULL) {
+		printf("Malloc (creating TileSetSourceImage) error !!!\n");
+		return NULL;
+	}
+
+	tsxCurNode = tsxCurNode->xmlChildrenNode;
+	while (tsxCurNode != NULL) {
+		if ((!xmlStrcmp(tsxCurNode->name, (const xmlChar *) "image"))) {
+			tileSetSourceImage->source = (char *) xmlGetProp(tsxCurNode, (const xmlChar *) "source");
+			tileSetSourceImage->width = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "width"));
+			tileSetSourceImage->height = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "height"));
+		}
+		tsxCurNode = tsxCurNode->next;
+	}
+
+	printf("TileSetImage props: source: %s, width: %i, height: %i\n", tileSetSourceImage->source, tileSetSourceImage->width, tileSetSourceImage->height);
+
+	tileSetSource->tileSetSourceImage = tileSetSourceImage;
 	
 	return tileSetSource;
 }
 
 TiledMap* parseMap(const char* fileName) {
-	printf("Parsing xml %s file.\n", fileName);
+	printf("Parsing tmx %s file.\n", fileName);
 	
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 
-	doc = xmlParseFile("res/images/map.tmx");
+	doc = xmlParseFile(fileName);
     if (doc == NULL) {
-		fprintf(stderr,"Document not parsed successfully. \n");
+		fprintf(stderr,"Document not parsed successfully.\n");
         exit(0);
     }
 
@@ -161,7 +212,6 @@ TiledMap* parseMap(const char* fileName) {
 		xmlFreeDoc(doc);
 		exit(0);
 	}
-
 
 	TiledMap* tiledMap = malloc(sizeof (TiledMap));
 	if (tiledMap == NULL) {

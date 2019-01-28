@@ -76,16 +76,26 @@ SDL_Game* initGame() {
 }
 
 
-
 Level* getLevel(short n) {
 
     TiledMap* tiledMap = parseMap("res/images/map.tmx");
     printf("TiledMap width: %i x height:%i, tileWidth:%i, tileHeight:%i\n", tiledMap->width, tiledMap->height, tiledMap->tileWidth, tiledMap->tileHeight);
 
-    printf("TiledMap layers count: %i\n", tiledMap->layersCount);
-    for (int i = 0; i < tiledMap->layersCount; i++) {
-        printf("Layer info - id: %i, tilesCount: %i\n", tiledMap->layer[i].id, tiledMap->layer[i].data[0]);
+    int differentSizeOfLayers = 0;
+    for (int i = 0; i < tiledMap->layersCount - 1; i++) {
+        if (tiledMap->layer[i].width != tiledMap->layer[i+1].width ||
+            tiledMap->layer[i].height != tiledMap->layer[i+1].height) {
+            differentSizeOfLayers = 1;
+        }
     }
+    if (differentSizeOfLayers != 0) {
+        printf("ERROR !!! Layers has different sizes !!!\n");
+        exit(0);
+    }
+    // printf("TiledMap layers count: %i\n", tiledMap->layersCount);
+    // for (int i = 0; i < tiledMap->layersCount; i++) {
+    //     printf("Layer info - id: %i, tilesCount: %i\n", tiledMap->layer[i].id, tiledMap->layer[i].data[0]);
+    // }
 
     Level* level = malloc(sizeof(Level));
     if (level == NULL) return NULL;

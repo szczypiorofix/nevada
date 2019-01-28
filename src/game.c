@@ -16,9 +16,9 @@ static Uint32 windowFlags = SDL_WINDOW_SHOWN;
 SDL_Game* initGame();
 Level* getLevel(short n);
 void updateCamera(Camera* c, Player player);
-int getTileX(Player* p, Camera* c, Level* l, uint16 tw);
-int getTileY(Player* p, Camera* c, Level* l, uint16 t);
-Animation* prepareAnimation(Texture* t, uint16 speed, uint16 sw, uint16 sh, const uint16 size, uint16* frames);
+int getTileX(Player* p, Camera* c, Level* l, unsigned int tw);
+int getTileY(Player* p, Camera* c, Level* l, unsigned int t);
+Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 int nextFrame(Animation* an);
 
 
@@ -112,15 +112,15 @@ void updateCamera(Camera* c, Player player) {
     c->offsetY = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
 }
 
-int getTileX(Player* p, Camera* c, Level* l, uint16 tw) {
+int getTileX(Player* p, Camera* c, Level* l, unsigned int tw) {
     return ( (p->x + (p->width / 2)) / tw );
 }
 
-int getTileY(Player* p, Camera* c, Level* l, uint16 th) {
+int getTileY(Player* p, Camera* c, Level* l, unsigned int th) {
     return ( (p->y + (p->height / 2)) / th );
 }
 
-Animation* prepareAnimation(Texture* t, uint16 speed, uint16 sw, uint16 sh, const uint16 size, uint16* frames) {
+Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames) {
     Animation* anim = malloc(sizeof(Animation));
     if (anim == NULL) return NULL;
 

@@ -23,10 +23,10 @@ void updateCamera(Camera* c, Player player);
 SDL_Game* initGame();
 
 
-int getTileX(Player* p, Camera* c, Level* l, uint16 tw);
+int getTileX(Player* p, Camera* c, Level* l, unsigned int tw);
 
-int getTileY(Player* p, Camera* c, Level* l, uint16 th);
+int getTileY(Player* p, Camera* c, Level* l, unsigned int th);
 
-Animation* prepareAnimation(Texture* t, uint16 speed, uint16 sw, uint16 sh, const uint16 size, uint16* frames);
+Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 
 int nextFrame(Animation* an);

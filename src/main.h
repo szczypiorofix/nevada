@@ -17,7 +17,7 @@
  * */
 
 typedef struct SDL_Game {
-    uint16 success;
+    short success;
     SDL_Window* gWindow;
     SDL_Renderer* gRenderer;
     Mix_Music *gMusic;
@@ -26,51 +26,51 @@ typedef struct SDL_Game {
 
 
 typedef struct Camera {
-    int32 x;
-    int32 y;
-    int32 offsetX;
-    int32 offsetY;
+    int x;
+    int y;
+    int offsetX;
+    int offsetY;
 } Camera;
 
 
 typedef struct Player {
-    int32 x;
-    int32 y;
-    int32 velX;
-    int32 velY;
-    uint16 width;
-    uint16 height;
-    int32 tileX;
-    int32 tileY;
-    uint32 tileIndex;
+    int x;
+    int y;
+    int velX;
+    int velY;
+    int width;
+    int height;
+    int tileX;
+    int tileY;
+    int tileIndex;
 } Player;
 
 
 typedef struct NPC {
-    int32 x;
-    int32 y;
-    int32 velX;
-    int32 velY;
-    uint32 width;
-    uint32 height;
+    int x;
+    int y;
+    int velX;
+    int velY;
+    int width;
+    int height;
 } NPC;
 
 
 typedef struct Animation {
-    uint16 size;
+    int size;
     SDL_Rect* frames;
-    uint16 speed;
-    uint16 curFrame;
-    uint32 counter;
+    int speed;
+    int curFrame;
+    int counter;
 } Animation;
 
 
 typedef struct Texture {
     SDL_Texture* mTexture;
-    uint16 width;
-    uint16 height;
-    uint16 sWidth;
-    uint16 sHeight;
+    int width;
+    int height;
+    int sWidth;
+    int sHeight;
 } Texture;
 
 
@@ -81,7 +81,7 @@ typedef struct ListItem {
 
 
 typedef struct LinkedList {
-    uint32 size;
+    int size;
     ListItem* lastItem;
 } LinkedList;
 

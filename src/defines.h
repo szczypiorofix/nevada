@@ -30,17 +30,17 @@ typedef unsigned char bool;
  */
 
 // BYTE
-typedef char byte;
-typedef unsigned char ubyte;
+// typedef char byte;
+// typedef unsigned char ubyte;
 
-// INT16
-typedef signed short int int16;
-typedef unsigned short int uint16;
+// // INT16
+// typedef signed short int int16;
+// typedef unsigned short int uint16;
 
-// INT32
-typedef signed int int32;
-typedef unsigned int uint32;
+// // INT32
+// typedef signed int int32;
+// typedef unsigned int uint32;
 
-// INT64
-typedef signed long int int64;
-typedef unsigned long int uint64;
+// // INT64
+// typedef signed long int int64;
+// typedef unsigned long int uint64;

@@ -25,11 +25,11 @@ void UpdateDeltaTime();
 
 
 
-uint64 startTick, endTick;
-uint16 fpsCounter;
+unsigned long int startTick, endTick;
+unsigned short int fpsCounter;
 float delayTime = 0.0f;
 float deltaTime = 0.0f;
-uint16 fps = 0;
+unsigned short int fps = 0;
 
 
 void UpdateDeltaTime() {
@@ -193,8 +193,8 @@ int main(int argc, char* args[]) {
 		cam.offsetX = 0;
 		cam.offsetY = 0;
 
-		int16 walking = 0;
-		int16 currentWalk = WALK_LEFT;
+		short walking = 0;
+		short currentWalk = WALK_LEFT;
 		
 
 		// LEVEL STUFF...
@@ -208,7 +208,7 @@ int main(int argc, char* args[]) {
 			layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);
 		}
 
-		int16 quit = 0;
+		short quit = 0;
 
 		// DOGS
 		// NPC dogs[] = {
@@ -231,16 +231,16 @@ int main(int argc, char* args[]) {
 		// };
 
 
-		uint16 framesPlayerLeft[] = {16, 17, 18};
+		unsigned int framesPlayerLeft[] = {16, 17, 18};
 		Animation* walkingLeftAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);
 
-		uint16 framesPlayerRight[] = {28, 29, 30};
+		unsigned int framesPlayerRight[] = {28, 29, 30};
 		Animation* walkingRightAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
 
-		uint16 framesPlayerUp[] = {40, 41, 42};
+		unsigned int framesPlayerUp[] = {40, 41, 42};
 		Animation* walkingUpAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
 
-		uint16 framesPlayerDown[] = {4, 5, 6};
+		unsigned int framesPlayerDown[] = {4, 5, 6};
 		Animation* walkingDownAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
 
 
@@ -373,10 +373,13 @@ int main(int argc, char* args[]) {
 
 			for (int i = -7; i < 8; i++) {
 				for (int j = -5; j < 6; j++) {
-					// if (
-					// 	player.y + (j * 64) + (player.height / 2) < backgroundSpriteSheet->height &&
-					// 	player.x + (i * 64) + (player.width / 2) < backgroundSpriteSheet->width
-					// 	) {
+					if (
+						// Draw only the right tiles
+					  	((player->x + (i * 64) + (player->width / 2)) / 64) >= 0 &&
+						((player->x + (i * 64) + (player->width / 2)) / 64) < level->map->width &&
+						((player->y + (j * 64) + (player->height / 2)) / 64) >= 0 &&
+						((player->y + (j * 64) + (player->height / 2)) / 64) < level->map->height
+					  	) {
 
 						for (int t = 0; t < level->layers; t++) {
 							renderTexture(
@@ -390,7 +393,7 @@ int main(int argc, char* args[]) {
 							);
 						}
 
-					//}
+					}
 				}
 			}
 

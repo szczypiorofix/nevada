@@ -11,6 +11,7 @@
         "main.h": "c",
         "defines.h": "c",
         "grassland.tsx": "xml",
+        "animals1.tsx": "xml",
         "level.h": "c",
         "stdio.h": "c"
     }

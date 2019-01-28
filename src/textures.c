@@ -9,7 +9,7 @@ void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, uns
 Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned short spriteWidth, unsigned short spriteHeigth);
 void freeTexture(Texture* t);
 SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short height);
-SDL_Rect* createRectsForSprites(Level* level, const unsigned short size, Texture* t);
+SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned short size, Texture* t);
 Texture* loadFromRenderedText(const char* textureText, SDL_Game* game);
 void renderText(Texture* t, SDL_Game* game, int x, int y, int w, int h);
 
@@ -68,10 +68,10 @@ SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short
     return r;
 }
 
-SDL_Rect* createRectsForSprites(Level* level, const unsigned short size, Texture* t) {
+SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned short size, Texture* t) {
     SDL_Rect* l = malloc(sizeof(SDL_Rect) * size);
     for (int i = 0; i < level->size; i++)
-        l[i] = *getSpriteI(t, level->content[i], t->sWidth, t->sHeight);
+        l[i] = *getSpriteI(t, level->content[layerCount].data[i], t->sWidth, t->sHeight);
     return l;
 }
 

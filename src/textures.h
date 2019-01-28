@@ -22,7 +22,7 @@ void freeTexture(Texture* t);
 
 SDL_Rect* getSpriteI(Texture* t, int index, unsigned short width, unsigned short height);
 
-SDL_Rect* createRectsForSprites(Level* level, const unsigned short size, Texture* t);
+SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned short size, Texture* t);
 
 Texture* loadFromRenderedText(const char* textureText, SDL_Game* game);
 

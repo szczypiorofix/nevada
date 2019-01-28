@@ -2,13 +2,6 @@
 
 #include <libxml/parser.h>
 
-typedef struct Level {
-    int* content;
-    unsigned short width;
-    unsigned short height;
-    unsigned int size;
-} Level;
-
 typedef struct TileSetSourceImage {
     char* source;
     int width;
@@ -48,11 +41,21 @@ typedef struct TiledMap {
     int nextObjectGid;
     TileSet* tileSet;
     Layer* layer;
+    int layersCount;
 } TiledMap;
+
+
+typedef struct Level {
+    Layer* content;
+    int layers;
+    unsigned short width;
+    unsigned short height;
+    unsigned int size;
+} Level;
 
 
 int xmlCharToInt(const xmlChar a[]);
 
 TiledMap* parseMap(const char* fileName);
 
-void freeLevel(Level* level);
+void freeTiledMap(TiledMap* tiledMap);

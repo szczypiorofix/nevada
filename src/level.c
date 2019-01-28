@@ -13,12 +13,14 @@
 int xmlCharToInt(const xmlChar a[]);
 int* parseData(xmlDocPtr doc, xmlNodePtr cur);
 TiledMap* parseMap(const char* fileName);
-void freeLevel(Level* level);
+void freeTiledMap(TiledMap* tiledMap);
 
 
-
-void freeLevel(Level* level) {
+void freeTiledMap(TiledMap* tiledMap) {
 	// Free TileSetSourceImage, TileSetSource, TileLayer etc...
+	free(tiledMap->layer->name);
+	free(tiledMap->layer->encoding);
+	free(tiledMap->layer->data);
 } 
 
 int xmlCharToInt(const xmlChar a[]) {
@@ -225,11 +227,6 @@ TiledMap* parseMap(const char* fileName) {
 
     cur = cur->xmlChildrenNode;
 
-	Layer* layer = malloc(sizeof(Layer));
-	if (layer == NULL) {
-		printf("Malloc (creating Layer) error !!!\n");
-		return NULL;
-	}
 
 	TileSet* tileSet = malloc(sizeof(TileSet));
 	if (tileSet == NULL) {
@@ -237,28 +234,65 @@ TiledMap* parseMap(const char* fileName) {
 		return NULL;
 	}
 
+	int layersCount = 0;
+	int tileSetCount = 0;
+	
+	xmlNodePtr firstForCounter = cur;
+	
+	// Counting layers and tilesets
+	while(firstForCounter != NULL) {
+		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"tileset"))) {
+			tileSetCount++;
+		}
+		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"layer"))) {
+			layersCount++;
+		}
+		firstForCounter = firstForCounter->next;
+	}
+	
+	printf("Layers count: %i, tileset count: %i\n", layersCount, tileSetCount);
+
+	// Layer* layer = malloc(sizeof(Layer));
+	// if (layer == NULL) {
+	// 	printf("Malloc (creating Layer) error !!!\n");
+	// 	return NULL;
+	// }
+	
+	// Layer *layers[layersCount];
+	// layer counter, tileset counter;
+
+	int lc = 0, tc = 0;
+
+	Layer* layers = malloc(sizeof(Layer) * layersCount);
+	//Layer layers[layersCount];
+
+
     while (cur != NULL) {
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"tileset"))) {
 			tileSet->firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
 			tileSet->source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
 			printf("Tileset: firstgid=%i, source=%s\n", tileSet->firstGid, tileSet->source);
-			printf("Parsine tileSet file: %s.\n", tileSet->source);
+			printf("Parsing tileSet file: %s.\n", tileSet->source);
 			TileSetSource* tss = getTileSetSource(tileSet->source);
 			tileSet->tileSetSource = tss;
+			tc++;
 		}
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"layer"))) {
-			layer->id = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "id"));
-			layer->name = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
-			layer->width = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "width"));
-			layer->height = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "height"));
-			tiledMap->layer = layer;
-			printf("Layer id: %i\n", layer->id);
-			printf("Layer name: %s\n", layer->name);
-			printf("Layer width: %i\n", layer->width);
-			printf("Layer height: %i\n", layer->height);
-			parseData(doc, cur);
+			layers[lc].id = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "id"));
+			layers[lc].name = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
+			layers[lc].width = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "width"));
+			layers[lc].height = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "height"));
+			printf("Layer %i id: %i\n", lc, layers[lc].id);
+			printf("Layer %i name: %s\n", lc, layers[lc].name);
+			printf("Layer %i width: %i\n", lc, layers[lc].width);
+			printf("Layer %i height: %i\n", lc, layers[lc].height);
+			layers[lc].data = parseData(doc, cur);
+			lc++;
 		}
 	    cur = cur->next;
 	}
+	tiledMap->layer = *(&layers);
+	tiledMap->layersCount = lc;
+
 	return tiledMap;
 }

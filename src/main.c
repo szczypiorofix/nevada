@@ -450,6 +450,7 @@ int main(int argc, char* args[]) {
 		freeTexture(font1);
 		font1 = NULL;
 
+		freeTiledMap(level->map);
 		free(level->content);
 		level->content = NULL;
 		free(level);

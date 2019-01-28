@@ -51,6 +51,7 @@ typedef struct Level {
     unsigned short width;
     unsigned short height;
     unsigned int size;
+    TiledMap* map;
 } Level;
 
 

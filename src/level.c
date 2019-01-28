@@ -18,9 +18,13 @@ void freeTiledMap(TiledMap* tiledMap);
 
 void freeTiledMap(TiledMap* tiledMap) {
 	// Free TileSetSourceImage, TileSetSource, TileLayer etc...
-	free(tiledMap->layer->name);
-	free(tiledMap->layer->encoding);
-	free(tiledMap->layer->data);
+	
+	// free layers
+	for (int i = 0; i < tiledMap->layersCount; i++) {
+		free(tiledMap->layer[i].encoding);
+		free(tiledMap->layer[i].name);
+		free(tiledMap->layer[i].data);
+	}
 } 
 
 int xmlCharToInt(const xmlChar a[]) {
@@ -291,7 +295,7 @@ TiledMap* parseMap(const char* fileName) {
 		}
 	    cur = cur->next;
 	}
-	tiledMap->layer = *(&layers);
+	tiledMap->layer = layers;
 	tiledMap->layersCount = lc;
 
 	return tiledMap;

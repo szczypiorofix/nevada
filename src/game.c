@@ -8,7 +8,6 @@
 
 // RENDERER FLAGS
 static Uint32 rendererFlags = SDL_RENDERER_ACCELERATED; // | SDL_RENDERER_PRESENTVSYNC;
-
 static Uint32 windowFlags = SDL_WINDOW_SHOWN;
 
 
@@ -17,15 +16,16 @@ static Uint32 windowFlags = SDL_WINDOW_SHOWN;
 SDL_Game* initGame();
 Level* getLevel(short n);
 void updateCamera(Camera* c, Player player);
-int getTileX(Player* p, Camera* c, Level* l, unsigned int tw);
-int getTileY(Player* p, Camera* c, Level* l, unsigned int t);
-Animation* prepareAnimation(Texture* t, int speed, int sw, int sh, const int size, int* frames);
+int getTileX(Player* p, Camera* c, Level* l, uint16 tw);
+int getTileY(Player* p, Camera* c, Level* l, uint16 t);
+Animation* prepareAnimation(Texture* t, uint16 speed, uint16 sw, uint16 sh, const uint16 size, uint16* frames);
 int nextFrame(Animation* an);
 
 
 
+
 SDL_Game* initGame() {
-    SDL_Game * game = malloc(sizeof(SDL_Game));
+    SDL_Game* game = malloc(sizeof(SDL_Game));
     if (game == NULL) return NULL;
     game->success = 1;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
@@ -65,45 +65,38 @@ SDL_Game* initGame() {
             }
         }
     }
+
     game->gMusic = Mix_LoadMUS("res/ex-aws_cave.xm");
     if (game->gMusic == NULL) {
         printf( "Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError() );
         game->success = 0;
     }
+
     return game;
 }
 
 
 
 Level* getLevel(short n) {
-        
-    // parsing map
+
     TiledMap* tiledMap = parseMap("res/images/map.tmx");
     printf("TiledMap width: %i x height:%i, tileWidth:%i, tileHeight:%i\n", tiledMap->width, tiledMap->height, tiledMap->tileWidth, tiledMap->tileHeight);
 
     printf("TiledMap layers count: %i\n", tiledMap->layersCount);
     for (int i = 0; i < tiledMap->layersCount; i++) {
         printf("Layer info - id: %i, tilesCount: %i\n", tiledMap->layer[i].id, tiledMap->layer[i].data[0]);
-        // for (int j = 0; j < tiledMap->layer[i].width * tiledMap->layer[i].height; j++) {
-        //     printf("%i,", tiledMap->layer[i].data[j]);
-        // }
     }
 
     Level* level = malloc(sizeof(Level));
     if (level == NULL) return NULL;
 
-    const int w = 32;
-    const int h = 16;
-
-    level->width = w;
-    level->height = h;
-    level->size = w * h;
-    
-    level->content = malloc(sizeof *level->content * w * h);
-    if (level->content == NULL) return NULL;
-
     level->width = tiledMap->layer[0].width;
     level->height = tiledMap->layer[0].height;
+    level->size = level->width * level->height;
+
+    level->content = malloc(sizeof *level->content * level->size);
+    if (level->content == NULL) return NULL;
+
     level->content = tiledMap->layer;
     level->layers = tiledMap->layersCount;
     level->map = tiledMap;
@@ -119,15 +112,15 @@ void updateCamera(Camera* c, Player player) {
     c->offsetY = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
 }
 
-int getTileX(Player* p, Camera* c, Level* l, unsigned int tw) {
+int getTileX(Player* p, Camera* c, Level* l, uint16 tw) {
     return ( (p->x + (p->width / 2)) / tw );
 }
 
-int getTileY(Player* p, Camera* c, Level* l, unsigned int th) {
+int getTileY(Player* p, Camera* c, Level* l, uint16 th) {
     return ( (p->y + (p->height / 2)) / th );
 }
 
-Animation* prepareAnimation(Texture* t, int speed, int sw, int sh, const int size, int* frames) {
+Animation* prepareAnimation(Texture* t, uint16 speed, uint16 sw, uint16 sh, const uint16 size, uint16* frames) {
     Animation* anim = malloc(sizeof(Animation));
     if (anim == NULL) return NULL;
 

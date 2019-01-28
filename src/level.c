@@ -25,6 +25,7 @@ void freeTiledMap(TiledMap* tiledMap) {
 		free(tiledMap->layer[i].name);
 		free(tiledMap->layer[i].data);
 	}
+
 } 
 
 int xmlCharToInt(const xmlChar a[]) {
@@ -256,19 +257,13 @@ TiledMap* parseMap(const char* fileName) {
 	
 	printf("Layers count: %i, tileset count: %i\n", layersCount, tileSetCount);
 
-	// Layer* layer = malloc(sizeof(Layer));
-	// if (layer == NULL) {
-	// 	printf("Malloc (creating Layer) error !!!\n");
-	// 	return NULL;
-	// }
-	
-	// Layer *layers[layersCount];
-	// layer counter, tileset counter;
-
 	int lc = 0, tc = 0;
 
 	Layer* layers = malloc(sizeof(Layer) * layersCount);
-	//Layer layers[layersCount];
+	if (layers == NULL) {
+		printf("Malloc (creating Layer) error !!!\n");
+		return NULL;
+	}
 
 
     while (cur != NULL) {

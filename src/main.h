@@ -5,16 +5,10 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
+#include "defines.h"
 #include "level.h"
 
-// Booleans
-#define FALSE 0
-#define TRUE  1
-typedef unsigned char bool;
 
-
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
 
 /**
  * #################################################
@@ -23,7 +17,7 @@ typedef unsigned char bool;
  * */
 
 typedef struct SDL_Game {
-    short success;
+    uint16 success;
     SDL_Window* gWindow;
     SDL_Renderer* gRenderer;
     Mix_Music *gMusic;
@@ -32,51 +26,51 @@ typedef struct SDL_Game {
 
 
 typedef struct Camera {
-    int x;
-    int y;
-    int offsetX;
-    int offsetY;
+    int32 x;
+    int32 y;
+    int32 offsetX;
+    int32 offsetY;
 } Camera;
 
 
 typedef struct Player {
-    int x;
-    int y;
-    int velX;
-    int velY;
-    unsigned int width;
-    unsigned int height;
-    int tileX;
-    int tileY;
-    int tileIndex;
+    int32 x;
+    int32 y;
+    int32 velX;
+    int32 velY;
+    uint16 width;
+    uint16 height;
+    int32 tileX;
+    int32 tileY;
+    uint32 tileIndex;
 } Player;
 
 
 typedef struct NPC {
-    int x;
-    int y;
-    int velX;
-    int velY;
-    unsigned int width;
-    unsigned int height;
+    int32 x;
+    int32 y;
+    int32 velX;
+    int32 velY;
+    uint32 width;
+    uint32 height;
 } NPC;
 
 
 typedef struct Animation {
-    unsigned short size;
+    uint16 size;
     SDL_Rect* frames;
-    unsigned short speed;
-    unsigned short curFrame;
-    unsigned int counter;
+    uint16 speed;
+    uint16 curFrame;
+    uint32 counter;
 } Animation;
 
 
 typedef struct Texture {
     SDL_Texture* mTexture;
-    unsigned short width;
-    unsigned short height;
-    unsigned short sWidth;
-    unsigned short sHeight;
+    uint16 width;
+    uint16 height;
+    uint16 sWidth;
+    uint16 sHeight;
 } Texture;
 
 
@@ -87,7 +81,7 @@ typedef struct ListItem {
 
 
 typedef struct LinkedList {
-    unsigned int size;
+    uint32 size;
     ListItem* lastItem;
 } LinkedList;
 
@@ -107,4 +101,3 @@ char* getCurrentTime();
 void close(SDL_Game* g);
 
 Player* resetPlayer(Texture* t);
-

@@ -7,20 +7,12 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+
 #include "main.h"
 #include "game.h"
 #include "textures.h"
 #include "level.h"
 
-
-#define NO_WALK -1
-#define WALK_LEFT 0
-#define WALK_RIGHT 1
-#define WALK_UP 2
-#define WALK_DOWN 3
-#define SPEED 2
-
-#define FPS_MAX 60
 
 
 
@@ -33,11 +25,11 @@ void UpdateDeltaTime();
 
 
 
-unsigned long int startTick, endTick;
-unsigned short int fpsCounter;
+uint64 startTick, endTick;
+uint16 fpsCounter;
 float delayTime = 0.0f;
 float deltaTime = 0.0f;
-unsigned short int fps = 0;
+uint16 fps = 0;
 
 
 void UpdateDeltaTime() {
@@ -201,8 +193,8 @@ int main(int argc, char* args[]) {
 		cam.offsetX = 0;
 		cam.offsetY = 0;
 
-		int walking = 0;
-		int currentWalk = WALK_LEFT;
+		int16 walking = 0;
+		int16 currentWalk = WALK_LEFT;
 		
 
 		// LEVEL STUFF...
@@ -216,7 +208,7 @@ int main(int argc, char* args[]) {
 			layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);
 		}
 
-		short quit = 0;
+		int16 quit = 0;
 
 		// DOGS
 		// NPC dogs[] = {
@@ -239,16 +231,16 @@ int main(int argc, char* args[]) {
 		// };
 
 
-		int framesPlayerLeft[] = {16, 17, 18};
+		uint16 framesPlayerLeft[] = {16, 17, 18};
 		Animation* walkingLeftAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);
 
-		int framesPlayerRight[] = {28, 29, 30};
+		uint16 framesPlayerRight[] = {28, 29, 30};
 		Animation* walkingRightAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
 
-		int framesPlayerUp[] = {40, 41, 42};
+		uint16 framesPlayerUp[] = {40, 41, 42};
 		Animation* walkingUpAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
 
-		int framesPlayerDown[] = {4, 5, 6};
+		uint16 framesPlayerDown[] = {4, 5, 6};
 		Animation* walkingDownAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
 
 

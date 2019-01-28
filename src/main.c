@@ -213,7 +213,7 @@ int main(int argc, char* args[]) {
 
 		SDL_Rect* layersRects[level->layers];
 		for (int i = 0; i < level->layers; i++) {
-			layersRects[i] = &(*createRectsForSprites(level, i, level->size, backgroundSpriteSheet));
+			layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);
 		}
 
 		short quit = 0;
@@ -430,9 +430,7 @@ int main(int argc, char* args[]) {
 				);
 			}
 			
-			
 			renderText(font1, game, 100, 50, 400, 50);
-		
 
 			// FPS LIMIT
 			float frameRate = 1000.0f / FPS_MAX;

@@ -5,17 +5,24 @@
 		}
 	],
 	"settings": {
+		"C_Cpp.default.includePath": [
+			"${workspaceFolder}/**"
+		],
 		"files.associations": {
 			"filehandler.h": "c",
-			"stdio.h": "c",
-			"time.h": "c",
+			"game.h": "c",
 			"writebinary.h": "c",
 			"loghandler.h": "c",
-			"writestruct.h": "c",
-			"game.h": "c",
-			"level.h": "c",
+			"font.h": "c",
 			"textures.h": "c",
-			"main.h": "c"
+			"readbinary.h": "c",
+			"writestruct.h": "c",
+			"main.h": "c",
+			"defines.h": "c",
+			"grassland.tsx": "xml",
+			"animals1.tsx": "xml",
+			"level.h": "c",
+			"stdio.h": "c"
 		}
 	}
 }

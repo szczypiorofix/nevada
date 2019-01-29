@@ -4,7 +4,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}",
+                "${workspaceFolder}/**",
                 "C:\\mingw_dev_lib\\include"
             ],
             "defines": [
@@ -13,6 +13,8 @@
             ],
             "compilerPath": "C:\\MinGW\\bin\\gcc.exe",
             "intelliSenseMode": "msvc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
             "browse": {
                 "path": [
                     "${workspaceFolder}"

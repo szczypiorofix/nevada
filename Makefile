@@ -11,7 +11,7 @@ OPTIMIZEFLAG=-Os -std=c99
 all: main.exe
 
 main.exe: main.o game.o textures.o level.o
-	$(CC) $(CWARNFLAGS) $(ODIR)/main.o $(ODIR)/game.o $(ODIR)/textures.o $(ODIR)/level.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o main.exe
+	$(CC) $(CWARNFLAGS) $(ODIR)/main.o $(ODIR)/game.o $(ODIR)/textures.o $(ODIR)/level.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/main.exe
 
 main.o: src/main.c src/main.h src/game.h
 	$(CC) $(CFLAGS) $(CWARNFLAGS) src/main.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/main.o

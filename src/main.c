@@ -174,12 +174,18 @@ int main(int argc, char* args[]) {
 		printf("ERROR!\n");
 		exit(1);
 	} else {
-		printf("Initialization SDL - OK!\nGame.success -> %i\n", game->success);
+		printf("Initialization SDL - OK!\nGame.success -> %i\n", game->success);		
 
-		Texture* playerSpriteSheet = loadSpriteSheet("res/images/animals1.png", game, 52, 72);
+		// LEVEL STUFF...
+		Level* level = getLevel(0);
+		
+		printf("This level consists of %i layer(s).\n", level->layers);
+		printf("Name of image file %s\n", level->map->tileSet->tileSetSource->tileSetSourceImage->source);
+
+		Texture* playerSpriteSheet = loadSpriteSheet("animals1.png", game, 52, 72);
 		printf("Player spritesheet Width: %i, height: %i\n", playerSpriteSheet->width, playerSpriteSheet->height);
 
-		Texture* backgroundSpriteSheet = loadSpriteSheet("res/images/grassland.png", game, 64, 64);
+		Texture* backgroundSpriteSheet = loadSpriteSheet("grassland.png", game, 64, 64);
 		printf("Background spritesheet Width: %i, height: %i\n", backgroundSpriteSheet->width, backgroundSpriteSheet->height);
 
 		Texture* font1 = loadFromRenderedText("THE TEMPLE OF THE LOST PUPPY", game);
@@ -196,13 +202,6 @@ int main(int argc, char* args[]) {
 		short walking = 0;
 		short currentWalk = WALK_LEFT;
 		
-
-		// LEVEL STUFF...
-		Level* level = getLevel(0);
-		
-		printf("This level consists of %i layer(s).\n", level->layers);
-
-
 		SDL_Rect* layersRects[level->layers];
 		for (int i = 0; i < level->layers; i++) {
 			layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);

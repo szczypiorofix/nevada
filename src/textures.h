@@ -16,7 +16,7 @@
 
 void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height);
 
-Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned int spriteWidth, unsigned int spriteHeigth);
+Texture* loadSpriteSheet(char* fileName, SDL_Game* game, unsigned int spriteWidth, unsigned int spriteHeigth);
 
 void freeTexture(Texture* t);
 

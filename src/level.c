@@ -290,6 +290,7 @@ TiledMap* parseMap(const char* fileName) {
 		}
 	    cur = cur->next;
 	}
+	tiledMap->tileSet = tileSet;
 	tiledMap->layer = layers;
 	tiledMap->layersCount = lc;
 

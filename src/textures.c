@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include "textures.h"
 
 
 // FORWARD DECLARATION
 void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height);
-Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned int spriteWidth, unsigned int spriteHeigth);
+Texture* loadSpriteSheet(char* fileName, SDL_Game* game, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(Texture* t);
 SDL_Rect* getSpriteI(Texture* t, int index, unsigned int width, unsigned int height);
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, Texture* t);
@@ -31,18 +32,23 @@ void renderTexture(Texture* t, SDL_Game* game, SDL_Rect* clip, int x, int y, uns
 }
 
 
-Texture* loadSpriteSheet(const char* fileName, SDL_Game* game, unsigned int spriteWidth, unsigned int spriteHeigth) {
+Texture* loadSpriteSheet(char* fileName, SDL_Game* game, unsigned int spriteWidth, unsigned int spriteHeigth) {
     Texture* t = malloc(sizeof(Texture));
     SDL_Texture* newTexture = NULL;
-    SDL_Surface* loadedSurface = IMG_Load(fileName);
+
+    char str[50] = RES_IMAGES;
+    const char *strFrom = fileName;
+    strcat (str, strFrom);
+
+    SDL_Surface* loadedSurface = IMG_Load(str);
     if (loadedSurface == NULL) {
-        printf( "Unable to load image %s! SDL_image Error: %s\n", fileName, IMG_GetError());
+        printf( "Unable to load image %s! SDL_image Error: %s\n", str, IMG_GetError());
         t = NULL;
     } else {
         SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF));
         newTexture = SDL_CreateTextureFromSurface(game->gRenderer, loadedSurface);
         if (newTexture == NULL) {
-            printf("Unable to create texture from %s! SDL Error: %s\n", fileName, SDL_GetError());
+            printf("Unable to create texture from %s! SDL Error: %s\n", str, SDL_GetError());
         } else {
             t->width = loadedSurface->w;
             t->height = loadedSurface->h;

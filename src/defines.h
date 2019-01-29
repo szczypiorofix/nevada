@@ -25,6 +25,8 @@ typedef unsigned char bool;
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
+#define RES_IMAGES "res/images/"
+
 /**
  * TYPEDEFS
  */

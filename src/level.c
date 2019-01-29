@@ -16,6 +16,9 @@ TiledMap* parseMap(const char* fileName);
 void freeTiledMap(TiledMap* tiledMap);
 
 
+
+
+
 void freeTiledMap(TiledMap* tiledMap) {
 	// Free TileSetSourceImage, TileSetSource, TileLayer etc...
 	
@@ -232,13 +235,6 @@ TiledMap* parseMap(const char* fileName) {
 
     cur = cur->xmlChildrenNode;
 
-
-	TileSet* tileSet = malloc(sizeof(TileSet));
-	if (tileSet == NULL) {
-		printf("Malloc (creating TileSetSource) error !!!\n");
-		return NULL;
-	}
-
 	int layersCount = 0;
 	int tileSetCount = 0;
 	
@@ -257,6 +253,12 @@ TiledMap* parseMap(const char* fileName) {
 	
 	printf("Layers count: %i, tileset count: %i\n", layersCount, tileSetCount);
 
+	TileSet* tileSet = malloc(sizeof(TileSet) * tileSetCount);
+	if (tileSet == NULL) {
+		printf("Malloc (creating TileSet) error !!!\n");
+		return NULL;
+	}
+
 	int lc = 0, tc = 0;
 
 	Layer* layers = malloc(sizeof(Layer) * layersCount);
@@ -268,12 +270,12 @@ TiledMap* parseMap(const char* fileName) {
 
     while (cur != NULL) {
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"tileset"))) {
-			tileSet->firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
-			tileSet->source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
-			printf("Tileset: firstgid=%i, source=%s\n", tileSet->firstGid, tileSet->source);
-			printf("Parsing tileSet file: %s.\n", tileSet->source);
-			TileSetSource* tss = getTileSetSource(tileSet->source);
-			tileSet->tileSetSource = tss;
+			tileSet[tc].firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
+			tileSet[tc].source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
+			printf("Tileset: firstgid=%i, source=%s\n", tileSet[tc].firstGid, tileSet[tc].source);
+			printf("Parsing tileSet file: %s.\n", tileSet[tc].source);
+			//TileSetSource* tss = getTileSetSource(tileSet[tc].source);
+			//tileSet[tc].tileSetSource = tss;
 			tc++;
 		}
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"layer"))) {
@@ -293,6 +295,7 @@ TiledMap* parseMap(const char* fileName) {
 	tiledMap->tileSet = tileSet;
 	tiledMap->layer = layers;
 	tiledMap->layersCount = lc;
+	tiledMap->tileSetCount = tc;
 
 	return tiledMap;
 }

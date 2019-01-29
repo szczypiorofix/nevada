@@ -42,6 +42,7 @@ typedef struct TiledMap {
     TileSet* tileSet;
     Layer* layer;
     int layersCount;
+    int tileSetCount;
 } TiledMap;
 
 

@@ -180,7 +180,7 @@ int main(int argc, char* args[]) {
 		Level* level = getLevel(0);
 		
 		printf("This level consists of %i layer(s).\n", level->layers);
-		printf("Name of image file %s\n", level->map->tileSet->tileSetSource->tileSetSourceImage->source);
+		printf("This level consists of %i tilesets.\n", level->map->tileSetCount);
 
 		Texture* playerSpriteSheet = loadSpriteSheet("animals1.png", game, 52, 72);
 		printf("Player spritesheet Width: %i, height: %i\n", playerSpriteSheet->width, playerSpriteSheet->height);

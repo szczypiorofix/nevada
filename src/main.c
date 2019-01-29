@@ -168,7 +168,6 @@ int main(int argc, char* args[]) {
 
 	luaTest();
 
-
 	SDL_Game* game = initGame();
 	if (!game) {
 		printf("ERROR!\n");

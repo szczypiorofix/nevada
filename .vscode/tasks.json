@@ -1,61 +1,16 @@
 {
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "create object",
+            "label": "Make",
             "type": "shell",
-            "command": "gcc",
-            "args": [
-                "-g",
-                "-Wall",
-                "-Werror",
-                "-IC:\\mingw_dev_lib\\include",
-                "-LC:\\mingw_dev_lib\\lib",
-                "-lmingw32",
-                "-lSDL2main",
-                "-lSDL2",
-                "-lSDL2_image",
-                "-lSDL2_mixer",
-                "-lSDL2_ttf",
-                "-c",
-                "${fileDirname}\\${fileBasename}",
-                "-o",
-                ".\\obj\\${fileBasenameNoExtension}.o"
-            ],
+            "command": "mingw32-make",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "build app",
-            "type": "shell",
-            "command": "gcc",
-            "args": [
-                "-Wall",
-                "-Werror",
-                ".\\obj\\*.o",
-                "-IC:\\mingw_dev_lib\\include\\SDL2",
-                "-LC:\\mingw_dev_lib\\lib",
-                "-lmingw32",
-                "-lSDL2main",
-                "-lSDL2",
-                "-lSDL2_image",
-                "-lSDL2_mixer",
-                "-lSDL2_ttf",
-                "-o",
-                ".\\main.exe"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
+            }
         }
     ]
 }

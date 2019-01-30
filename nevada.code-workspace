@@ -6,7 +6,8 @@
 	],
 	"settings": {
 		"C_Cpp.default.includePath": [
-			"${workspaceFolder}/**"
+			"${workspaceFolder}/**",
+            "C:\\mingw_dev_lib\\include"
 		],
 		"files.associations": {
 			"filehandler.h": "c",

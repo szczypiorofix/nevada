@@ -136,13 +136,14 @@ Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, uns
 
     anim->size = size;
     anim->speed = speed;
+    anim->counter = 0;
+    anim->curFrame = 0;
 
-    SDL_Rect* r = malloc(sizeof(SDL_Rect) * size);
-    if (r == NULL) return NULL;
+    anim->frames = malloc(sizeof(SDL_Rect) * size);
+    if (anim->frames == NULL) return NULL;
     for (int i = 0; i < size; i++) {
-        r[i] = *getSpriteI(t, frames[i], sw, sh);
+        anim->frames[i] = *getSpriteI(t, frames[i], sw, sh);
     }
-    anim->frames = r;
     return anim;
 }
 

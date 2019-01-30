@@ -197,9 +197,6 @@ int main(int argc, char* args[]) {
 		cam.y = 0;
 		cam.offsetX = 0;
 		cam.offsetY = 0;
-
-		short walking = 0;
-		short currentWalk = WALK_LEFT;
 		
 		SDL_Rect* layersRects[level->layers];
 		for (int i = 0; i < level->layers; i++) {
@@ -230,29 +227,40 @@ int main(int argc, char* args[]) {
 
 
 		unsigned int framesPlayerLeft[] = {16, 17, 18};
-		Animation* walkingLeftAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);
+		Animation* walkingAnimation[4];
+
 
 		unsigned int framesPlayerRight[] = {28, 29, 30};
-		Animation* walkingRightAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
+		// Animation* walkingRightAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
 
 		unsigned int framesPlayerUp[] = {40, 41, 42};
-		Animation* walkingUpAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
+		// Animation* walkingUpAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
 
 		unsigned int framesPlayerDown[] = {4, 5, 6};
-		Animation* walkingDownAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
+		// Animation* walkingDownAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
 
+		// #define WALK_LEFT 0
+		// #define WALK_RIGHT 1
+		// #define WALK_UP 2
+		// #define WALK_DOWN 3
 
-		Animation* currentWalkAnim = walkingLeftAnimation;
+		walkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);
+		walkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
+		walkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
+		walkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
+
+		int walking = 0;
+		int currentWalk = WALK_LEFT;
+
 		// Hardcoded first frame of the player, without this line the dog is invisible at the beginning
-		currentWalkAnim->curFrame = 1;
-
+		walkingAnimation[currentWalk]->curFrame = 0;
+		
 
 		SDL_Event e;
 		
 		while(!quit) {
 			
 			UpdateDeltaTime();
-
 			/**
 			 * #################################################
 			 * ..................... INPUT .....................
@@ -292,16 +300,24 @@ int main(int argc, char* args[]) {
 					}
 					if (e.type == SDL_KEYUP) {
 						if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d) {
-							if (player->velX > 0) player->velX = 0;
+							if (player->velX > 0) {
+								player->velX = 0;
+							}
 						}
 						if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a) {
-							if (player->velX < 0) player->velX = 0;
+							if (player->velX < 0) {
+								player->velX = 0;
+							}
 						}
 						if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w) {
-							if (player->velY < 0) player->velY = 0;
+							if (player->velY < 0) {
+								player->velY = 0;
+							}
 						}
 						if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s) {
-							if (player->velY > 0) player->velY = 0;
+							if (player->velY > 0) {
+								player->velY = 0;
+							}
 						}
 					}
 				}
@@ -313,39 +329,22 @@ int main(int argc, char* args[]) {
 			 * #################################################
 			 * */
 		
+			// PLAYER'S VELOCITY
 			player->x += player->velX;
 			player->y += player->velY;
-
-			currentWalk = NO_WALK;
-			walking = 0;
-
+			
+			// WALKING
+			walking = 1;
 			if (player->velX == SPEED) {
 				currentWalk = WALK_RIGHT;
 			} else if (player->velX == -SPEED) {
 				currentWalk = WALK_LEFT;
-			}
-
-			if (player->velY == SPEED) {
+			} else if (player->velY == SPEED) {
 				currentWalk = WALK_DOWN;
 			} else if (player->velY == - SPEED) {
 				currentWalk = WALK_UP;
-			}
+			} else walking = 0;
 
-			if (currentWalk == WALK_RIGHT || currentWalk == WALK_LEFT || currentWalk == WALK_DOWN || currentWalk == WALK_UP) {
-				walking = 1;
-				if (currentWalk == WALK_RIGHT) {
-					currentWalkAnim = walkingRightAnimation;
-				}
-				if (currentWalk == WALK_LEFT) {
-					currentWalkAnim = walkingLeftAnimation;
-				}
-				if (currentWalk == WALK_UP) {
-					currentWalkAnim = walkingUpAnimation;
-				}
-				if (currentWalk == WALK_DOWN) {
-					currentWalkAnim = walkingDownAnimation;
-				}
-			}
 
 			updateCamera(&cam, *player);
 
@@ -399,13 +398,12 @@ int main(int argc, char* args[]) {
 			// for (int i = 0; i < 4; i++)
 			// 	renderTexture(playerSpriteSheet, game, &dogsAnim[i]->frames[nextFrame(dogsAnim[i])], dogs[i].x + cam.offsetX, dogs[i].y + cam.offsetY, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight);
 
-
 			// RENDER PLAYER
 			if (walking == 1) {
 				renderTexture(
 					playerSpriteSheet,
 					game,
-					&currentWalkAnim->frames[nextFrame(currentWalkAnim)],
+					&walkingAnimation[currentWalk]->frames[nextFrame(walkingAnimation[currentWalk])],
 					player->x + cam.offsetX,
 					player->y + cam.offsetY,
 					playerSpriteSheet->sWidth,
@@ -415,7 +413,7 @@ int main(int argc, char* args[]) {
 				renderTexture(
 					playerSpriteSheet,
 					game,
-					&currentWalkAnim->frames[currentWalkAnim->curFrame],
+					&walkingAnimation[currentWalk]->frames[walkingAnimation[currentWalk]->curFrame],
 					player->x + cam.offsetX,
 					player->y + cam.offsetY,
 					playerSpriteSheet->sWidth,

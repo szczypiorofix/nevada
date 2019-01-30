@@ -166,7 +166,7 @@ int main(int argc, char* args[]) {
 
 	// LinkedList list = {0, NULL};
 
-	luaTest();
+	// luaTest();
 
 	SDL_Game* game = initGame();
 	if (!game) {
@@ -213,10 +213,10 @@ int main(int argc, char* args[]) {
 		// 	{400, 360, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
 		// };
 
-		// int framesDog1[] = {73, 74, 75};
-		// int framesDog2[] = {19, 20, 21};
-		// int framesDog3[] = {22, 23, 24};
-		// int framesDog4[] = {34, 35, 36};
+		// unsigned int framesDog1[] = {73, 74, 75};
+		// unsigned int framesDog2[] = {19, 20, 21};
+		// unsigned int framesDog3[] = {22, 23, 24};
+		// unsigned int framesDog4[] = {34, 35, 36};
 
 		// Animation* dogsAnim[] = {
 		// 	prepareAnimation(playerSpriteSheet, 1, player->width, player->height, 3, framesDog1),
@@ -225,24 +225,13 @@ int main(int argc, char* args[]) {
 		// 	prepareAnimation(playerSpriteSheet, 9, player->width, player->height, 3, framesDog4),
 		// };
 
-
-		unsigned int framesPlayerLeft[] = {16, 17, 18};
+		// ANIMATIONS
 		Animation* walkingAnimation[4];
 
-
+		unsigned int framesPlayerLeft[]  = {16, 17, 18};
 		unsigned int framesPlayerRight[] = {28, 29, 30};
-		// Animation* walkingRightAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
-
-		unsigned int framesPlayerUp[] = {40, 41, 42};
-		// Animation* walkingUpAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
-
-		unsigned int framesPlayerDown[] = {4, 5, 6};
-		// Animation* walkingDownAnimation = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
-
-		// #define WALK_LEFT 0
-		// #define WALK_RIGHT 1
-		// #define WALK_UP 2
-		// #define WALK_DOWN 3
+		unsigned int framesPlayerUp[]    = {40, 41, 42};
+		unsigned int framesPlayerDown[]  = {4,  5,  6};
 
 		walkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);
 		walkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
@@ -251,10 +240,7 @@ int main(int argc, char* args[]) {
 
 		int walking = 0;
 		int currentWalk = WALK_LEFT;
-
-		// Hardcoded first frame of the player, without this line the dog is invisible at the beginning
-		walkingAnimation[currentWalk]->curFrame = 0;
-		
+		walkingAnimation[currentWalk]->curFrame = 1;
 
 		SDL_Event e;
 		

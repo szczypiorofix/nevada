@@ -5,9 +5,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:\\mingw_dev_lib\\include",
-                "C:\\mingw_dev_lib\\lib",
-                "C:\\mingw_dev_lib\\bin"
+                "C:\\mingw_dev_lib\\include"
             ],
             "defines": [
                 "_DEBUG",
@@ -20,9 +18,7 @@
             "browse": {
                 "path": [
                     "${workspaceFolder}/**",
-                    "C:\\mingw_dev_lib\\include",
-                    "C:\\mingw_dev_lib\\lib",
-                    "C:\\mingw_dev_lib\\bin"
+                    "C:\\mingw_dev_lib\\include"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""

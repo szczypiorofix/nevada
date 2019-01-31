@@ -26,7 +26,10 @@
 			"grassland.tsx": "xml",
 			"animals1.tsx": "xml",
 			"level.h": "c",
-			"stdio.h": "c"
+			"stdio.h": "c",
+			"stdbool.h": "c",
+			"stdlib.h": "c",
+			"string.h": "c"
 		}
 	}
 }

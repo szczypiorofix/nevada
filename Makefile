@@ -12,20 +12,11 @@ OPTIMIZEFLAG=-Os -mwindows
 
 all: bin/main.exe
 
-bin/main.exe: $(ODIR)/main.o $(ODIR)/game.o $(ODIR)/textures.o $(ODIR)/level.o
-	$(CC) $(CWARNFLAGS) $(ODIR)/main.o $(ODIR)/game.o $(ODIR)/textures.o $(ODIR)/level.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/main.exe
+bin/main.exe: $(ODIR)/main.o
+	$(CC) $(CWARNFLAGS) $(ODIR)/main.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/main.exe
 
 $(ODIR)/main.o: $(SOURCE)/main.c $(SOURCE)/main.h
 	$(CC) $(CFLAGS) $(CWARNFLAGS) $(SOURCE)/main.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/main.o
-
-$(ODIR)/game.o: $(SOURCE)/game.c $(SOURCE)/game.h
-	$(CC) $(CFLAGS) $(CWARNFLAGS) $(SOURCE)/game.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/game.o
-
-$(ODIR)/textures.o: $(SOURCE)/textures.c $(SOURCE)/textures.h
-	$(CC) $(CFLAGS) $(CWARNFLAGS) $(SOURCE)/textures.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/textures.o
-
-$(ODIR)/level.o: $(SOURCE)/level.c $(SOURCE)/level.h
-	$(CC) $(CFLAGS) $(CWARNFLAGS) $(SOURCE)/level.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/level.o
 
 
 clean:

@@ -1,11 +1,7 @@
 #pragma once
-#include <stdio.h>
 
-/**
- * #################################################
- * ................... CONSTANTS ...................
- * #################################################
- * */
+
+// ------------------ CONSTANTS ------------------
 
 #define WALK_UP 0
 #define WALK_RIGHT 1
@@ -13,8 +9,6 @@
 #define WALK_LEFT 3
 
 #define SPEED 2
-
-#define FPS_MAX 60
 
 // Booleans
 #define FALSE 0
@@ -29,9 +23,7 @@ typedef unsigned char bool;
 #define DIR_RES "res/"
 
 
-/**
- * TYPEDEFS
- */
+// ------------------ TYPEDEFS ------------------
 
 // BYTE
 typedef char byte;
@@ -48,3 +40,12 @@ typedef unsigned int uint32;
 // INT64
 typedef signed long int int64;
 typedef unsigned long int uint64;
+
+
+
+// ------------------ COMMON FUNCTIONS ------------------
+
+int fromBinary(const char *s);
+char* getFromResourceImagesDir(char* file);
+char* getFromResourceDir(char* file);
+char* copyStringFromPointer(const char* s);

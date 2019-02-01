@@ -1,18 +1,12 @@
 {
     "files.associations": {
-        "filehandler.h": "c",
-        "game.h": "c",
-        "writebinary.h": "c",
-        "loghandler.h": "c",
-        "font.h": "c",
-        "textures.h": "c",
-        "readbinary.h": "c",
-        "writestruct.h": "c",
         "main.h": "c",
         "defines.h": "c",
         "grassland.tsx": "xml",
         "animals1.tsx": "xml",
+        "list.h": "c",
+        "engine.h": "c",
         "level.h": "c",
-        "stdio.h": "c"
+        "textures.h": "c"
     }
 }

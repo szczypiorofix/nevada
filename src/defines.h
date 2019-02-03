@@ -1,3 +1,5 @@
+#ifndef DEFINES_H_
+#define DEFINES_H_
 #pragma once
 
 
@@ -43,9 +45,23 @@ typedef unsigned long int uint64;
 
 
 
+
+// ------------------ ENUMS ------------------
+
+enum SpriteSheets {
+    NPC_SPRITESHEET,                // 0
+    GRASSLAND1_SPRITESHEET          // 1
+} spriteSheets;
+
+
+
+
+
 // ------------------ COMMON FUNCTIONS ------------------
 
 int fromBinary(const char *s);
 char* getFromResourceImagesDir(char* file);
 char* getFromResourceDir(char* file);
 char* copyStringFromPointer(const char* s);
+
+#endif

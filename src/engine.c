@@ -3,15 +3,17 @@
 #include "engine.h"
 
 // ------------------ FORWARD DECLARATION ------------------
-struct Engine* createEngine(void);
-bool initSDL(struct Engine* engine);
-bool createWindow(struct Engine* engine);
-bool createRenderer(struct Engine* engine);
+Engine* createEngine(void);
+bool initSDL(Engine* engine);
+bool createWindow(Engine* engine);
+bool createRenderer(Engine* engine);
 
 struct Engine* engineStart();
-void engineStop(struct Engine* engine);
-void engineDelay(struct Engine* engine);
+void engineStop(Engine* engine);
+void engineDelay(Engine* engine);
 
+Assets* createAssets(void);
+bool addGraphicsToAssets(Texture* texture, Assets* assets);
 
 
 
@@ -23,8 +25,8 @@ static Uint32 windowFlags = SDL_WINDOW_SHOWN;
 
 // ------------------ "PRIVATE" FUNCTIONS ------------------
 
-struct Engine* createEngine(void) {
-    struct Engine* engine = malloc(sizeof(engine));
+Engine* createEngine(void) {
+    Engine* engine = malloc(sizeof(engine));
     if (engine == NULL) return NULL;
 
     engine->started = FALSE;
@@ -39,16 +41,18 @@ struct Engine* createEngine(void) {
     engine->delayTime = 0.0f;
     engine->deltaTime = 0.0f;
     engine->fps = 0;
+    engine->assets = NULL;
+
     return engine;
 }
 
-bool initSDL(struct Engine* engine) {
+bool initSDL(Engine* engine) {
     engine->started = (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0);
     if (engine->started == FALSE) printf( "SDL_Init() Error: %s\n", SDL_GetError());
     return engine->started;
 }
 
-bool createWindow(struct Engine* engine) {
+bool createWindow(Engine* engine) {
     engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, windowFlags);
     if (engine->window == NULL) {
         printf( "SDL_CreateWindow() Error: %s\n", SDL_GetError());
@@ -58,7 +62,7 @@ bool createWindow(struct Engine* engine) {
 }
 
 
-bool createRenderer(struct Engine* engine) {
+bool createRenderer(Engine* engine) {
     engine->renderer = SDL_CreateRenderer(engine->window, -1, rendererFlags);
     if (engine->renderer == NULL) {
         printf("SDL_CreateRenderer() Error: %s\n", SDL_GetError());
@@ -69,7 +73,7 @@ bool createRenderer(struct Engine* engine) {
     return (engine->renderer == NULL);
 }
 
-bool initializePngImages(struct Engine* engine) {
+bool initializePngImages(Engine* engine) {
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
         printf( "IMG_Init() Error: %s\n", IMG_GetError());
@@ -78,7 +82,7 @@ bool initializePngImages(struct Engine* engine) {
     return engine->started;
 }
 
-bool initializeAudioSystem(struct Engine* engine) {
+bool initializeAudioSystem(Engine* engine) {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         printf( "SDL_mixer Mix_OpenAudio() Error: %s\n", Mix_GetError() );
         engine->started = FALSE;
@@ -86,7 +90,7 @@ bool initializeAudioSystem(struct Engine* engine) {
     return engine->started;
 }
 
-bool initializeTTFFonts(struct Engine* engine) {
+bool initializeTTFFonts(Engine* engine) {
     if(TTF_Init() == -1) {
         printf( "SDL_ttf TTF_Init() Error: %s\n", TTF_GetError() );
         engine->started = FALSE;
@@ -96,9 +100,9 @@ bool initializeTTFFonts(struct Engine* engine) {
 
 
 // ------------------ "PUBLIC" FUNCTIONS ------------------
-struct Engine* engineStart(void) {
-    struct Engine* engine = createEngine();
-
+Engine* engineStart(void) {
+    Engine* engine = createEngine();
+    engine->assets = NULL;
     initSDL(engine);
     createWindow(engine);
     createRenderer(engine);
@@ -110,13 +114,13 @@ struct Engine* engineStart(void) {
     return engine;
 }
 
-void engineDelay(struct Engine* engine) {
+void engineDelay(Engine* engine) {
     float frameRate = (float) (1000.0f / ENGINE_FPS_MAX);
     if (engine->deltaTime < frameRate)
         SDL_Delay((int)(frameRate - engine->deltaTime));
 }
 
-void engineStop(struct Engine* engine) {
+void engineStop(Engine* engine) {
     engine->started = FALSE;
 
     SDL_DestroyRenderer(engine->renderer);
@@ -131,7 +135,7 @@ void engineStop(struct Engine* engine) {
 }
 
 
-void updateDeltaTime(struct Engine* engine) {
+void updateDeltaTime(Engine* engine) {
     engine->startTick = SDL_GetPerformanceCounter();
     engine->deltaTime = (float)(engine->startTick - engine->endTick) / SDL_GetPerformanceFrequency();
     engine->endTick = engine->startTick;
@@ -142,4 +146,28 @@ void updateDeltaTime(struct Engine* engine) {
         engine->fps = engine->fpsCounter;
         engine->fpsCounter = 0;
     }
+}
+
+Assets* createAssets(void) {
+    
+    Assets* assets = malloc(sizeof(Assets));
+    if (assets == NULL) return NULL;
+
+    assets->spriteSheetsCount = 0;
+    assets->spriteSheets = NULL;
+
+    return assets;
+}
+
+bool addGraphicsToAssets(Texture* texture, Assets* assets) {
+    
+    if (texture == NULL || assets == NULL) return FALSE;
+    
+    if (assets->spriteSheetsCount == 0) {
+
+    } else {
+
+    }
+
+    return TRUE;
 }

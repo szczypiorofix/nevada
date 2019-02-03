@@ -6,6 +6,13 @@
 #include "engine.h"
 #include "level.h"
 
+
+
+// ------------------ FORWARD DECLARATION ------------------
+Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
+
+
+
 // ------------------ "PUBLIC" FUNCTIONS ------------------
 
 void freeTexture(Texture* t) {
@@ -23,7 +30,7 @@ void renderTexture(Texture* t, struct Engine* engine, SDL_Rect* clip, int x, int
 }
 
 
-Texture* loadSpriteSheet(char* fileName, struct Engine* engine, unsigned int spriteWidth, unsigned int spriteHeigth) {
+Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth) {
     Texture* t = malloc(sizeof(Texture));
     SDL_Texture* newTexture = NULL;
 
@@ -37,7 +44,7 @@ Texture* loadSpriteSheet(char* fileName, struct Engine* engine, unsigned int spr
         t = NULL;
     } else {
         SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF));
-        newTexture = SDL_CreateTextureFromSurface(engine->renderer, loadedSurface);
+        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
         if (newTexture == NULL) {
             printf("Unable to create texture from %s! SDL Error: %s\n", str, SDL_GetError());
         } else {
@@ -49,6 +56,7 @@ Texture* loadSpriteSheet(char* fileName, struct Engine* engine, unsigned int spr
     t->mTexture = newTexture;
     t->sWidth = spriteWidth;
     t->sHeight = spriteHeigth;
+    t->spriteSheet = spritesheet;
     return t;
 }
 

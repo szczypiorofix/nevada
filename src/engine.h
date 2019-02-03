@@ -1,4 +1,7 @@
+#ifndef ENGINE_H_
+#define ENGINE_H_
 #pragma once
+
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -13,7 +16,12 @@
 
 // ------------------ STRUCTS ------------------
 
-struct Engine
+typedef struct Assets {
+    short spriteSheetsCount;
+    Texture* spriteSheets;
+} Assets;
+
+typedef struct Engine
 {
     bool started;
     bool quit;
@@ -26,14 +34,18 @@ struct Engine
     float delayTime;
     float deltaTime;
     unsigned short int fps;
-};
+    Assets* assets;
+} Engine;
 
 
 
 // ------------------ PUBLIC FUNCTIONS ------------------
 
-struct Engine* engineStart(void);
-void engineStop(struct Engine* engine);
-void updateDeltaTime(struct Engine* engine);
-void engineDelay(struct Engine* engine);
+Engine* engineStart(void);
+void engineStop(Engine* engine);
+void updateDeltaTime(Engine* engine);
+void engineDelay(Engine* engine);
+Assets* createAssets(void);
+bool addGraphicsToAssets(Texture* texture, Assets* assets);
 
+#endif

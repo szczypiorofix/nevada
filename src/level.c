@@ -10,6 +10,8 @@
 
 
 
+// ------------------ FORWARD DECLARATION ------------------
+
 Level* getLevel(void);
 int xmlCharToInt(const xmlChar a[]);
 int* parseData(xmlDocPtr doc, xmlNodePtr cur);
@@ -18,9 +20,9 @@ void freeTiledMap(TiledMap* tiledMap);
 TileSetSource* getTileSetSource(const char* tsxFileName);
 
 
+// ------------------ "PUBLIC" FUNCTIONS ------------------
 
 void freeTiledMap(TiledMap* tiledMap) {	
-	// free Layers
 	for (int i = 0; i < tiledMap->layersCount; i++) {
 		free(tiledMap->layer[i].encoding);
 		free(tiledMap->layer[i].name);
@@ -30,7 +32,6 @@ void freeTiledMap(TiledMap* tiledMap) {
 		tiledMap->layer[i].id = 0;
 	}
 
-	// free TileSets
 	for (int i = 0; i < tiledMap->tileSetCount; i++) {
 		free(tiledMap->tileSet[i].source);
 		free(tiledMap->tileSet[i].tileSetSource->name);

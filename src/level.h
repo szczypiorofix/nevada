@@ -1,3 +1,5 @@
+#ifndef LEVEL_H_
+#define LEVEL_H
 #pragma once
 
 
@@ -57,3 +59,5 @@ typedef struct Level {
 
 Level* getLevel(void);
 void freeTiledMap(TiledMap* tiledMap);
+
+#endif

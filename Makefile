@@ -13,8 +13,8 @@ OPTIMIZEFLAG=-Os -mwindows
 all: bin/main.exe
 
 # main file
-bin/main.exe: $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o
-	$(CC) $(CWARNFLAGS) $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/main.exe
+bin/main.exe: $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o
+	$(CC) $(CWARNFLAGS) $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/main.exe
 
 
 # main.o
@@ -28,6 +28,10 @@ $(ODIR)/defines.o: $(SOURCE)/defines.c $(SOURCE)/defines.h
 # engine.o
 $(ODIR)/engine.o: $(SOURCE)/engine.c $(SOURCE)/engine.h
 	$(CC) $(CFLAGS) $(CWARNFLAGS) $(SOURCE)/engine.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/engine.o
+
+# arraylist.o
+$(ODIR)/arraylist.o: $(SOURCE)/arraylist.c $(SOURCE)/arraylist.h
+	$(CC) $(CFLAGS) $(CWARNFLAGS) $(SOURCE)/arraylist.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/arraylist.o
 
 # list.o
 $(ODIR)/list.o: $(SOURCE)/list.c $(SOURCE)/list.h

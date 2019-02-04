@@ -20,7 +20,8 @@
 			"list.h": "c",
 			"engine.h": "c",
 			"level.h": "c",
-			"textures.h": "c"
+			"textures.h": "c",
+			"arraylist.h": "c"
 		}
 	}
 }

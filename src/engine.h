@@ -16,10 +16,12 @@
 
 // ------------------ STRUCTS ------------------
 
+
 typedef struct Assets {
     short spriteSheetsCount;
-    Texture* spriteSheets;
+    Texture* spriteSheets[];
 } Assets;
+
 
 typedef struct Engine
 {
@@ -46,6 +48,8 @@ void engineStop(Engine* engine);
 void updateDeltaTime(Engine* engine);
 void engineDelay(Engine* engine);
 Assets* createAssets(void);
+
 bool addGraphicsToAssets(Texture* texture, Assets* assets);
+
 
 #endif

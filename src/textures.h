@@ -8,6 +8,7 @@
 
 typedef struct Texture {
     SDL_Texture* mTexture;
+    char* name;
     enum SpriteSheets spriteSheet;
     int width;
     int height;

@@ -154,20 +154,38 @@ Assets* createAssets(void) {
     if (assets == NULL) return NULL;
 
     assets->spriteSheetsCount = 0;
-    assets->spriteSheets = NULL;
+    assets->spriteSheets[0] = NULL;
 
     return assets;
 }
 
 bool addGraphicsToAssets(Texture* texture, Assets* assets) {
     
-    if (texture == NULL || assets == NULL) return FALSE;
+    if (texture == NULL || assets == NULL) {
+        if (texture == NULL ) fprintf(stderr, "Texture can't be null !\n");
+        else fprintf(stderr, "Assets can't be null !\n");
+        return FALSE;
+    }
     
+    // FIRST TEXTURES IN ASSETS
     if (assets->spriteSheetsCount == 0) {
 
-    } else {
+        assets->spriteSheets[0] = malloc(sizeof(texture));
+        if (assets->spriteSheets == NULL) {
+            fprintf(stderr, "Cannot alocate memory for assets->spritesheets !\n");
+            return FALSE;
+        }
+        assets->spriteSheets[0] = texture;
 
+        assets->spriteSheetsCount = 1;
+    } 
+    // NEXT TEXTURE IN ASSETS
+    else {
+
+        assets->spriteSheets[assets->spriteSheetsCount] = texture;
+        assets->spriteSheetsCount++;
     }
 
     return TRUE;
 }
+

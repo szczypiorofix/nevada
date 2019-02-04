@@ -10,6 +10,8 @@
 #include "textures.h"
 #include "objects.h"
 
+#include "arraylist.h"
+
 
 
 // FORWARD DECLARATION
@@ -202,6 +204,48 @@ int main(int argc, char* args[]) {
 			printf("Paramers %i: %s\n", i, args[i]);
 	}
 
+
+	int arraySize = 4;
+	int arrayChunkSize = 3;
+	printf("Creating array: %i, chunkSize: %i. \n", arraySize, arrayChunkSize);
+	ArrayList_Int* arr = createArrayList(arraySize, arrayChunkSize);
+	printf("Array: size: %i, maxSize: %i, chunkSize: %i. \n", arr->size, arr->maxSize, arr->chunkSize);
+	
+	addIntToArrayList(arr, 2);
+	addIntToArrayList(arr, 4);
+	addIntToArrayList(arr, 6);
+	addIntToArrayList(arr, -3);
+	addIntToArrayList(arr, 9);
+	
+	addIntToArrayList(arr, 34);
+	addIntToArrayList(arr, 35);
+
+	addIntToArrayList(arr, 37);
+	addIntToArrayList(arr, 42);
+
+	addIntToArrayList(arr, 56);
+	addIntToArrayList(arr, 58);
+
+	printValues(arr);
+
+	printf("Index: 3 = %i\n", getFromArrayList(arr, 3));
+	printf("Index: 6 = %i\n", getFromArrayList(arr, 6));
+	printf("Index: 7 = %i\n", getFromArrayList(arr, 7));
+	printf("Index: 0 = %i\n", getFromArrayList(arr, 0));
+	printf("Index: 11 = %i\n", getFromArrayList(arr, 11));
+
+	printf("Clearing array ...\n");
+	getchar();
+
+	clearArrayList(&arr);
+
+	printf("Array is empty.\n");
+
+	getchar();
+	exit(0);
+
+
+
 	struct Engine* engine = engineStart();
 	
 	printf("Engine status: %s\n", engine->started == TRUE ? "working." : "start failure.");
@@ -219,6 +263,14 @@ int main(int argc, char* args[]) {
 	// Texture* backgroundSpriteSheet = loadSpriteSheet("grassland.png", GRASSLAND1_SPRITESHEET, engine->renderer, 64, 64);
 
 	engine->assets = createAssets();
+	
+	// if (addGraphicsToAssets(playerSpriteSheet, engine->assets)) {
+	// 	printf("Graphics (player) added successfuly!\n");
+	// }
+
+	// if (addGraphicsToAssets(backgroundSpriteSheet, engine->assets)) {
+	// 	printf("Graphics (background) added successfuly!\n");
+	// }
 
 	
 	while(engine->quit == FALSE) {

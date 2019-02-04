@@ -32,8 +32,12 @@ void renderTexture(Texture* t, struct Engine* engine, SDL_Rect* clip, int x, int
 
 Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth) {
     Texture* t = malloc(sizeof(Texture));
+    if (t == NULL) {
+        fprintf(stderr, "Cannot load sprite sheet: %s !\n", fileName);
+        return NULL;
+    }
     SDL_Texture* newTexture = NULL;
-
+    t->name = fileName;
     char str[50] = DIR_RES_IMAGES;
     const char *strFrom = fileName;
     strcat (str, strFrom);

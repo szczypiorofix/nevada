@@ -188,4 +188,3 @@ bool addGraphicsToAssets(Texture* texture, Assets* assets) {
 
     return TRUE;
 }
-

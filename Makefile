@@ -6,7 +6,7 @@ ODIR=obj
 SOURCE=src
 LIBRARYPATH=-LC:\\mingw_dev_lib\\lib
 INCLUDEPATH=-IC:\\mingw_dev_lib\\include
-LINKERFLAGS=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -llibxml2 -liconv -llua -g -std=c11
+LINKERFLAGS=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -llibxml2 -liconv -llua -g
 ## Optimize, -mwindows -no console output
 OPTIMIZEFLAG=-Os -mwindows
 

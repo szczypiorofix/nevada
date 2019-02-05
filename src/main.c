@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -204,42 +205,101 @@ int main(int argc, char* args[]) {
 			printf("Paramers %i: %s\n", i, args[i]);
 	}
 
+	// void **ar = malloc(3 * sizeof(void *));
+
+	// ar[0] = (char *) strdup("Some string");
+	
+	// ar[1] = malloc(sizeof(int));
+	// *( (int *)(ar[1]) ) = 5;
+	
+	// ar[2] = malloc(sizeof(double));
+	// *( (double *)(ar[2]) ) = 27.3;
+
+	// printf( "String: %s\n", (char *)(ar[0]) );
+	// printf( "Integer: %d\n", *((int *)(ar[1])) );
+	// printf( "Double: %f\n", *((double *)(ar[2])) );
+
+	// for (int i = 0; i < 3; i++)
+	// 	free(ar[i]);
+
+	// free(ar);
+	// getchar();
+	// exit(0);
 
 	int arraySize = 4;
 	int arrayChunkSize = 3;
-	printf("Creating array: %i, chunkSize: %i. \n", arraySize, arrayChunkSize);
-	ArrayList_Int* arr = createArrayList(arraySize, arrayChunkSize);
-	printf("Array: size: %i, maxSize: %i, chunkSize: %i. \n", arr->size, arr->maxSize, arr->chunkSize);
+
+	ArrayList_Int* arr = createArrayList(arraySize, arrayChunkSize, sizeof(int), ARRAYLIST_SHRINK_MANUAL);
 	
+	dumpArrayList(arr);
+
 	addIntToArrayList(arr, 2);
+
+	dumpArrayList(arr);
+
 	addIntToArrayList(arr, 4);
+
+	dumpArrayList(arr);
+
 	addIntToArrayList(arr, 6);
+	
+	dumpArrayList(arr);
+
 	addIntToArrayList(arr, -3);
+	
+	dumpArrayList(arr);
+
 	addIntToArrayList(arr, 9);
 	
-	addIntToArrayList(arr, 34);
-	addIntToArrayList(arr, 35);
+	dumpArrayList(arr);
 
-	addIntToArrayList(arr, 37);
-	addIntToArrayList(arr, 42);
 
-	addIntToArrayList(arr, 56);
-	addIntToArrayList(arr, 58);
+	printf("Pop ArrayList = %i\n", popArrayList(arr));
+	dumpArrayList(arr);
+	// shrinkArrayList(arr);
+	// dumpArrayList(arr);
 
-	printValues(arr);
 
-	printf("Index: 3 = %i\n", getFromArrayList(arr, 3));
-	printf("Index: 6 = %i\n", getFromArrayList(arr, 6));
-	printf("Index: 7 = %i\n", getFromArrayList(arr, 7));
-	printf("Index: 0 = %i\n", getFromArrayList(arr, 0));
-	printf("Index: 11 = %i\n", getFromArrayList(arr, 11));
+	addIntToArrayList(arr, 41);
+	dumpArrayList(arr);
 
-	printf("Clearing array ...\n");
+	printf("Pop ArrayList = %i\n", popArrayList(arr));
+	dumpArrayList(arr);
+	// shrinkArrayList(arr);
+	// dumpArrayList(arr);
+
+	addIntToArrayList(arr, 44);
+	dumpArrayList(arr);
+
+	addIntToArrayList(arr, 47);
+	dumpArrayList(arr);
+
+	addIntToArrayList(arr, 48);
+	dumpArrayList(arr);
+
+	addIntToArrayList(arr, 49);
+	dumpArrayList(arr);
+
+	printf("Pop ArrayList = %i\n", popArrayList(arr));
+	dumpArrayList(arr);
+
+	printf("Pop ArrayList = %i\n", popArrayList(arr));
+	dumpArrayList(arr);
+
+	printf("Pop ArrayList = %i\n", popArrayList(arr));
+	dumpArrayList(arr);
+
+	printf("Pop ArrayList = %i\n", popArrayList(arr));
+	dumpArrayList(arr);
+
+	// shrinkArrayList(arr);
+	// dumpArrayList(arr);
+
 	getchar();
 
-	clearArrayList(&arr);
-
-	printf("Array is empty.\n");
+	if (clearArrayList(&arr)) {
+		printf("Array cleared successfully!\n");
+	}
 
 	getchar();
 	exit(0);

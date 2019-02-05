@@ -5,9 +5,6 @@
 		}
 	],
 	"settings": {
-		"C_Cpp.default.cStandard": "c11",
-		"C_Cpp.default.cppStandard": "c++17",
-		"C_Cpp.loggingLevel": "Information",
 		"C_Cpp.default.includePath": [
 			"${workspaceFolder}/**",
             "C:\\mingw_dev_lib\\include"
@@ -21,7 +18,9 @@
 			"engine.h": "c",
 			"level.h": "c",
 			"textures.h": "c",
-			"arraylist.h": "c"
+			"arraylist.h": "c",
+			"string.h": "c",
+			"stdio.h": "c"
 		}
 	}
 }

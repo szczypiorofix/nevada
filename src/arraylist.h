@@ -5,7 +5,7 @@
 
 // ------------------ ARRAYLIST BEHAVIOR FLAGS ------------------
 #define ARRAYLIST_SHRINK_MANUAL 0
-#define ARRAYLIST_SHIRK_AFTER_DELETE 1
+#define ARRAYLIST_SHRINK_AFTER_DELETE 1
 
 
 // ------------------ STRUCTS ------------------
@@ -20,13 +20,52 @@
  * data - array of integers, size = list->size
  */
 typedef struct ArrayList_Int {
-    unsigned int size;
-    unsigned int maxSize;
-    unsigned int chunkSize;
-    unsigned int sizeOfType;
-    unsigned int flags;
-    int* data;
+  unsigned int size;
+  unsigned int maxSize;
+  unsigned int chunkSize;
+  unsigned int sizeOfType;
+  unsigned int flags;
+  int* data;
 } ArrayList_Int;
+
+
+
+typedef union DataTypes {
+  int i;
+  float f;
+  char c;
+} DataTypes;
+
+
+typedef struct ArrayList {
+  unsigned int size;
+  unsigned int maxSize;
+  unsigned int chunkSize;
+  unsigned int sizeOfType;
+  unsigned int flags;
+  DataTypes** data;
+} ArrayList;
+
+
+
+
+
+
+
+// Different types of data
+
+ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
+int addCharToList(ArrayList* list, char item);
+int addIntToList(ArrayList* list, int item);
+int clearList(ArrayList** list);
+
+
+
+
+
+
+
+
 
 
 
@@ -47,18 +86,14 @@ ArrayList_Int* createArrayList(unsigned int initialSize, unsigned int chunkSize,
 
 
 
-
-
 /*
  Add next value to the ArrayList.
  Arguments:
   - list: (ArrayList_Int) ArrayList.
   - value: (int) a value;
+  return: 0 - FALSE, 1 - TRUE (success);
 */
 int addIntToArrayList(ArrayList_Int* list, int value);
-
-
-
 
 
 
@@ -74,14 +109,13 @@ void printValues(ArrayList_Int* list);
 
 
 
-
 /*
  Clearing ArrayList. Removing data.
  Arguments:
   - list: (ArrayList_Int) ArrayList.
+  return: 0 - FALSE, 1 - TRUE (success);
 */
 int clearArrayList(ArrayList_Int** list);
-
 
 
 
@@ -91,6 +125,7 @@ int clearArrayList(ArrayList_Int** list);
  Arguments:
   - list: (ArrayList_Int) ArrayList.
   - index: (unsigned int) an index;
+  return: the element at index given.
 */
 int getFromArrayList(ArrayList_Int* list, unsigned int index);
 
@@ -100,16 +135,29 @@ int getFromArrayList(ArrayList_Int* list, unsigned int index);
  Remove the last item from the ArrayList and returns it.
  Arguments:
   - list: (ArrayList_Int) ArrayList.
+  return: the last element from ArrayList.
 */
 int popArrayList(ArrayList_Int* list);
 
 
 /*
- Remove the first item from the ArrayList and returns it. This changes indexes of the ArrayList.
+ Remove the first element from the ArrayList and returns it. This changes indexes of the ArrayList.
  Arguments:
   - list: (ArrayList_Int) ArrayList.
+  return: the first element from ArrayList.
 */
 int shiftArrayList(ArrayList_Int* list);
+
+
+/*
+ Remove the first item from the ArrayList and returns it. This changes indexes of the ArrayList after the removed element.
+ Arguments:
+  - list: (ArrayList_Int) ArrayList.
+  - index: (unsigned int) index of the element to remove from ArrayList.
+  return: 0 - FALSE, 1 - TRUE (success);
+*/
+int removeFromArrayList(ArrayList_Int* list, unsigned int index);
+
 
 
 /*
@@ -121,11 +169,11 @@ void dumpArrayList(ArrayList_Int* list);
 
 
 
-
 /*
  Shrinking ArrayList (maxSize == size)
  Arguments:
   - list: (ArrayList_Int) ArrayList.
+  return: 0 - FALSE, 1 - TRUE (success);
 */
 int shrinkArrayList(ArrayList_Int* list);
 
@@ -135,6 +183,7 @@ int shrinkArrayList(ArrayList_Int* list);
  Arguments:
   - list: (ArrayList_Int) ArrayList.
   - flags (unsigned int) - flags eg. ARRAYLIST_SHRINK_MANUAL, ARRAYLIST_SHIRK_AFTER_DELETE...
+  return: 0 - FALSE, 1 - TRUE (success);
 */
 int changeFlags(ArrayList_Int* list, unsigned int flags);
 

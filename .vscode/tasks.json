@@ -4,9 +4,19 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Make",
+            "label": "Make-release",
             "type": "shell", 
-            "command": "mingw32-make",
+            "command": "mingw32-make release",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Make-debug",
+            "type": "shell", 
+            "command": "mingw32-make debug",
             "group": {
                 "kind": "build",
                 "isDefault": true

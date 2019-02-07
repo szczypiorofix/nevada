@@ -26,7 +26,7 @@ static Uint32 windowFlags = SDL_WINDOW_SHOWN;
 // ------------------ "PRIVATE" FUNCTIONS ------------------
 
 Engine* createEngine(void) {
-    Engine* engine = malloc(sizeof(engine));
+    Engine* engine = malloc(sizeof(Engine));
     if (engine == NULL) return NULL;
 
     engine->started = FALSE;
@@ -154,7 +154,7 @@ Assets* createAssets(void) {
     if (assets == NULL) return NULL;
 
     assets->spriteSheetsCount = 0;
-    assets->spriteSheets[0] = NULL;
+    // assets->spriteSheets[0] = NULL;
 
     return assets;
 }
@@ -170,7 +170,7 @@ bool addGraphicsToAssets(Texture* texture, Assets* assets) {
     // FIRST TEXTURES IN ASSETS
     if (assets->spriteSheetsCount == 0) {
 
-        assets->spriteSheets[0] = malloc(sizeof(texture));
+        assets->spriteSheets[0] = malloc(sizeof(Texture));
         if (assets->spriteSheets == NULL) {
             fprintf(stderr, "Cannot alocate memory for assets->spritesheets !\n");
             return FALSE;

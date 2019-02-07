@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <sys/time.h>
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -226,83 +228,100 @@ int main(int argc, char* args[]) {
 	// getchar();
 	// exit(0);
 
-	int arraySize = 4;
-	int arrayChunkSize = 3;
 
-	ArrayList_Int* arr = createArrayList(arraySize, arrayChunkSize, sizeof(int), ARRAYLIST_SHRINK_MANUAL);
+	/**
+	 * ARRAYLIST TEST ...
+	 */ 
+
+	ArrayList* list = createList(5, 3, sizeof(char), ARRAYLIST_SHRINK_AFTER_DELETE);
+
+	addCharToList(list, 'd');
+	addCharToList(list, 'u');
+	addCharToList(list, 'p');
+	addCharToList(list, 'a');
 	
-	dumpArrayList(arr);
+	for (unsigned int i = 0; i < list->size; i++) {
+		printf("Item %i value: %c\n", i, list->data[i]->c);
+	}
 
-	addIntToArrayList(arr, 2);
+	clearList(&list);
 
-	dumpArrayList(arr);
+	list = createList(5, 3, sizeof(int), ARRAYLIST_SHRINK_AFTER_DELETE);
 
-	addIntToArrayList(arr, 4);
-
-	dumpArrayList(arr);
-
-	addIntToArrayList(arr, 6);
-	
-	dumpArrayList(arr);
-
-	addIntToArrayList(arr, -3);
-	
-	dumpArrayList(arr);
-
-	addIntToArrayList(arr, 9);
-	
-	dumpArrayList(arr);
+	addIntToList(list, 10);
+	addIntToList(list, 12);
+	addIntToList(list, 13);
+	addIntToList(list, 15);
 
 
-	printf("Pop ArrayList = %i\n", popArrayList(arr));
-	dumpArrayList(arr);
-	// shrinkArrayList(arr);
-	// dumpArrayList(arr);
-
-
-	addIntToArrayList(arr, 41);
-	dumpArrayList(arr);
-
-	printf("Pop ArrayList = %i\n", popArrayList(arr));
-	dumpArrayList(arr);
-	// shrinkArrayList(arr);
-	// dumpArrayList(arr);
-
-	addIntToArrayList(arr, 44);
-	dumpArrayList(arr);
-
-	addIntToArrayList(arr, 47);
-	dumpArrayList(arr);
-
-	addIntToArrayList(arr, 48);
-	dumpArrayList(arr);
-
-	addIntToArrayList(arr, 49);
-	dumpArrayList(arr);
-
-	printf("Pop ArrayList = %i\n", popArrayList(arr));
-	dumpArrayList(arr);
-
-	printf("Pop ArrayList = %i\n", popArrayList(arr));
-	dumpArrayList(arr);
-
-	printf("Pop ArrayList = %i\n", popArrayList(arr));
-	dumpArrayList(arr);
-
-	printf("Pop ArrayList = %i\n", popArrayList(arr));
-	dumpArrayList(arr);
-
-	// shrinkArrayList(arr);
-	// dumpArrayList(arr);
-
-	getchar();
-
-	if (clearArrayList(&arr)) {
-		printf("Array cleared successfully!\n");
+	for (unsigned int i = 0; i < list->size; i++) {
+		printf("Item %i value: %i\n", i, list->data[i]->i);
 	}
 
 	getchar();
+	clearList(&list);
+	getchar();
 	exit(0);
+
+
+	// int arraySize = 6;
+	// int arrayChunkSize = 3;
+
+	// ArrayList_Int* arr = createArrayList(arraySize, arrayChunkSize, sizeof(int), ARRAYLIST_SHIRK_AFTER_DELETE);
+	
+	// dumpArrayList(arr);
+
+	// addIntToArrayList(arr, 2);
+	
+	// dumpArrayList(arr);
+
+	// addIntToArrayList(arr, 41);
+	// dumpArrayList(arr);
+
+	// printf("Pop ArrayList = %i\n", );
+	// dumpArrayList(arr);
+
+	// printf("Shift ArrayList = %i\n", shiftArrayList(arr));
+	// dumpArrayList(arr);
+
+	// addIntToArrayList(arr, 48);
+	// dumpArrayList(arr);
+
+	// printf("Pop ArrayList = %i\n", popArrayList(arr));
+	// dumpArrayList(arr);
+
+	// time_t t;
+	// srand((unsigned) time(&t));
+	// int r = 0;
+	// printf("Testing ... ");
+	
+
+	// struct timeval stop, start;
+	// gettimeofday(&start, NULL);
+
+	// for (int i = 0; i < 25; i++) {
+	// 	r = rand() % 666;
+	// 	addIntToArrayList(arr, r);
+	// 	if (r < 100) {
+	// 		popArrayList(arr);
+	// 	} else if (r < 200) {
+	// 		shiftArrayList(arr);
+	// 	} else if (r < 400 && r > 200) {
+	// 		removeFromArrayList(arr, (unsigned) ((rand() % arr->size)) );
+	// 	}
+	// 	dumpArrayList(arr);
+	// }
+	// gettimeofday(&stop, NULL);
+	// printf("done.\n");
+	// printf("took %lu\n", stop.tv_usec - start.tv_usec);
+
+	// getchar();
+
+	// if (clearArrayList(&arr)) {
+	// 	printf("Array cleared successfully!\n");
+	// }
+
+	
 
 
 
@@ -310,6 +329,7 @@ int main(int argc, char* args[]) {
 	
 	printf("Engine status: %s\n", engine->started == TRUE ? "working." : "start failure.");
 	
+
 	// Player* player = resetPlayer();
 
 	// Camera cam;
@@ -323,7 +343,7 @@ int main(int argc, char* args[]) {
 	// Texture* backgroundSpriteSheet = loadSpriteSheet("grassland.png", GRASSLAND1_SPRITESHEET, engine->renderer, 64, 64);
 
 	engine->assets = createAssets();
-	
+
 	// if (addGraphicsToAssets(playerSpriteSheet, engine->assets)) {
 	// 	printf("Graphics (player) added successfuly!\n");
 	// }
@@ -362,7 +382,7 @@ int main(int argc, char* args[]) {
 	}
 
 	engineStop(engine);
-	exit(666);
+	exit(0);
 
 
 	// printf("Parameters: %s\n", getFromResourceImagesDir("map.tmx"));

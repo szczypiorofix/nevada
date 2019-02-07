@@ -8,19 +8,19 @@
             "name": "Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/main.exe",
+            "program": "${workspaceFolder}\\bin\\release\\nevada.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "preLaunchTask": "Make"
+            "preLaunchTask": "Make-release"
         },
         {
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/main.exe",
+            "program": "${workspaceFolder}\\bin\\debug\\nevada.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -35,7 +35,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Make"
+            "preLaunchTask": "Make-debug"
         }
     ]
 }

@@ -17,6 +17,108 @@ int shiftArrayList(ArrayList_Int* list);
 void dumpArrayList(ArrayList_Int* list);
 int shrinkArrayList(ArrayList_Int* list);
 int changeFlags(ArrayList_Int* list, unsigned int flags);
+int removeFromArrayList(ArrayList_Int* list, unsigned int index);
+int clearList(ArrayList** list);
+
+
+
+
+
+// Different types of data
+
+ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
+int addCharToList(ArrayList* list, char item);
+int addIntToList(ArrayList* list, int item);
+
+
+int clearList(ArrayList** list) {
+    if (list == NULL) {
+        fprintf(stderr, "ArrayList cannot be NULL !!!\n");
+        return 0;
+    }
+    printf("Clearing list...\n");
+    for (unsigned int i = 0; i < (*list)->maxSize; i++) {
+        free( (*list)->data[i] );
+        (*list)->data[i] = NULL;
+    }
+    free((*list)->data);
+    (*list)->data = NULL;
+    printf("Free list ... \n");
+    free(*list);
+    *list = NULL;
+    return 1;
+}
+
+int addIntToList(ArrayList* list, int item) {
+    if (list == NULL) {
+        fprintf(stderr, "ArrayList cannot be NULL !!!\n");
+        return 0;
+    }
+    printf("Adding value item %i to ArrayList...\n", item);
+    if (list->size < list->maxSize) {
+        list->data[list->size]->i = item;
+        list->size++;
+        return 1;
+    }
+    return 0;
+}
+
+
+int addCharToList(ArrayList* list, char item) {
+    if (list == NULL) {
+        fprintf(stderr, "ArrayList cannot be NULL !!!\n");
+        return 0;
+    }
+    printf("Adding value item %c to ArrayList...\n", item);
+    if (list->size < list->maxSize) {
+        list->data[list->size]->c = item;
+        list->size++;
+    }
+    return 1;
+}
+
+
+ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags) {
+    ArrayList* list = malloc(sizeof(ArrayList));
+    if (list == NULL) {
+        fprintf(stderr, "Cannot allocate memory for a new ArrayList_Int !\n");
+        return NULL;
+    }
+
+    list->size = 0;
+    list->chunkSize = chunkSize;
+    list->maxSize = initialSize;
+    list->sizeOfType = sizeOfType;
+    list->flags = flags;
+
+    list->data = malloc(sizeof(void*) * initialSize);
+
+    for (unsigned int i = 0; i < list->maxSize; i++) {
+        list->data[i] = malloc(sizeOfType);
+        if (list->data[i] == NULL) {
+            fprintf(stderr, "Cannot allocate memory for %i (int) elements in ArrayList !\n", initialSize);
+            return NULL;
+        }
+    }
+    
+    
+    
+    // printf("Free list ... %i \n", list->data[0]->i);
+    
+    // printf("Free list ... \n");
+    // free( list );
+    // printf("List is free... \n");
+
+    // for (unsigned int i = 0; i < list->maxSize; i++) {
+    //     list->data[i] = malloc(sizeof(int));
+    //     if (list->data[i] == NULL) {
+    //         fprintf(stderr, "Cannot allocate memory for %i (int) elements in ArrayList !\n", initialSize);
+    //         return NULL;
+    //     }
+    // }    
+    return list;
+}
+
 
 
 
@@ -26,7 +128,7 @@ ArrayList_Int* createArrayList(unsigned int initialSize, unsigned int chunkSize,
     ArrayList_Int* list = malloc(sizeof(ArrayList_Int));
     if (list == NULL) {
         fprintf(stderr, "Cannot allocate memory for a new ArrayList_Int !\n");
-        return NULL;
+        exit(0);
     }
     list->size = 0;
     list->chunkSize = chunkSize;
@@ -56,12 +158,15 @@ void printValues(ArrayList_Int* list) {
 
 
 int addIntToArrayList(ArrayList_Int* list, int value) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
     printf("Adding value %i to ArrayList...\n", value);
     if (list->size < list->maxSize) {
         list->data[list->size] = value;
-        list->size++;
     } else {
-        fprintf(stderr, "Not enough memory. Calling realloc ...\n");
+        // fprintf(stderr, "Not enough memory. Calling realloc ...\n");
         int nextSize = ( list->sizeOfType * list->maxSize ) + ( list->sizeOfType * list->chunkSize );
         int* temp = realloc(list->data, nextSize);
         if (temp == NULL) {
@@ -71,15 +176,18 @@ int addIntToArrayList(ArrayList_Int* list, int value) {
             list->data = temp;
             list->maxSize += list->chunkSize;
             list->data[list->size] = value;
-            list->size++;
-        }
-        
+        }   
     }
+    list->size++;
     return 1;
 }
 
 
 int getFromArrayList(ArrayList_Int* list, unsigned int index) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
     if (index > list->size - 1) {
         fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
         return 0;
@@ -89,6 +197,10 @@ int getFromArrayList(ArrayList_Int* list, unsigned int index) {
 
 
 int popArrayList(ArrayList_Int* list) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
     int p = 0;
     if (list->size > 0) {
         p = list->data[list->size - 1];
@@ -96,7 +208,7 @@ int popArrayList(ArrayList_Int* list) {
         // Change the last element to 0
         list->data[list->size - 1] = 0;
 
-        if (list->size == list->maxSize - list->chunkSize + 1 && list->flags == ARRAYLIST_SHIRK_AFTER_DELETE) {
+        if (list->size == list->maxSize - list->chunkSize + 1 && list->flags == ARRAYLIST_SHRINK_AFTER_DELETE) {
             int* temp = NULL;
             temp = realloc(list->data, (list->sizeOfType * list->size) - list->sizeOfType );
             if (temp == NULL) {
@@ -116,18 +228,49 @@ int popArrayList(ArrayList_Int* list) {
 
 
 int shiftArrayList(ArrayList_Int* list) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
     int p = 0;
     if (list->size > 0) {
         p = list->data[0];
-        list->size--;
-        for (unsigned int i = 0; i < list->size; i++) {
-            list->data[i] = list->data[i+1];
+        for (unsigned int i = 0; i < list->size - 1; i++) {
+            list->data[i] = list->data[i + 1];
         }
+        list->size--;
+        shrinkArrayList(list);
+    } else {
+        fprintf(stderr, "ArrayList is empty !\n");
     }
     return p;
 }
 
+int removeFromArrayList(ArrayList_Int* list, unsigned int index) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
+    if (index > list->size - 1) {
+        fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
+        return 0;
+    }
+    printf("Removed element %i at index %i\n", list->data[index], index);
+    for (unsigned int i = 0; i < list->size - 1; i++) {
+        if (i >= index) {
+            list->data[i] = list->data[i + 1];
+        }
+    }
+    list->size--;
+    shrinkArrayList(list);
+    return 1;
+}
+
 int clearArrayList(ArrayList_Int** list) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
     free( (*list)->data );
     (*list)->data = NULL;
     free(*list);
@@ -137,7 +280,11 @@ int clearArrayList(ArrayList_Int** list) {
 
 
 int shrinkArrayList(ArrayList_Int* list) {
-    printf("Shrinking ArrayList maxSize: %i to size: %i.\n", (list->sizeOfType * list->maxSize), (list->sizeOfType * list->size));
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
+    // printf("Shrinking ArrayList maxSize: %i to size: %i.\n", (list->sizeOfType * list->maxSize), (list->sizeOfType * list->size));
     if (list->size > 0) {
         int* temp = realloc(list->data, (list->sizeOfType * list->size));
         if (temp == NULL) {
@@ -153,6 +300,10 @@ int shrinkArrayList(ArrayList_Int* list) {
 
 
 void dumpArrayList(ArrayList_Int* list) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        exit(0);
+    }
     printf("ArrayList: size: %i, maxSize: %i, chunkSize: %i, sizeOfType: %i, memory reserved: %i, memory address: %p \n", list->size, list->maxSize, list->chunkSize, list->sizeOfType, list->sizeOfType * list->maxSize, (void *)list->data);
     printf("Data: ");
     if (list->size == 0) printf("<NULL>");
@@ -162,6 +313,10 @@ void dumpArrayList(ArrayList_Int* list) {
 
 
 int changeFlags(ArrayList_Int* list, unsigned int flags) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
     list->flags = flags;
     return 1;
 }

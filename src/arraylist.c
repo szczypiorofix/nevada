@@ -18,10 +18,6 @@ void dumpArrayList(ArrayList_Int* list);
 int shrinkArrayList(ArrayList_Int* list);
 int changeFlags(ArrayList_Int* list, unsigned int flags);
 int removeFromArrayList(ArrayList_Int* list, unsigned int index);
-int clearList(ArrayList** list);
-
-
-
 
 
 // Different types of data
@@ -29,6 +25,36 @@ int clearList(ArrayList** list);
 ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
 int addCharToList(ArrayList* list, char item);
 int addIntToList(ArrayList* list, int item);
+int clearList(ArrayList** list);
+int getIntFromArray(ArrayList* list, unsigned int index);
+char getCharFromArray(ArrayList* list, unsigned int index);
+
+
+
+char getCharFromArray(ArrayList* list, unsigned int index) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
+    if (index > list->size - 1) {
+        fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
+        return 0;
+    }
+    return list->data[index]->c;
+}
+
+
+int getIntFromArray(ArrayList* list, unsigned int index) {
+    if (list == NULL) {
+        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        return 0;
+    }
+    if (index > list->size - 1) {
+        fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
+        return 0;
+    }
+    return list->data[index]->i;
+}
 
 
 int clearList(ArrayList** list) {
@@ -100,22 +126,7 @@ ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned
             return NULL;
         }
     }
-    
-    
-    
-    // printf("Free list ... %i \n", list->data[0]->i);
-    
-    // printf("Free list ... \n");
-    // free( list );
-    // printf("List is free... \n");
 
-    // for (unsigned int i = 0; i < list->maxSize; i++) {
-    //     list->data[i] = malloc(sizeof(int));
-    //     if (list->data[i] == NULL) {
-    //         fprintf(stderr, "Cannot allocate memory for %i (int) elements in ArrayList !\n", initialSize);
-    //         return NULL;
-    //     }
-    // }    
     return list;
 }
 

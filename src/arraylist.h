@@ -58,7 +58,8 @@ ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned
 int addCharToList(ArrayList* list, char item);
 int addIntToList(ArrayList* list, int item);
 int clearList(ArrayList** list);
-
+int getIntFromArray(ArrayList* list, unsigned int index);
+char getCharFromArray(ArrayList* list, unsigned int index);
 
 
 

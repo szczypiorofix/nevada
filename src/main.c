@@ -271,6 +271,8 @@ int main(int argc, char* args[]) {
 		printf("Item %i value: %i\n", i, list->data[i]->i);
 	}
 
+	printf("GetCharFromList: %i = %i\n", 3, getIntFromArray(list, 3));
+
 	getchar();
 	clearList(&list);
 	getchar();

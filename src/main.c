@@ -24,6 +24,9 @@ void close(SDL_Game* g);
 Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 int nextFrame(Animation* an);
 
+int compare(int, int);
+
+
 
 
 void renderText(Texture* t, SDL_Game* game, int x, int y, int w, int h) {
@@ -232,6 +235,16 @@ int main(int argc, char* args[]) {
 	/**
 	 * ARRAYLIST TEST ...
 	 */ 
+
+	printf("%d\n", compare(5, -4));
+    printf("%d\n", compare(2, -6));
+    printf("%d\n", compare(5, 3));
+    printf("%d\n", compare(-2, 4));
+    printf("%d\n", compare(0, 0));
+    printf("%d\n", compare(7, -6));
+    printf("%d\n", compare(2, 4));
+    printf("%d\n", compare(3, 2));
+    printf("%d\n", compare(6, 6));
 
 	ArrayList* list = createList(5, 3, sizeof(char), ARRAYLIST_SHRINK_AFTER_DELETE);
 

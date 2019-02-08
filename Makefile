@@ -15,13 +15,13 @@ debug: bin/debug/nevada.exe
 release: bin/release/nevada.exe
 
 # debug
-bin/debug/nevada.exe: $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o
-	$(CC) $(CWARNFLAGS) $(OPTIMIZEFLAG) $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/debug/nevada.exe
+bin/debug/nevada.exe: $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o
+	$(CC) $(CWARNFLAGS) $(OPTIMIZEFLAG) $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/debug/nevada.exe
 
 
 # release
-bin/release/nevada.exe: $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o
-	$(CC) $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/release/nevada.exe
+bin/release/nevada.exe: $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o
+	$(CC) $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/release/nevada.exe
 
 
 
@@ -56,6 +56,10 @@ $(ODIR)/textures.o: $(SOURCE)/textures.c $(SOURCE)/textures.h
 # objects.o
 $(ODIR)/objects.o: $(SOURCE)/objects.c $(SOURCE)/objects.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/objects.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/objects.o
+
+# compare.o
+$(ODIR)/compare.o: $(SOURCE)/compare.asm
+	nasm -fwin32 $(SOURCE)/compare.asm -o $(ODIR)/compare.o
 
 
 clean:

@@ -4,8 +4,10 @@
 
 
 // ------------------ ARRAYLIST BEHAVIOR FLAGS ------------------
-#define ARRAYLIST_SHRINK_MANUAL 0
-#define ARRAYLIST_SHRINK_AFTER_DELETE 1
+#define ARRAYLIST_SHRINK_MANUAL (1 << 0)
+#define ARRAYLIST_SHRINK_AFTER_DELETE (1 << 1)
+
+
 
 
 // ------------------ STRUCTS ------------------

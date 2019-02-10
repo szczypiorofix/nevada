@@ -1,9 +1,13 @@
 ; ---------------------------------------------------
-; Compare two integers. Returns 1 if the first number is bigger, return 0 if numbers are equal, returns -1 if first number is lesser than the second nuber
+; Compare two integers.
+; Returns 1 if the first number is bigger.
+; Returns 0 if numbers are equal.
+; Returns -1 if first number is lesser than the second nuber.
 ; ---------------------------------------------------
 
     global  _compare
     section .text
+
 
 _compare:
     mov     eax,    [esp+4]
@@ -15,9 +19,11 @@ _compare:
     mov     eax,    0
     ret
 
+
 _greater:
     mov     eax,    1
     ret
+
 
 _lesser:
     mov     eax,    -1

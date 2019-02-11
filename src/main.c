@@ -388,11 +388,7 @@ int main(int argc, char* args[]) {
 	// 	printf("Graphics (background) added successfuly!\n");
 	// }
 
-	SDL_Rect clip;
-	clip.x = 0;
-	clip.y = 0;
-	clip.w = 128;
-	clip.h = 128;
+	SDL_Rect clip = {0, 0, 128, 128};
 	
 	while(engine->quit == FALSE) {
 		

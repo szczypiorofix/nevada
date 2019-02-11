@@ -6,6 +6,8 @@
 #include <SDL2/SDL.h>
 #include "defines.h"
 
+
+
 typedef struct Texture {
     SDL_Texture* mTexture;
     char* name;
@@ -25,7 +27,13 @@ typedef struct Animation {
 } Animation;
 
 
+
+
+// ------------------ "PUBLIC" FUNCTIONS ------------------
+
 Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
+void freeTexture(Texture* t);
+void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height);
 
 
 #endif

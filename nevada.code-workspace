@@ -19,10 +19,8 @@
 			"level.h": "c",
 			"textures.h": "c",
 			"arraylist.h": "c",
-			"string.h": "c",
-			"stdio.h": "c",
-			"limits": "c",
-			"type_traits": "c"
+			"assetslist.h": "c",
+			"lauxlib.h": "c"
 		}
 	}
 }

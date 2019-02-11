@@ -13,12 +13,12 @@
 
 
 
-typedef struct SDL_Game {
-    short success;
-    SDL_Window* gWindow;
-    SDL_Renderer* gRenderer;
-    Mix_Music *gMusic;
-} SDL_Game;
+// typedef struct SDL_Game {
+//     short success;
+//     SDL_Window* gWindow;
+//     SDL_Renderer* gRenderer;
+//     Mix_Music *gMusic;
+// } SDL_Game;
 
 
 
@@ -36,9 +36,9 @@ typedef struct SDL_Game {
  * */
 
 
-char* getCurrentTime(void);
+// char* getCurrentTime(void);
 
-void close(SDL_Game* g);
+// void close(SDL_Game* g);
 
 
 

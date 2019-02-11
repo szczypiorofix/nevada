@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "engine.h"
 
 // ------------------ FORWARD DECLARATION ------------------
@@ -9,7 +10,7 @@ bool createWindow(Engine* engine);
 bool createRenderer(Engine* engine);
 
 struct Engine* engineStart();
-void engineStop(Engine* engine);
+void engineStop(Engine** engine);
 void engineDelay(Engine* engine);
 
 Assets* createAssets(void);
@@ -18,17 +19,12 @@ bool addGraphicsToAssets(Texture* texture, Assets* assets);
 
 
 
-static Uint32 rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-static Uint32 windowFlags = SDL_WINDOW_SHOWN;
-
-
-
 // ------------------ "PRIVATE" FUNCTIONS ------------------
 
 Engine* createEngine(void) {
     Engine* engine = malloc(sizeof(Engine));
     if (engine == NULL) return NULL;
-
+    
     engine->started = FALSE;
     engine->quit = FALSE;
     engine->window = NULL;
@@ -41,7 +37,7 @@ Engine* createEngine(void) {
     engine->delayTime = 0.0f;
     engine->deltaTime = 0.0f;
     engine->fps = 0;
-    engine->assets = NULL;
+    // engine->assets = NULL;
 
     return engine;
 }
@@ -49,11 +45,12 @@ Engine* createEngine(void) {
 bool initSDL(Engine* engine) {
     engine->started = (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0);
     if (engine->started == FALSE) printf( "SDL_Init() Error: %s\n", SDL_GetError());
+    atexit(SDL_Quit);
     return engine->started;
 }
 
 bool createWindow(Engine* engine) {
-    engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, windowFlags);
+    engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (engine->window == NULL) {
         printf( "SDL_CreateWindow() Error: %s\n", SDL_GetError());
         engine->started = FALSE;
@@ -63,7 +60,7 @@ bool createWindow(Engine* engine) {
 
 
 bool createRenderer(Engine* engine) {
-    engine->renderer = SDL_CreateRenderer(engine->window, -1, rendererFlags);
+    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (engine->renderer == NULL) {
         printf("SDL_CreateRenderer() Error: %s\n", SDL_GetError());
         engine->started = FALSE;
@@ -102,15 +99,16 @@ bool initializeTTFFonts(Engine* engine) {
 // ------------------ "PUBLIC" FUNCTIONS ------------------
 Engine* engineStart(void) {
     Engine* engine = createEngine();
-    engine->assets = NULL;
+    // engine->assets = createAssets();
     initSDL(engine);
     createWindow(engine);
     createRenderer(engine);
     initializePngImages(engine);
     initializeAudioSystem(engine);
     initializeTTFFonts(engine);
-
+    
     if (engine->started == FALSE) return NULL;
+   
     return engine;
 }
 
@@ -120,15 +118,20 @@ void engineDelay(Engine* engine) {
         SDL_Delay((int)(frameRate - engine->deltaTime));
 }
 
-void engineStop(Engine* engine) {
-    engine->started = FALSE;
+void engineStop(Engine** engine) {
+    (*engine)->started = FALSE;
 
-    SDL_DestroyRenderer(engine->renderer);
-    SDL_DestroyWindow(engine->window);
+    SDL_DestroyRenderer((*engine)->renderer);
+    (*engine)->renderer = NULL;
 
-    engine->window = NULL;
-    engine->renderer = NULL;
+    SDL_DestroyWindow((*engine)->window);
+    (*engine)->window = NULL;
+    
+    printf("Free engine...\n");
 	
+    free(*engine);
+    (*engine) = NULL;
+
 	TTF_Quit();
     IMG_Quit();
     SDL_Quit();
@@ -154,7 +157,6 @@ Assets* createAssets(void) {
     if (assets == NULL) return NULL;
 
     assets->spriteSheetsCount = 0;
-    // assets->spriteSheets[0] = NULL;
 
     return assets;
 }

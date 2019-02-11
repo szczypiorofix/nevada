@@ -3,14 +3,15 @@
 #include <string.h>
 
 #include "textures.h"
-#include "engine.h"
+#include <SDL2/SDL_image.h>
 #include "level.h"
 
 
 
 // ------------------ FORWARD DECLARATION ------------------
 Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
-
+void freeTexture(Texture* t);
+void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height);
 
 
 // ------------------ "PUBLIC" FUNCTIONS ------------------
@@ -24,9 +25,9 @@ void freeTexture(Texture* t) {
 }
 
 
-void renderTexture(Texture* t, struct Engine* engine, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height) {
+void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height) {
     SDL_Rect renderQuad = {x, y, width, height};
-    SDL_RenderCopy(engine->renderer, t->mTexture, clip, &renderQuad);
+    SDL_RenderCopy(renderer, t->mTexture, clip, &renderQuad);
 }
 
 

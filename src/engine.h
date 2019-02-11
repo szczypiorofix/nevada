@@ -36,7 +36,7 @@ typedef struct Engine
     float delayTime;
     float deltaTime;
     unsigned short int fps;
-    Assets* assets;
+    // Assets* assets;
 } Engine;
 
 
@@ -44,7 +44,7 @@ typedef struct Engine
 // ------------------ PUBLIC FUNCTIONS ------------------
 
 Engine* engineStart(void);
-void engineStop(Engine* engine);
+void engineStop(Engine** engine);
 void updateDeltaTime(Engine* engine);
 void engineDelay(Engine* engine);
 Assets* createAssets(void);

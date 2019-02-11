@@ -2,6 +2,7 @@
 #define ARRAYLIST_H_
 #pragma once
 
+#include "textures.h"
 
 // ------------------ ARRAYLIST BEHAVIOR FLAGS ------------------
 #define ARRAYLIST_SHRINK_MANUAL (1 << 0)
@@ -33,9 +34,7 @@ typedef struct ArrayList_Int {
 
 
 typedef union DataTypes {
-  int i;
-  float f;
-  char c;
+  Texture texture;
 } DataTypes;
 
 
@@ -59,9 +58,11 @@ typedef struct ArrayList {
 ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
 int addCharToList(ArrayList* list, char item);
 int addIntToList(ArrayList* list, int item);
+int addTextureToList(ArrayList* list, Texture* item);
 int clearList(ArrayList** list);
 int getIntFromArray(ArrayList* list, unsigned int index);
 char getCharFromArray(ArrayList* list, unsigned int index);
+Texture* getTextureFromArray(ArrayList* list, unsigned int index);
 
 
 

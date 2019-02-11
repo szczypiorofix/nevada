@@ -28,10 +28,12 @@ int addIntToList(ArrayList* list, int item);
 int clearList(ArrayList** list);
 int getIntFromArray(ArrayList* list, unsigned int index);
 char getCharFromArray(ArrayList* list, unsigned int index);
+int addTextureToList(ArrayList* list, Texture* item);
+Texture* getTextureFromArray(ArrayList* list, unsigned int index);
 
 
 
-char getCharFromArray(ArrayList* list, unsigned int index) {
+Texture* getTextureFromArray(ArrayList* list, unsigned int index) {
     if (list == NULL) {
         fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
         return 0;
@@ -40,21 +42,48 @@ char getCharFromArray(ArrayList* list, unsigned int index) {
         fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
         return 0;
     }
-    return list->data[index]->c;
+    return &list->data[index]->texture;
 }
 
-
-int getIntFromArray(ArrayList* list, unsigned int index) {
+int addTextureToList(ArrayList* list, Texture* item) {
     if (list == NULL) {
-        fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+        fprintf(stderr, "ArrayList cannot be NULL !!!\n");
         return 0;
     }
-    if (index > list->size - 1) {
-        fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
-        return 0;
+    printf("Adding value item %s to ArrayList...\n", item->name);
+    if (list->size < list->maxSize) {
+        list->data[list->size]->texture = *item;
+        list->size++;
+        return 1;
     }
-    return list->data[index]->i;
+    return 0;
 }
+
+
+// char getCharFromArray(ArrayList* list, unsigned int index) {
+//     if (list == NULL) {
+//         fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+//         return 0;
+//     }
+//     if (index > list->size - 1) {
+//         fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
+//         return 0;
+//     }
+//     return list->data[index]->c;
+// }
+
+
+// int getIntFromArray(ArrayList* list, unsigned int index) {
+//     if (list == NULL) {
+//         fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
+//         return 0;
+//     }
+//     if (index > list->size - 1) {
+//         fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
+//         return 0;
+//     }
+//     return list->data[index]->i;
+// }
 
 
 int clearList(ArrayList** list) {
@@ -63,10 +92,13 @@ int clearList(ArrayList** list) {
         return 0;
     }
     printf("Clearing list...\n");
-    for (unsigned int i = 0; i < (*list)->maxSize; i++) {
+    for (unsigned int i = 0; i < (*list)->size; i++) {
+        // if (i < (*list)->size)
+        //     printf("Clearing data: %s\n", (*list)->data[i]->name);
         free( (*list)->data[i] );
         (*list)->data[i] = NULL;
     }
+
     free((*list)->data);
     (*list)->data = NULL;
     printf("Free list ... \n");
@@ -75,33 +107,33 @@ int clearList(ArrayList** list) {
     return 1;
 }
 
-int addIntToList(ArrayList* list, int item) {
-    if (list == NULL) {
-        fprintf(stderr, "ArrayList cannot be NULL !!!\n");
-        return 0;
-    }
-    printf("Adding value item %i to ArrayList...\n", item);
-    if (list->size < list->maxSize) {
-        list->data[list->size]->i = item;
-        list->size++;
-        return 1;
-    }
-    return 0;
-}
+// int addIntToList(ArrayList* list, int item) {
+//     if (list == NULL) {
+//         fprintf(stderr, "ArrayList cannot be NULL !!!\n");
+//         return 0;
+//     }
+//     printf("Adding value item %i to ArrayList...\n", item);
+//     if (list->size < list->maxSize) {
+//         list->data[list->size]->i = item;
+//         list->size++;
+//         return 1;
+//     }
+//     return 0;
+// }
 
 
-int addCharToList(ArrayList* list, char item) {
-    if (list == NULL) {
-        fprintf(stderr, "ArrayList cannot be NULL !!!\n");
-        return 0;
-    }
-    printf("Adding value item %c to ArrayList...\n", item);
-    if (list->size < list->maxSize) {
-        list->data[list->size]->c = item;
-        list->size++;
-    }
-    return 1;
-}
+// int addCharToList(ArrayList* list, char item) {
+//     if (list == NULL) {
+//         fprintf(stderr, "ArrayList cannot be NULL !!!\n");
+//         return 0;
+//     }
+//     printf("Adding value item %c to ArrayList...\n", item);
+//     if (list->size < list->maxSize) {
+//         list->data[list->size]->c = item;
+//         list->size++;
+//     }
+//     return 1;
+// }
 
 
 ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags) {
@@ -117,10 +149,16 @@ ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned
     list->sizeOfType = sizeOfType;
     list->flags = flags;
 
-    list->data = malloc(sizeof(void*) * initialSize);
+    int dataSize = sizeof(void*) * initialSize;
+    int pieceSize = sizeOfType;
+
+    printf("Piece size: %i\n", pieceSize);
+    printf("Data size: %i\n", dataSize);
+
+    list->data = malloc(dataSize);
 
     for (unsigned int i = 0; i < list->maxSize; i++) {
-        list->data[i] = malloc(sizeOfType);
+        list->data[i] = malloc(pieceSize);
         if (list->data[i] == NULL) {
             fprintf(stderr, "Cannot allocate memory for %i (int) elements in ArrayList !\n", initialSize);
             return NULL;

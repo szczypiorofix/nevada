@@ -4,6 +4,11 @@
 
 #include "textures.h"
 
+
+#define ASSETSLIST_SHRINK_MANUAL (1 << 0)
+#define ASSETSLIST_SHRINK_AFTER_DELETE (1 << 1)
+
+
 typedef struct AssetsList {
   unsigned int size;
   unsigned int maxSize;
@@ -15,10 +20,10 @@ typedef struct AssetsList {
 
 
 
-// AssetsList* createAssetsList(unsigned int initialSize, unsigned int chunkSize, unsigned int flags);
-// int addTextureToList(AssetsList* list, Texture* texture);
-// int clearAssetsList(AssetsList** list);
-// Texture* getTexture(AssetsList* list, unsigned int index);
+AssetsList* createAssetsList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
+int addTextureToAssets(AssetsList* list, Texture* item);
+int clearAssetsList(AssetsList** list);
+Texture* getTextureFromAssets(AssetsList* list, unsigned int index);
 
 
 #endif

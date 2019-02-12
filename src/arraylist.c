@@ -38,7 +38,7 @@ Texture* getTextureFromArray(ArrayList* list, unsigned int index) {
         fprintf(stderr, "ArrayList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
         return 0;
     }
-    return list->data[index]->texture;
+    return list->data[index];
 }
 
 int addTextureToList(ArrayList* list, Texture* item) {
@@ -48,26 +48,24 @@ int addTextureToList(ArrayList* list, Texture* item) {
     }
     printf("Adding value item %s to ArrayList...\n", item->name);
     if (list->size < list->maxSize) {
-        list->data[list->size]->texture = item;
+        list->data[list->size] = item;
         list->size++;
         return 1;
     }
     return 0;
 }
 
+
+
 int clearList(ArrayList** list) {
     if (list == NULL) {
         fprintf(stderr, "ArrayList cannot be NULL !!!\n");
         return 0;
     }
-    printf("Clearing list...\n");
-    for (unsigned int i = 0; i < (*list)->maxSize; i++) {
-        free( (*list)->data[i] );
-        (*list)->data[i] = NULL;
-    }
-
+    printf("Clearing data list...\n");
     free((*list)->data);
     (*list)->data = NULL;
+
     printf("Free list ... \n");
     free(*list);
     *list = NULL;
@@ -93,15 +91,7 @@ ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned
     printf("Piece size: %i\n", pieceSize);
     printf("Data size: %i\n", dataSize);
 
-    list->data = malloc( dataSize );
-
-    for (unsigned int i = 0; i < list->maxSize; i++) {
-        list->data[i] = malloc(pieceSize);
-        if (list->data[i] == NULL) {
-            fprintf(stderr, "Cannot allocate memory for %i (int) elements in ArrayList !\n", initialSize);
-            return NULL;
-        }
-    }
+    list->data = malloc(list->maxSize * sizeof(Texture));
 
     return list;
 }

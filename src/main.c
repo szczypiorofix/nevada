@@ -10,7 +10,7 @@
 
 #include "main.h"
 #include "engine.h"
-#include "arraylist.h"
+
 #include "assetslist.h"
 
 
@@ -345,10 +345,10 @@ int main(int argc, char* args[]) {
 	Texture* backgroundSpriteSheet = loadSpriteSheet("grassland.png", GRASSLAND1_SPRITESHEET, engine->renderer, 64, 64);
 
 
-	ArrayList* list = createList(5, 3, sizeof(Texture), ARRAYLIST_SHRINK_AFTER_DELETE);
+	AssetsList* list = createAssetsList(5, 3, sizeof(Texture), ASSETSLIST_SHRINK_AFTER_DELETE);
 
-	addTextureToList(list, playerSpriteSheet);
-	addTextureToList(list, backgroundSpriteSheet);
+	addTextureToAssets(list, playerSpriteSheet);
+	addTextureToAssets(list, backgroundSpriteSheet);
 
 	
 	// addTextureToList(list, playerSpriteSheet);
@@ -411,16 +411,14 @@ int main(int argc, char* args[]) {
 		
 		// ------------------ RENDER START ------------------
 		
-		renderTexture(getTextureFromArray(list, 1), engine->renderer, &clip, 0, 0, 128, 128);
+		renderTexture(getTextureFromAssets(list, 1), engine->renderer, &clip, 0, 0, 128, 128);
 
 		// ------------------- RENDER END -------------------
 		engineDelay(engine);
 		SDL_RenderPresent(engine->renderer);
 	}
 
-	// clearAssetsList(&list);
-
-	clearList(&list);
+	clearAssetsList(&list);
 
 	engineStop(&engine);
 

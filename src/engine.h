@@ -47,9 +47,5 @@ Engine* engineStart(void);
 void engineStop(Engine** engine);
 void updateDeltaTime(Engine* engine);
 void engineDelay(Engine* engine);
-Assets* createAssets(void);
-
-bool addGraphicsToAssets(Texture* texture, Assets* assets);
-
 
 #endif

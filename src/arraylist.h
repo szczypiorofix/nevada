@@ -38,17 +38,24 @@ typedef union DataTypes {
 } DataTypes;
 
 
+// typedef struct ArrayList {
+//   unsigned int size;
+//   unsigned int maxSize;
+//   unsigned int chunkSize;
+//   unsigned int sizeOfType;
+//   unsigned int flags;
+//   DataTypes** data;
+// } ArrayList;
+
+
 typedef struct ArrayList {
   unsigned int size;
   unsigned int maxSize;
   unsigned int chunkSize;
   unsigned int sizeOfType;
   unsigned int flags;
-  DataTypes** data;
+  Texture** data;
 } ArrayList;
-
-
-
 
 
 

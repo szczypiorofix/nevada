@@ -16,13 +16,13 @@ debug: bin/debug/$(OUTPUT)
 release: bin/release/$(OUTPUT)
 
 # debug
-bin/debug/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o
-	$(CC) $(CWARNFLAGS) $(OPTIMIZEFLAG) $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/debug/$(OUTPUT)
+bin/debug/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(ODIR)/registry.o
+	$(CC) $(CWARNFLAGS) $(OPTIMIZEFLAG) $(ODIR)/*.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/debug/$(OUTPUT)
 
 
 # release
-bin/release/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o
-	$(CC) $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/release/$(OUTPUT)
+bin/release/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(ODIR)/registry.o
+	$(CC) $(ODIR)/*.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/release/$(OUTPUT)
 
 
 
@@ -61,6 +61,11 @@ $(ODIR)/textures.o: $(SOURCE)/textures.c $(SOURCE)/textures.h
 # objects.o
 $(ODIR)/objects.o: $(SOURCE)/objects.c $(SOURCE)/objects.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/objects.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/objects.o
+
+# registry.o
+$(ODIR)/registry.o: $(SOURCE)/registry.c $(SOURCE)/registry.h
+	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/registry.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/registry.o
+
 
 # compare.o
 $(ODIR)/compare.o: $(SOURCE)/compare.asm

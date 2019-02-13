@@ -4,6 +4,7 @@
 
 
 #include <SDL2/SDL.h>
+#include "level.h"
 #include "defines.h"
 
 
@@ -34,6 +35,8 @@ typedef struct Animation {
 Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(Texture* t);
 void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height);
-
+SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, Texture* t);
+Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
+int nextFrame(Animation* an);
 
 #endif

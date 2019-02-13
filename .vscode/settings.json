@@ -8,6 +8,7 @@
         "engine.h": "c",
         "level.h": "c",
         "textures.h": "c",
-        "arraylist.h": "c"
+        "arraylist.h": "c",
+        "registry.h": "c"
     }
 }

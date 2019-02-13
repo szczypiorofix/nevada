@@ -13,10 +13,8 @@ struct Engine* engineStart();
 void engineStop(Engine** engine);
 void engineDelay(Engine* engine);
 
-Assets* createAssets(void);
-bool addGraphicsToAssets(Texture* texture, Assets* assets);
-
-
+AssetsList* createAssets(void);
+int loadMusic(Engine* engine, char* musicFile);
 
 
 // ------------------ "PRIVATE" FUNCTIONS ------------------
@@ -29,6 +27,8 @@ Engine* createEngine(void) {
     engine->quit = FALSE;
     engine->window = NULL;
     engine->renderer = NULL;
+    engine->music = NULL;
+    engine->musicVolume = 20;
     engine->delayTime = 0.0f;
     engine->deltaTime = 0.0f;
     engine->startTick = 0L;
@@ -37,7 +37,7 @@ Engine* createEngine(void) {
     engine->delayTime = 0.0f;
     engine->deltaTime = 0.0f;
     engine->fps = 0;
-    // engine->assets = NULL;
+    engine->assets = NULL;
 
     return engine;
 }
@@ -81,7 +81,7 @@ bool initializePngImages(Engine* engine) {
 
 bool initializeAudioSystem(Engine* engine) {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        printf( "SDL_mixer Mix_OpenAudio() Error: %s\n", Mix_GetError() );
+        printf("SDL_mixer Mix_OpenAudio() Error: %s\n", Mix_GetError());
         engine->started = FALSE;
     }
     return engine->started;
@@ -95,19 +95,30 @@ bool initializeTTFFonts(Engine* engine) {
     return engine->started;
 }
 
+AssetsList* createAssets(void) {
+    printf("Preparing assets...\n");
+    AssetsList* list = createAssetsList(5, 3, sizeof(Texture), ASSETSLIST_SHRINK_AFTER_DELETE);
+    if (!list) {
+        fprintf(stderr, "ERROR !!! Unable to create AssetsList !!!\n");
+        return NULL;
+    }
+    return list;
+}
+
 
 // ------------------ "PUBLIC" FUNCTIONS ------------------
 Engine* engineStart(void) {
     Engine* engine = createEngine();
-    // engine->assets = createAssets();
     initSDL(engine);
     createWindow(engine);
     createRenderer(engine);
     initializePngImages(engine);
     initializeAudioSystem(engine);
     initializeTTFFonts(engine);
+
+    engine->assets = createAssets();
     
-    if (engine->started == FALSE) return NULL;
+    if (engine->started == FALSE || engine->assets == NULL) return NULL;
    
     return engine;
 }
@@ -119,7 +130,13 @@ void engineDelay(Engine* engine) {
 }
 
 void engineStop(Engine** engine) {
+    printf("Releasing assets ...\n");
+    clearAssetsList( &(*engine)->assets );
+
     (*engine)->started = FALSE;
+
+    Mix_FreeMusic((*engine)->music);
+    (*engine)->music = NULL;
 
     SDL_DestroyRenderer((*engine)->renderer);
     (*engine)->renderer = NULL;
@@ -149,4 +166,14 @@ void updateDeltaTime(Engine* engine) {
         engine->fps = engine->fpsCounter;
         engine->fpsCounter = 0;
     }
+}
+
+int loadMusic(Engine* engine, char* musicFile) {
+    engine->music = Mix_LoadMUS(musicFile);
+    if (engine->music == NULL) {
+        printf( "Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError() );
+        return 0;
+    }
+    Mix_VolumeMusic(engine->musicVolume);
+    return 1;
 }

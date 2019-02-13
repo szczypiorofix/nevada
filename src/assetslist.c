@@ -14,11 +14,11 @@ Texture* getTextureFromAssets(AssetsList* list, unsigned int index);
 Texture* getTextureFromAssets(AssetsList* list, unsigned int index) {
     if (list == NULL) {
         fprintf(stderr, "ERROR !!! AssetsList cannot be null !!!\n");
-        return 0;
+        return NULL;
     }
     if (index > list->size - 1) {
         fprintf(stderr, "AssetsList ERROR !!! Index %i out of array size (%i)!\n", index, list->size - 1);
-        return 0;
+        return NULL;
     }
     return list->textures[index];
 }
@@ -28,7 +28,7 @@ int addTextureToAssets(AssetsList* list, Texture* item) {
         fprintf(stderr, "AssetsList cannot be NULL !!!\n");
         return 0;
     }
-    printf("Adding value item %s to AssetsList...\n", item->name);
+    printf("Adding item %s to AssetsList...\n", item->name);
     if (list->size < list->maxSize) {
         list->textures[list->size] = item;
         list->size++;

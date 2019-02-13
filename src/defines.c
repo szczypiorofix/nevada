@@ -10,33 +10,31 @@ int fromBinary(const char *s);
 char* getFromResourceImagesDir(char* file);
 char* getFromResourceDir(char* file);
 char* copyStringFromPointer(const char* s);
+int releaseString(void* string);
 
 
 
-// ------------------ "PUBLIC" FUNCTIONS ------------------
+
+// ------------------ COMMON FUNCTIONS ------------------
 
 int fromBinary(const char *s) {
   return (int) strtol(s, NULL, 2);
 }
 
 char* getFromResourceImagesDir(char* file) {
-    char strTo[50] = DIR_RES_IMAGES;
-    strncat(strTo, file, strlen(file));
-	int strSize = strlen(strTo);
-	// printf("StrTO: %s, string length: %i\n", strTo, strSize);
-	char* r = malloc(sizeof(char) * strSize);
-	r = strTo;
-	return r;
+	const char *dir = DIR_RES_IMAGES;
+	char *result = malloc(strlen(file) + strlen(dir) + 1);
+	strcpy(result, dir);
+	strncat(result, file, strlen(file));
+	return result;
 }
 
 char* getFromResourceDir(char* file) {
-    char strTo[50] = DIR_RES;
-    strncat(strTo, file, strlen(file));
-	int strSize = strlen(strTo);
-	// printf("StrTO: %s, string length: %i\n", strTo, strSize);
-	char* r = malloc(sizeof(char) * strSize);
-	r = strTo;
-	return r;
+	const char *dir = DIR_RES;
+	char *result = malloc(strlen(file) + strlen(dir) + 1);
+	strcpy(result, dir);
+	strncat(result, file, strlen(file));
+	return result;
 }
 
 char* copyStringFromPointer(const char* s) {
@@ -46,3 +44,5 @@ char* copyStringFromPointer(const char* s) {
 	else fprintf(stderr, " malloc failure!");
 	return stringcopy;
 }
+
+

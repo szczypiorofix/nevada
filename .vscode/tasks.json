@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Make-release",
+            "label": "Release",
             "type": "shell", 
-            "command": "mingw32-make release",
+            "command": "make release",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -14,9 +14,19 @@
             "problemMatcher": "$gcc"
         },
         {
-            "label": "Make-debug",
+            "label": "Debug",
             "type": "shell", 
-            "command": "mingw32-make debug",
+            "command": "make debug",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Rebuild",
+            "type": "shell", 
+            "command": "make rebuild",
             "group": {
                 "kind": "build",
                 "isDefault": true

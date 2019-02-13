@@ -64,4 +64,5 @@ char* getFromResourceImagesDir(char* file);
 char* getFromResourceDir(char* file);
 char* copyStringFromPointer(const char* s);
 
+
 #endif

@@ -14,7 +14,7 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "preLaunchTask": "Make-release"
+            "preLaunchTask": "Release"
         },
         {
             "name": "Debug",
@@ -35,7 +35,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Make-debug"
+            "preLaunchTask": "Debug"
         }
     ]
 }

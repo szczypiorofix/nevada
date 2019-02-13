@@ -20,7 +20,17 @@
 			"textures.h": "c",
 			"arraylist.h": "c",
 			"assetslist.h": "c",
-			"lauxlib.h": "c"
-		}
+			"registry.h": "c",
+			"glu.h": "c",
+			"stdlib.h": "c",
+			"sdl_opengl.h": "c",
+			"objects.h": "c"
+		},
+		"editor.fontFamily": "Noto Mono, monospace",
+		"editor.lineHeight": 16,
+		"editor.fontLigatures": true,
+		"editor.mouseWheelZoom": true,
+		"editor.cursorWidth": 8,
+		"editor.cursorBlinking": "phase"
 	}
 }

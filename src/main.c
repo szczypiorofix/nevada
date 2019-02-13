@@ -1,29 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <sys/time.h>
+// #include <string.h>
 
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+// #include <lua.h>
+// #include <lauxlib.h>
+// #include <lualib.h>
 
 #include "main.h"
+#include "registry.h"
 #include "engine.h"
-
+#include "objects.h"
 #include "assetslist.h"
-
+#include "textures.h"
 
 
 
 // FORWARD DECLARATION
 
-// void close(SDL_Game* g);
+int compare(int, int);
+
 
 // Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 // int nextFrame(Animation* an);
-
-int compare(int, int);
 
 
 
@@ -113,22 +111,6 @@ int compare(int, int);
 
 
 
-
-
-
-
-
-
-
-
-
-// char* getCurrentTime(void) {
-// 	time_t t;
-//     time(&t);
-// 	return asctime(localtime(&t));
-// }
-
-
 // void luaTest() {
 //     int status, result, i;
 //     double sum;
@@ -207,34 +189,6 @@ int main(int argc, char* args[]) {
 			printf("Paramers %i: %s\n", i, args[i]);
 	}
 
-	// void **ar = malloc(3 * sizeof(void *));
-
-	// ar[0] = (char *) strdup("Some string");
-	
-	// ar[1] = malloc(sizeof(int));
-	// *( (int *)(ar[1]) ) = 5;
-	
-	// ar[2] = malloc(sizeof(double));
-	// *( (double *)(ar[2]) ) = 27.3;
-
-	// printf( "String: %s\n", (char *)(ar[0]) );
-	// printf( "Integer: %d\n", *((int *)(ar[1])) );
-	// printf( "Double: %f\n", *((double *)(ar[2])) );
-
-	// for (int i = 0; i < 3; i++)
-	// 	free(ar[i]);
-
-	// free(ar);
-	// getchar();
-	// exit(0);
-
-
-
-
-
-	/**
-	 * ARRAYLIST TEST ...
-	 */ 
 
 	// printf("%d\n", compare(5, -4));
     // printf("%d\n", compare(2, -6));
@@ -245,150 +199,62 @@ int main(int argc, char* args[]) {
     // printf("%d\n", compare(2, 4));
     // printf("%d\n", compare(3, 2));
     // printf("%d\n", compare(6, 6));
-
-	// ArrayList* list = createList(5, 3, sizeof(char), ARRAYLIST_SHRINK_AFTER_DELETE);
-
-	// addCharToList(list, 'd');
-	// addCharToList(list, 'u');
-	// addCharToList(list, 'p');
-	// addCharToList(list, 'a');
-	
-	// for (unsigned int i = 0; i < list->size; i++) {
-	// 	printf("Item %i value: %c\n", i, list->data[i]->c);
-	// }
-
-	// clearList(&list);
-
-	// list = createList(5, 3, sizeof(int), ARRAYLIST_SHRINK_AFTER_DELETE);
-
-	// addIntToList(list, 10);
-	// addIntToList(list, 12);
-	// addIntToList(list, 13);
-	// addIntToList(list, 15);
-
-
-	// for (unsigned int i = 0; i < list->size; i++) {
-	// 	printf("Item %i value: %i\n", i, list->data[i]->i);
-	// }
-
-	// printf("GetCharFromList: %i = %i\n", 3, getIntFromArray(list, 3));
-
-
-
-
-	// int arraySize = 6;
-	// int arrayChunkSize = 3;
-
-	// ArrayList_Int* arr = createArrayList(arraySize, arrayChunkSize, sizeof(int), ARRAYLIST_SHIRK_AFTER_DELETE);
-	
-	// dumpArrayList(arr);
-
-	// addIntToArrayList(arr, 2);
-	
-	// dumpArrayList(arr);
-
-	// addIntToArrayList(arr, 41);
-	// dumpArrayList(arr);
-
-	// printf("Pop ArrayList = %i\n", );
-	// dumpArrayList(arr);
-
-	// printf("Shift ArrayList = %i\n", shiftArrayList(arr));
-	// dumpArrayList(arr);
-
-	// addIntToArrayList(arr, 48);
-	// dumpArrayList(arr);
-
-	// printf("Pop ArrayList = %i\n", popArrayList(arr));
-	// dumpArrayList(arr);
-
-	// time_t t;
-	// srand((unsigned) time(&t));
-	// int r = 0;
-	// printf("Testing ... ");
-	
-
-	// struct timeval stop, start;
-	// gettimeofday(&start, NULL);
-
-	// for (int i = 0; i < 25; i++) {
-	// 	r = rand() % 666;
-	// 	addIntToArrayList(arr, r);
-	// 	if (r < 100) {
-	// 		popArrayList(arr);
-	// 	} else if (r < 200) {
-	// 		shiftArrayList(arr);
-	// 	} else if (r < 400 && r > 200) {
-	// 		removeFromArrayList(arr, (unsigned) ((rand() % arr->size)) );
-	// 	}
-	// 	dumpArrayList(arr);
-	// }
-	// gettimeofday(&stop, NULL);
-	// printf("done.\n");
-	// printf("took %lu\n", stop.tv_usec - start.tv_usec);
-
-	// getchar();
-
-	// if (clearArrayList(&arr)) {
-	// 	printf("Array cleared successfully!\n");
-	// }
-
 	
 
 	Engine* engine = engineStart();
-	
+
+	registryInit();
+
+	String str1 = createString("Nowy 1");
+	printf("Data #1: %s\n", str1.str);
+
+	String str2 = createString("Nowy string 2");
+	printf("Data #2: %s\n", str2.str);
+
 	printf("Engine status: %s\n", engine->started == TRUE ? "working." : "start failure.");
-	
-	// AssetsList* list = createAssetsList(4, 3, ARRAYLIST_SHRINK_AFTER_DELETE);
-	
+
+
 	Texture* playerSpriteSheet = loadSpriteSheet("animals1.png", NPC_SPRITESHEET, engine->renderer, 52, 72);
 	Texture* backgroundSpriteSheet = loadSpriteSheet("grassland.png", GRASSLAND1_SPRITESHEET, engine->renderer, 64, 64);
 
-
-	AssetsList* list = createAssetsList(5, 3, sizeof(Texture), ASSETSLIST_SHRINK_AFTER_DELETE);
-
-	addTextureToAssets(list, playerSpriteSheet);
-	addTextureToAssets(list, backgroundSpriteSheet);
-
-	
-	// addTextureToList(list, playerSpriteSheet);
-	// addTextureToList(list, backgroundSpriteSheet);
+	addTextureToAssets(engine->assets, playerSpriteSheet);
+	addTextureToAssets(engine->assets, backgroundSpriteSheet);
 
 
-	// for (unsigned int i = 0; i < list->size; i++) {
-	// 	printf("Textures %i name: %s\n", i, list->textures[i]->name);
-	// }
+	loadMusic(engine, "res/a_funny_moment.mod");
 
 
+	Player* player = resetPlayer();
 
-	// getchar();
-	// clearList(&list);
-	// getchar();
-	// exit(0);
+	Camera cam;
+	cam.x = 0;
+	cam.y = 0;
+	cam.offsetX = 0;
+	cam.offsetY = 0;
 
-	// Player* player = resetPlayer();
+	// LEVEL STUFF...
+	Level* level = getLevel();
 
-	// Camera cam;
-	// cam.x = 0;
-	// cam.y = 0;
-	// cam.offsetX = 0;
-	// cam.offsetY = 0;
+	SDL_Rect* layersRects[level->layers];
+	for (int i = 0; i < level->layers; i++) {
+		layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);
+	}
 
-	// Texture* playerSpriteSheet = loadSpriteSheet("animals1.png", NPC_SPRITESHEET, engine->renderer, 52, 72);
+	Animation* walkingAnimation[4];
 
-	// Texture* backgroundSpriteSheet = loadSpriteSheet("grassland.png", GRASSLAND1_SPRITESHEET, engine->renderer, 64, 64);
+	unsigned int framesPlayerLeft[]  = {16, 17, 18};
+	unsigned int framesPlayerRight[] = {28, 29, 30};
+	unsigned int framesPlayerUp[]    = {40, 41, 42};
+	unsigned int framesPlayerDown[]  = {4,  5,  6};
 
-	// engine->assets = createAssets();
+	walkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
+	walkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
+	walkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
+	walkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
 
-	// if (addGraphicsToAssets(playerSpriteSheet, engine->assets)) {
-	// 	printf("Graphics (player) added successfuly!\n");
-	// }
-
-	// if (addGraphicsToAssets(backgroundSpriteSheet, engine->assets)) {
-	// 	printf("Graphics (background) added successfuly!\n");
-	// }
-
-	SDL_Rect clip = {0, 0, 128, 128};
+	int walking = 0;
+	int currentWalk = WALK_LEFT;
+	walkingAnimation[currentWalk]->curFrame = 1;
 	
 	while(engine->quit == FALSE) {
 		
@@ -399,27 +265,179 @@ int main(int argc, char* args[]) {
 					engine->quit = TRUE;
 				} else {
 					if (engine->event.type == SDL_KEYDOWN) {
-						if (engine->event.key.keysym.sym == SDLK_ESCAPE) {
-							engine->quit = TRUE;
+						switch (engine->event.key.keysym.sym) {
+							case SDLK_ESCAPE:
+								engine->quit = 1;
+								break;
+							case SDLK_LEFT:
+							case SDLK_a:
+								player->velX = -SPEED;
+								break;
+							case SDLK_RIGHT:
+							case SDLK_d:
+								player->velX = SPEED;
+								break;
+							case SDLK_UP:
+							case SDLK_w:
+								player->velY = -SPEED;
+								break;
+							case SDLK_DOWN:
+							case SDLK_s:
+								player->velY = SPEED;
+								break;
+							case SDLK_1:
+								if (engine->musicVolume < MIX_MAX_VOLUME) engine->musicVolume++;
+								Mix_VolumeMusic(engine->musicVolume);
+								break;
+							case SDLK_2:
+								if (engine->musicVolume > 0) engine->musicVolume--;
+								Mix_VolumeMusic(engine->musicVolume);
+								break;
+							case SDLK_SPACE:
+								if (Mix_PlayingMusic() == 0) {
+									Mix_PlayMusic(engine->music, -1);
+								} else {
+									if (Mix_PausedMusic() == 1) {
+										Mix_ResumeMusic();
+									} else {
+										Mix_PauseMusic();
+									}
+								}
+								break;
 						}
+					}
+					else if (engine->event.type == SDL_KEYUP) {
+
+						switch (engine->event.key.keysym.sym) {
+							case SDLK_ESCAPE:
+								engine->quit = 1;
+								break;
+							case SDLK_LEFT:
+							case SDLK_a:
+								if (player->velX < 0) {
+									player->velX = 0;
+								}
+								break;
+							case SDLK_RIGHT:
+							case SDLK_d:
+								if (player->velX > 0) {
+									player->velX = 0;
+								}
+								break;
+							case SDLK_UP:
+							case SDLK_w:
+								if (player->velY < 0) {
+									player->velY = 0;
+								}
+								break;
+							case SDLK_DOWN:
+							case SDLK_s:
+								if (player->velY > 0) {
+									player->velY = 0;
+								}
+								break;
+						}
+
 					}
 				}
 		}
+
+
+		// ------------------ UPDATE ------------------
+	
+		// PLAYER'S VELOCITY
+		player->x += player->velX;
+		player->y += player->velY;
+
+		// WALKING
+		walking = 1;
+		if (player->velX == SPEED) {
+			currentWalk = WALK_RIGHT;
+		} else if (player->velX == -SPEED) {
+			currentWalk = WALK_LEFT;
+		} else if (player->velY == SPEED) {
+			currentWalk = WALK_DOWN;
+		} else if (player->velY == - SPEED) {
+			currentWalk = WALK_UP;
+		} else walking = 0;
+
+
+		updateCamera(&cam, *player);
+
+		if (Mix_PlayingMusic() == 0) {
+			Mix_PlayMusic(engine->music, -1);
+		}
+
+		player->tileX = getTileX(player, backgroundSpriteSheet->sWidth);
+		player->tileY = getTileY(player, backgroundSpriteSheet->sHeight);
+		player->tileIndex = player->tileY * level->width + player->tileX;
+
 
 		SDL_SetRenderDrawColor(engine->renderer, 0, 0, 0, 255);
 		SDL_RenderClear(engine->renderer);
 		
 		// ------------------ RENDER START ------------------
 		
-		renderTexture(getTextureFromAssets(list, 1), engine->renderer, &clip, 0, 0, 128, 128);
+		for (int i = -7; i < 8; i++) {
+			for (int j = -5; j < 6; j++) {
+				if (
+					// Draw only the right tiles
+					((player->x + (i * 64) + (player->width / 2)) / 64) >= 0 &&
+					((player->x + (i * 64) + (player->width / 2)) / 64) < level->map->width &&
+					((player->y + (j * 64) + (player->height / 2)) / 64) >= 0 &&
+					((player->y + (j * 64) + (player->height / 2)) / 64) < level->map->height
+					) {
+
+					for (int t = 0; t < level->layers; t++) {
+						renderTexture(
+							backgroundSpriteSheet,
+							engine->renderer,
+							&layersRects[t][(player->tileY + j) * level->width + player->tileX + i],
+							(( ((player->x + (i * 64) + (player->width / 2)) / 64) % backgroundSpriteSheet->sWidth) * 64) + cam.offsetX,
+							(( ((player->y + (j * 64) + (player->height / 2)) / 64) % backgroundSpriteSheet->sHeight) * 64) + cam.offsetY,
+							backgroundSpriteSheet->sWidth,
+							backgroundSpriteSheet->sHeight
+						);
+					}
+
+				}
+			}
+		}
+
+		// NPCs
+		// for (int i = 0; i < 4; i++)
+		// 	renderTexture(playerSpriteSheet, game, &dogsAnim[i]->frames[nextFrame(dogsAnim[i])], dogs[i].x + cam.offsetX, dogs[i].y + cam.offsetY, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight);
+
+		// RENDER PLAYER
+		if (walking == 1) {
+			renderTexture(
+				playerSpriteSheet,
+				engine->renderer,
+				&walkingAnimation[currentWalk]->frames[nextFrame(walkingAnimation[currentWalk])],
+				player->x + cam.offsetX,
+				player->y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
+		} else {
+			renderTexture(
+				playerSpriteSheet,
+				engine->renderer,
+				&walkingAnimation[currentWalk]->frames[walkingAnimation[currentWalk]->curFrame],
+				player->x + cam.offsetX,
+				player->y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
+		}
+
 
 		// ------------------- RENDER END -------------------
 		engineDelay(engine);
 		SDL_RenderPresent(engine->renderer);
 	}
 
-	clearAssetsList(&list);
-
+	registryRelease();
 	engineStop(&engine);
 
 	getchar();

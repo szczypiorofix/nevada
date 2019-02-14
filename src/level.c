@@ -10,6 +10,7 @@
 
 
 
+
 // ------------------ FORWARD DECLARATION ------------------
 
 Level* getLevel(void);
@@ -47,8 +48,9 @@ void freeTiledMap(TiledMap* tiledMap) {
 }
 
 Level* getLevel(void) {
-
-    TiledMap* tiledMap = parseMap(getFromResourceImagesDir("map.tmx"));
+	// char tmp[50] = DIR_RES_IMAGES;
+	// strcat(tmp, "map.tmx");
+    TiledMap* tiledMap = parseMap("res/images/map.tmx");
     // printf("TiledMap width: %i x height:%i, tileWidth:%i, tileHeight:%i\n", tiledMap->width, tiledMap->height, tiledMap->tileWidth, tiledMap->tileHeight);
 
     int differentSizeOfLayers = 0;
@@ -74,8 +76,9 @@ Level* getLevel(void) {
     level->height = tiledMap->layer[0].height;
     level->size = level->width * level->height;
 
-    level->content = malloc(sizeof *level->content * level->size);
-    if (level->content == NULL) return NULL;
+	// FREE THAT CONTENT !!! Huge leak!
+    // level->content = malloc(sizeof *level->content * level->size);
+    // if (level->content == NULL) return NULL;
 
     level->content = tiledMap->layer;
     level->layers = tiledMap->layersCount;
@@ -233,7 +236,7 @@ int stringToInt(const char a[]) {
 
 int* convertDataStringToArray(const xmlChar* s) {
 	unsigned int numbers = 0;
-	int c = 0;
+	unsigned int c = 0;
 	int cleanCharsNumber = 0;
 	// Counting comas
 	while(s[c] != '\0') {
@@ -249,14 +252,13 @@ int* convertDataStringToArray(const xmlChar* s) {
 	char cleanCharsArray[cleanCharsNumber];
 	cleanCharsNumber = 0;
 	while(s[c] != '\0') {
-		// CHECK CR/LF
+		// CHECK CR/LF AND SPACES
 		if (s[c] != 13 && s[c] != 32 && s[c] != 10) {
 			cleanCharsArray[cleanCharsNumber] = s[c];
 			cleanCharsNumber++;
 		}
 		c++;
 	}
-
 	//printf("Clean chars string:\n%s\n", cleanCharsArray);
 	c = 0;
 
@@ -268,12 +270,11 @@ int* convertDataStringToArray(const xmlChar* s) {
 		return NULL;
 	}
 	while(ptr != NULL) {
-		//printf("Number: %s\n", ptr);
 		numArr[c] = stringToInt(ptr);
 		ptr = strtok(NULL, delim);
 		c++;
 	}
-
+	
 	return numArr;
 }
 

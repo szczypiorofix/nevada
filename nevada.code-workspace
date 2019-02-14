@@ -24,7 +24,8 @@
 			"glu.h": "c",
 			"stdlib.h": "c",
 			"sdl_opengl.h": "c",
-			"objects.h": "c"
+			"objects.h": "c",
+			"tree.h": "c"
 		},
 		"editor.fontFamily": "Noto Mono, monospace",
 		"editor.lineHeight": 16,

@@ -3,6 +3,8 @@
 #pragma once
 
 
+#include "registry.h"
+
 // ------------------ CONSTANTS ------------------
 
 #define WALK_UP 0
@@ -60,8 +62,8 @@ enum SpriteSheets {
 // ------------------ COMMON FUNCTIONS ------------------
 
 int fromBinary(const char *s);
-char* getFromResourceImagesDir(char* file);
-char* getFromResourceDir(char* file);
+// char* getFromResourceImagesDir(char* file);
+// char* getFromResourceDir(char* file);
 char* copyStringFromPointer(const char* s);
 
 

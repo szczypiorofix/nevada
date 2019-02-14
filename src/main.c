@@ -20,11 +20,6 @@
 int compare(int, int);
 
 
-// Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
-// int nextFrame(Animation* an);
-
-
-
 
 // void renderText(Texture* t, SDL_Game* game, int x, int y, int w, int h) {
 //     SDL_Rect renderQuad = {x, y, w, h};
@@ -56,59 +51,6 @@ int compare(int, int);
 //     }
 //     return t;
 // }
-
-
-// SDL_Game* initGame() {
-//     SDL_Game* game = malloc(sizeof(SDL_Game));
-//     if (game == NULL) return NULL;
-//     game->success = 1;
-//     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-//         printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError());
-//         game->success = 0;
-//     } else {
-//         game->gWindow = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, windowFlags);
-//         if (game->gWindow == NULL) {
-//             printf( "Window could not be created! SDL Error: %s\n", SDL_GetError());
-//             game->success = 0;
-//         } else {
-//             game->gRenderer = SDL_CreateRenderer(game->gWindow, -1, rendererFlags);
-//             if (game->gRenderer == NULL) {
-//                 printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-//                 game->success = 0;
-//             } else {
-//                 SDL_SetRenderDrawColor(game->gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-                
-//                 int imgFlags = IMG_INIT_PNG;
-//                 // INITIALIZE IMGs
-//                 if (!(IMG_Init(imgFlags) & imgFlags)) {
-//                     printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-//                     game->success = 0;
-//                 }
-
-//                 // INITIALIZE AUDIO
-//                 if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-//                     printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-//                     game->success = 0;
-//                 }
-
-//                 // INITIALIZE TTF
-//                 if(TTF_Init() == -1) {
-//                     printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
-//                     game->success = 0;
-//                 }
-//             }
-//         }
-//     }
-
-//     game->gMusic = Mix_LoadMUS("res/ex-aws_cave.xm");
-//     if (game->gMusic == NULL) {
-//         printf( "Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError() );
-//         game->success = 0;
-//     }
-
-//     return game;
-// }
-
 
 
 // void luaTest() {
@@ -370,7 +312,7 @@ int main(int argc, char* args[]) {
 
 		player->tileX = getTileX(player, backgroundSpriteSheet->sWidth);
 		player->tileY = getTileY(player, backgroundSpriteSheet->sHeight);
-		player->tileIndex = player->tileY * level->width + player->tileX;
+		// player->tileIndex = player->tileY * level->width + player->tileX;
 
 
 		SDL_SetRenderDrawColor(engine->renderer, 0, 0, 0, 255);
@@ -382,24 +324,29 @@ int main(int argc, char* args[]) {
 			for (int j = -5; j < 6; j++) {
 				if (
 					// Draw only the right tiles
-					((player->x + (i * 64) + (player->width / 2)) / 64) >= 0 &&
-					((player->x + (i * 64) + (player->width / 2)) / 64) < level->map->width &&
-					((player->y + (j * 64) + (player->height / 2)) / 64) >= 0 &&
-					((player->y + (j * 64) + (player->height / 2)) / 64) < level->map->height
+					((player->x + (i * backgroundSpriteSheet->sWidth) + (player->width / 2)) / 64) >= 0 &&
+					((player->x + (i * backgroundSpriteSheet->sWidth) + (player->width / 2)) / 64) < level->map->width &&
+					((player->y + (j * backgroundSpriteSheet->sHeight) + (player->height / 2)) / 64) >= 0 &&
+					((player->y + (j * backgroundSpriteSheet->sHeight) + (player->height / 2)) / 64) < level->map->height
 					) {
 
-					for (int t = 0; t < level->layers; t++) {
-						renderTexture(
-							backgroundSpriteSheet,
-							engine->renderer,
-							&layersRects[t][(player->tileY + j) * level->width + player->tileX + i],
-							(( ((player->x + (i * 64) + (player->width / 2)) / 64) % backgroundSpriteSheet->sWidth) * 64) + cam.offsetX,
-							(( ((player->y + (j * 64) + (player->height / 2)) / 64) % backgroundSpriteSheet->sHeight) * 64) + cam.offsetY,
-							backgroundSpriteSheet->sWidth,
-							backgroundSpriteSheet->sHeight
-						);
-					}
+					for (int l = 0; l < level->layers; l++) {
 
+						if ((player->tileY + j) * level->width + player->tileX + i >= 0)
+							
+							if ( layersRects[l][(player->tileY + j) * level->width + player->tileX + i].w > 0 ) {
+								renderTexture(
+									backgroundSpriteSheet,
+									engine->renderer,
+									&layersRects[l][(player->tileY + j) * level->width + player->tileX + i],
+									(( ((player->x + (i * 64) + (player->width / 2)) / 64) % backgroundSpriteSheet->sWidth) * 64) + cam.offsetX,
+									(( ((player->y + (j * 64) + (player->height / 2)) / 64) % backgroundSpriteSheet->sHeight) * 64) + cam.offsetY,
+									backgroundSpriteSheet->sWidth,
+									backgroundSpriteSheet->sHeight
+								);
+							}	
+
+					}
 				}
 			}
 		}
@@ -437,10 +384,49 @@ int main(int argc, char* args[]) {
 		SDL_RenderPresent(engine->renderer);
 	}
 
+	free(level->map);
+
+	// for (int i = 0; i < level->layers; i++) {
+	// 	free(layersRects[i]);
+	// 	layersRects[i] = NULL;
+	// }
+
+	// for (int i = 0; i < level->layers; i++) {
+	// 	free(level->content[i].encoding);
+	// 	level->content[i].encoding = NULL;
+	// 	free(level->content[i].name);
+	// 	level->content[i].name = NULL;
+	// 	free(level->content[i].data);
+	// 	level->content[i].data = NULL;
+	// }
+
+	// for (int i = 0; i < level->map->layersCount; i++) {
+		
+	// 	free( &(level->map->layer[i]).data );
+	// 	level->map->layer[i].data = NULL;
+		
+	// 	free( &level->map->layer[i].name );
+	// 	level->map->layer[i].name = NULL;
+		
+	// 	free( &level->map->layer[i].encoding );
+	// 	level->map->layer[i].encoding = NULL;
+		
+	// }
+
+	// printf("Tile source: %s\n", (level->map->layer)[2].name);
+
+	// free(level->map);
+	// level->map = NULL;
+
+	// free(&level->content);
+	// level->content = NULL;
+
+	// free(level);
+	// level = NULL;
+
 	registryRelease();
 	engineStop(&engine);
 
-	getchar();
 	exit(0);
 
 

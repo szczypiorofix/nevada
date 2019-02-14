@@ -38,5 +38,6 @@ void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, in
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, Texture* t);
 Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 int nextFrame(Animation* an);
+int releaseAnimation(Animation** an);
 
 #endif

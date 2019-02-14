@@ -12,9 +12,21 @@
 Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(Texture* t);
 void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height);
+int releaseAnimation(Animation** an);
 
 
 // ------------------ "PUBLIC" FUNCTIONS ------------------
+
+
+int releaseAnimation(Animation** an) {
+    // for (int i = 0; i < (*an)->size; i++) {
+    //     free( (*an)->frames[i] );
+    // }
+    free( (*an)->frames );
+    (*an)->frames = NULL;
+    return 1;
+}
+
 
 void freeTexture(Texture* t) {
     if (t->mTexture != NULL) {
@@ -66,20 +78,38 @@ Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Rend
 }
 
 
-SDL_Rect* getSpriteI(Texture* t, int index, unsigned int width, unsigned int height) {
-    SDL_Rect* r = malloc(sizeof(SDL_Rect));
-    int col = t->width / width;
-    r->x = ((index - 1) % col) * width;
-    r->y = ((index - 1) / col) * height;
-    r->w = width;
-    r->h = height;
-    return r;
-}
+// SDL_Rect* getSpriteI(int textureWidth, int index, unsigned int width, unsigned int height) {
+//     SDL_Rect* r = malloc(sizeof(SDL_Rect));
+//     int col = textureWidth / width;
+//     r->x = ((index - 1) % col) * width;
+//     r->y = ((index - 1) / col) * height;
+//     r->w = width;
+//     r->h = height;
+//     return r;
+// }
 
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, Texture* t) {
     SDL_Rect* l = malloc(sizeof(SDL_Rect) * size);
-    for (unsigned int i = 0; i < level->size; i++)
-        l[i] = *getSpriteI(t, level->content[layerCount].data[i], t->sWidth, t->sHeight);
+    for (unsigned int i = 0; i < level->size; i++) {
+        // l[i] = *getSpriteI(t->width, level->content[layerCount].data[i], t->sWidth, t->sHeight);
+        int col = t->width / t->sWidth;
+        
+        SDL_Rect r = {
+            r.x = ((level->content[layerCount].data[i] - 1) % col) * t->sWidth,
+            r.y = ((level->content[layerCount].data[i] - 1) / col) * t->sHeight,
+            r.w = t->sWidth,
+            r.h = t->sHeight
+        };
+        if ( (level->content[layerCount].data[i] - 1) == 0 ) {
+            r.x = -1;
+            r.y = -1;
+            r.w = -1;
+            r.h = -1;
+        }
+        l[i] = r;
+        
+        
+    }
     return l;
 }
 
@@ -95,7 +125,15 @@ Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, uns
     anim->frames = malloc(sizeof(SDL_Rect) * size);
     if (anim->frames == NULL) return NULL;
     for (unsigned int i = 0; i < size; i++) {
-        anim->frames[i] = *getSpriteI(t, frames[i], sw, sh);
+        // anim->frames[i] = *getSpriteI(t->width, frames[i], sw, sh);
+        int col = t->width / t->sWidth;
+        SDL_Rect r = {
+            r.x = ((frames[i] - 1) % col) * sw,
+            r.y = ((frames[i] - 1) / col) * sh,
+            r.w = sw,
+            r.h = sh
+        };
+        anim->frames[i] = r;
     }
     return anim;
 }

@@ -7,8 +7,8 @@
 
 // ------------------ FORWARD DECLARATION ------------------
 int fromBinary(const char *s);
-char* getFromResourceImagesDir(char* file);
-char* getFromResourceDir(char* file);
+// char* getFromResourceImagesDir(char* file);
+// char* getFromResourceDir(char* file);
 char* copyStringFromPointer(const char* s);
 int releaseString(void* string);
 
@@ -21,21 +21,23 @@ int fromBinary(const char *s) {
   return (int) strtol(s, NULL, 2);
 }
 
-char* getFromResourceImagesDir(char* file) {
-	const char *dir = DIR_RES_IMAGES;
-	char *result = malloc(strlen(file) + strlen(dir) + 1);
-	strcpy(result, dir);
-	strncat(result, file, strlen(file));
-	return result;
-}
+// char* getFromResourceImagesDir(char* file) {
+// 	const char *dir = DIR_RES_IMAGES;
+	
+// 	// NEED TO FREE RESULT !
+// 	char *result = malloc(strlen(file) + strlen(dir) + 1);
+// 	strcpy(result, dir);
+// 	strncat(result, file, strlen(file));
+// 	return result;
+// }
 
-char* getFromResourceDir(char* file) {
-	const char *dir = DIR_RES;
-	char *result = malloc(strlen(file) + strlen(dir) + 1);
-	strcpy(result, dir);
-	strncat(result, file, strlen(file));
-	return result;
-}
+// char* getFromResourceDir(char* file) {
+// 	const char *dir = DIR_RES;
+// 	char *result = malloc(strlen(file) + strlen(dir) + 1);
+// 	strcpy(result, dir);
+// 	strncat(result, file, strlen(file));
+// 	return result;
+// }
 
 char* copyStringFromPointer(const char* s) {
 	int sl = strlen(s) + 1;

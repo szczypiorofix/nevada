@@ -13,6 +13,7 @@
 #define WALK_LEFT 3
 
 #define SPEED 2
+#define NPC_SPEED 1
 
 // Booleans
 #define FALSE 0

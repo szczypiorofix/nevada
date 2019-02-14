@@ -182,21 +182,55 @@ int main(int argc, char* args[]) {
 		layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);
 	}
 
-	Animation* walkingAnimation[4];
+	Animation* playerWalkingAnimation[4];
 
 	unsigned int framesPlayerLeft[]  = {16, 17, 18};
 	unsigned int framesPlayerRight[] = {28, 29, 30};
 	unsigned int framesPlayerUp[]    = {40, 41, 42};
 	unsigned int framesPlayerDown[]  = {4,  5,  6};
 
-	walkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
-	walkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
-	walkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
-	walkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
+	playerWalkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
+	playerWalkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
+	playerWalkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
+	playerWalkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
 
-	int walking = 0;
-	int currentWalk = WALK_LEFT;
-	walkingAnimation[currentWalk]->curFrame = 1;
+	// DOGS
+	NPC dog1 = {650, 280, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight, 0, 0, 0, DIR_RIGHT};
+	unsigned int framesDog1Left[]  = {13, 14, 15};
+	unsigned int framesDog1Right[] = {25, 26, 27};
+	unsigned int framesDog1Up[]    = {37, 38, 39};
+	unsigned int framesDog1Down[]  = {1,  2,  3};
+	Animation* dog1WalkingAnimation[4];
+	dog1WalkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesDog1Up);
+	dog1WalkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesDog1Right);
+	dog1WalkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesDog1Down);
+	dog1WalkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesDog1Left);		
+
+
+	NPC dog2 = {730, 180, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight, 0, 0, 0, DIR_RIGHT};
+	unsigned int framesDog2Left[]  = {67, 68, 69};
+	unsigned int framesDog2Right[] = {79, 80, 81};
+	unsigned int framesDog2Up[]    = {91, 92, 93};
+	unsigned int framesDog2Down[]  = {55, 56, 57};
+	Animation* dog2WalkingAnimation[4];
+	dog2WalkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 5, player->width, player->height, 3, framesDog2Up);
+	dog2WalkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 5, player->width, player->height, 3, framesDog2Right);
+	dog2WalkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 5, player->width, player->height, 3, framesDog2Down);
+	dog2WalkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 5, player->width, player->height, 3, framesDog2Left);
+
+	NPC dog3 = {530, 320, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight, 0, 0, 0, DIR_RIGHT};
+	unsigned int framesDog3Left[]  = {22, 23, 24};
+	unsigned int framesDog3Right[] = {34, 35, 36};
+	unsigned int framesDog3Up[]    = {46, 47, 48};
+	unsigned int framesDog3Down[]  = {10, 11, 12};
+	Animation* dog3WalkingAnimation[4];
+	dog3WalkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 4, player->width, player->height, 3, framesDog3Up);
+	dog3WalkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 4, player->width, player->height, 3, framesDog3Right);
+	dog3WalkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 4, player->width, player->height, 3, framesDog3Down);
+	dog3WalkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 4, player->width, player->height, 3, framesDog3Left);
+
+	player->direction = DIR_RIGHT;
+	playerWalkingAnimation[player->direction]->curFrame = 1;
 	
 	while(engine->quit == FALSE) {
 		
@@ -287,32 +321,50 @@ int main(int argc, char* args[]) {
 
 		// ------------------ UPDATE ------------------
 	
+		// ###### PLAYER UPDATE ######
 		// PLAYER'S VELOCITY
 		player->x += player->velX;
 		player->y += player->velY;
-
+		player->tileX = getTileX(player, backgroundSpriteSheet->sWidth);
+		player->tileY = getTileY(player, backgroundSpriteSheet->sHeight);
+		player->tileIndex = player->tileY * level->width + player->tileX;
 		// WALKING
-		walking = 1;
+
+		player->isMoving = 1;
+
 		if (player->velX == SPEED) {
-			currentWalk = WALK_RIGHT;
+			// currentWalk = WALK_RIGHT;
+			player->direction = DIR_RIGHT;
 		} else if (player->velX == -SPEED) {
-			currentWalk = WALK_LEFT;
+			// currentWalk = WALK_LEFT;
+			player->direction = DIR_LEFT;
 		} else if (player->velY == SPEED) {
-			currentWalk = WALK_DOWN;
+			// currentWalk = WALK_DOWN;
+			player->direction = DIR_DOWN;
 		} else if (player->velY == - SPEED) {
-			currentWalk = WALK_UP;
-		} else walking = 0;
+			// currentWalk = WALK_UP;
+			player->direction = DIR_UP;
+		} else player->isMoving = 0; // walking = 0;
+		// ##########################
 
+		// ###### NPCs UPDATE #######
 
+		updateNPC(&dog1);
+		updateNPC(&dog2);
+		updateNPC(&dog3);
+
+		// ##########################
+		
+		// ###### CAMERA UPDATE ######
 		updateCamera(&cam, *player);
-
+		// ###########################
+		
 		if (Mix_PlayingMusic() == 0) {
 			Mix_PlayMusic(engine->music, -1);
 		}
 
-		player->tileX = getTileX(player, backgroundSpriteSheet->sWidth);
-		player->tileY = getTileY(player, backgroundSpriteSheet->sHeight);
-		// player->tileIndex = player->tileY * level->width + player->tileX;
+		
+		// --------------------------------------------
 
 
 		SDL_SetRenderDrawColor(engine->renderer, 0, 0, 0, 255);
@@ -356,11 +408,11 @@ int main(int argc, char* args[]) {
 		// 	renderTexture(playerSpriteSheet, game, &dogsAnim[i]->frames[nextFrame(dogsAnim[i])], dogs[i].x + cam.offsetX, dogs[i].y + cam.offsetY, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight);
 
 		// RENDER PLAYER
-		if (walking == 1) {
+		if (player->isMoving == 1) {
 			renderTexture(
 				playerSpriteSheet,
 				engine->renderer,
-				&walkingAnimation[currentWalk]->frames[nextFrame(walkingAnimation[currentWalk])],
+				&playerWalkingAnimation[player->direction]->frames[nextFrame(playerWalkingAnimation[player->direction])],
 				player->x + cam.offsetX,
 				player->y + cam.offsetY,
 				playerSpriteSheet->sWidth,
@@ -370,14 +422,90 @@ int main(int argc, char* args[]) {
 			renderTexture(
 				playerSpriteSheet,
 				engine->renderer,
-				&walkingAnimation[currentWalk]->frames[walkingAnimation[currentWalk]->curFrame],
+				&playerWalkingAnimation[player->direction]->frames[playerWalkingAnimation[player->direction]->curFrame],
 				player->x + cam.offsetX,
 				player->y + cam.offsetY,
 				playerSpriteSheet->sWidth,
 				playerSpriteSheet->sHeight
 			);
 		}
+		// NPCs
+		// for (int i = 0; i < 4; i++)
+		// 	renderTexture(
+		// 		playerSpriteSheet,
+		// 		engine->renderer,
+		// 		&dogsAnim[i]->frames[nextFrame(dogsAnim[i])],
+		// 		dogs[i].x + cam.offsetX,
+		// 		dogs[i].y + cam.offsetY,
+		// 		playerSpriteSheet->sWidth,
+		// 		playerSpriteSheet->sHeight
+		// 	);
 
+		if (dog1.takingAction == 1) {
+			renderTexture(
+				playerSpriteSheet,
+				engine->renderer,
+				&dog1WalkingAnimation[dog1.direction]->frames[nextFrame(dog1WalkingAnimation[dog1.direction])],
+				dog1.x + cam.offsetX,
+				dog1.y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
+		} else {
+			renderTexture(
+				playerSpriteSheet,
+				engine->renderer,
+				&dog1WalkingAnimation[dog1.direction]->frames[dog1WalkingAnimation[dog1.direction]->curFrame],
+				dog1.x + cam.offsetX,
+				dog1.y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
+		}
+
+		if (dog2.takingAction == 1) {
+			renderTexture(
+				playerSpriteSheet,
+				engine->renderer,
+				&dog2WalkingAnimation[dog2.direction]->frames[nextFrame(dog2WalkingAnimation[dog2.direction])],
+				dog2.x + cam.offsetX,
+				dog2.y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
+		} else {
+			renderTexture(
+				playerSpriteSheet,
+				engine->renderer,
+				&dog2WalkingAnimation[dog2.direction]->frames[dog2WalkingAnimation[dog2.direction]->curFrame],
+				dog2.x + cam.offsetX,
+				dog2.y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
+		}
+
+		if (dog3.takingAction == 1) {
+			renderTexture(
+				playerSpriteSheet,
+				engine->renderer,
+				&dog3WalkingAnimation[dog3.direction]->frames[nextFrame(dog3WalkingAnimation[dog3.direction])],
+				dog3.x + cam.offsetX,
+				dog3.y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
+		} else {
+			renderTexture(
+				playerSpriteSheet,
+				engine->renderer,
+				&dog3WalkingAnimation[dog3.direction]->frames[dog3WalkingAnimation[dog3.direction]->curFrame],
+				dog3.x + cam.offsetX,
+				dog3.y + cam.offsetY,
+				playerSpriteSheet->sWidth,
+				playerSpriteSheet->sHeight
+			);
+		}
 
 		// ------------------- RENDER END -------------------
 		engineDelay(engine);
@@ -430,45 +558,6 @@ int main(int argc, char* args[]) {
 	exit(0);
 
 
-	// printf("Parameters: %s\n", getFromResourceImagesDir("map.tmx"));
-
-	// SDL_Game* game = initGame();
-	// if (!game) {
-	// 	printf("ERROR!\n");
-	// 	exit(1);
-	// } else {
-	// 	// printf("Initialization SDL - OK!\nGame.success -> %i\n", game->success);		
-
-	// 	// LEVEL STUFF...
-	// 	Level* level = getLevel();
-		
-	// 	// printf("This level consists of %i layer(s).\n", level->layers);
-	// 	// printf("This level consists of %i tilesets.\n", level->map->tileSetCount);
-
-	// 	Texture* playerSpriteSheet = loadSpriteSheet("animals1.png", game, 52, 72);
-	// 	// printf("Player spritesheet Width: %i, height: %i\n", playerSpriteSheet->width, playerSpriteSheet->height);
-
-	// 	Texture* backgroundSpriteSheet = loadSpriteSheet("grassland.png", game, 64, 64);
-	// 	// printf("Background spritesheet Width: %i, height: %i\n", backgroundSpriteSheet->width, backgroundSpriteSheet->height);
-
-	// 	// Texture* font1 = loadFromRenderedText("THE TEMPLE OF THE LOST PUPPY", game);
-
-	// 	// PLAYER
-	// 	Player* player = resetPlayer();
-
-	// 	Camera cam;
-	// 	cam.x = 0;
-	// 	cam.y = 0;
-	// 	cam.offsetX = 0;
-	// 	cam.offsetY = 0;
-		
-	// 	SDL_Rect* layersRects[level->layers];
-	// 	for (int i = 0; i < level->layers; i++) {
-	// 		layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);
-	// 	}
-
-	// 	short quit = 0;
-
 	// 	// DOGS
 	// 	// NPC dogs[] = {
 	// 	// 	{650, 280, 0, 0, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight},
@@ -490,110 +579,22 @@ int main(int argc, char* args[]) {
 	// 	// };
 
 	// 	// ANIMATIONS
-	// 	Animation* walkingAnimation[4];
+	// 	Animation* playerWalkingAnimation[4];
 
 	// 	unsigned int framesPlayerLeft[]  = {16, 17, 18};
 	// 	unsigned int framesPlayerRight[] = {28, 29, 30};
 	// 	unsigned int framesPlayerUp[]    = {40, 41, 42};
 	// 	unsigned int framesPlayerDown[]  = {4,  5,  6};
 
-	// 	walkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
-    //     walkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
-    //     walkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
-    //     walkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
+	// 	playerWalkingAnimation[WALK_UP] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
+    //     playerWalkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);
+    //     playerWalkingAnimation[WALK_DOWN] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
+    //     playerWalkingAnimation[WALK_LEFT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
 
 	// 	int walking = 0;
 	// 	int currentWalk = WALK_LEFT;
-	// 	walkingAnimation[currentWalk]->curFrame = 1;
+	// 	playerWalkingAnimation[currentWalk]->curFrame = 1;
 
-	// 	SDL_Event e;
-		
-	// 	while(!quit) {
-			
-	// 		// updateDeltaTime();
-	// 		/**
-	// 		 * #################################################
-	// 		 * ..................... INPUT .....................
-	// 		 * #################################################
-	// 		 * */
-	// 		while(SDL_PollEvent(&e) != 0) {
-	// 			if (e.type == SDL_QUIT) {
-	// 				quit = 1;
-	// 			} else {
-	// 				if (e.type == SDL_KEYDOWN) {
-	// 					if (e.key.keysym.sym == SDLK_ESCAPE) {
-	// 						quit = 1;
-	// 					}
-	// 					if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a) {
-	// 						player->velX = -SPEED;
-	// 					}
-	// 					if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d) {
-	// 						player->velX = SPEED;
-	// 					}
-	// 					if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w) {
-	// 						player->velY = -SPEED;
-	// 					}
-	// 					if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s) {
-	// 						player->velY = SPEED;
-	// 					}
-	// 					if (e.key.keysym.sym == SDLK_SPACE) {
-    //                         if (Mix_PlayingMusic() == 0) {
-    //                             Mix_PlayMusic(game->gMusic, -1);
-    //                         } else {
-    //                             if (Mix_PausedMusic() == 1) {
-    //                                 Mix_ResumeMusic();
-    //                             } else {
-    //                                 Mix_PauseMusic();
-    //                             }
-    //                         }
-	// 					}
-	// 				}
-	// 				if (e.type == SDL_KEYUP) {
-	// 					if (e.key.keysym.sym == SDLK_RIGHT || e.key.keysym.sym == SDLK_d) {
-	// 						if (player->velX > 0) {
-	// 							player->velX = 0;
-	// 						}
-	// 					}
-	// 					if (e.key.keysym.sym == SDLK_LEFT || e.key.keysym.sym == SDLK_a) {
-	// 						if (player->velX < 0) {
-	// 							player->velX = 0;
-	// 						}
-	// 					}
-	// 					if (e.key.keysym.sym == SDLK_UP || e.key.keysym.sym == SDLK_w) {
-	// 						if (player->velY < 0) {
-	// 							player->velY = 0;
-	// 						}
-	// 					}
-	// 					if (e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_s) {
-	// 						if (player->velY > 0) {
-	// 							player->velY = 0;
-	// 						}
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-
-	// 		/**
-	// 		 * #################################################
-	// 		 * .................... UPDATE .....................
-	// 		 * #################################################
-	// 		 * */
-		
-	// 		// PLAYER'S VELOCITY
-	// 		player->x += player->velX;
-	// 		player->y += player->velY;
-			
-	// 		// WALKING
-	// 		walking = 1;
-	// 		if (player->velX == SPEED) {
-	// 			currentWalk = WALK_RIGHT;
-	// 		} else if (player->velX == -SPEED) {
-	// 			currentWalk = WALK_LEFT;
-	// 		} else if (player->velY == SPEED) {
-	// 			currentWalk = WALK_DOWN;
-	// 		} else if (player->velY == - SPEED) {
-	// 			currentWalk = WALK_UP;
-	// 		} else walking = 0;
 
 
 	// 		updateCamera(&cam, *player);
@@ -611,12 +612,6 @@ int main(int argc, char* args[]) {
 	// 		 * */
 	// 		SDL_SetRenderDrawColor(game->gRenderer, 0x1F, 0x1F, 0x1F, 0xFF);
 	// 		SDL_RenderClear(game->gRenderer);
-
-
-	// 		player->tileX = getTileX(player, backgroundSpriteSheet->sWidth);
-	// 		player->tileY = getTileY(player, backgroundSpriteSheet->sHeight);
-	// 		player->tileIndex = player->tileY * level->width + player->tileX;
-
 
 	// 		for (int i = -7; i < 8; i++) {
 	// 			for (int j = -5; j < 6; j++) {
@@ -648,74 +643,7 @@ int main(int argc, char* args[]) {
 	// 		// for (int i = 0; i < 4; i++)
 	// 		// 	renderTexture(playerSpriteSheet, game, &dogsAnim[i]->frames[nextFrame(dogsAnim[i])], dogs[i].x + cam.offsetX, dogs[i].y + cam.offsetY, playerSpriteSheet->sWidth, playerSpriteSheet->sHeight);
 
-	// 		// RENDER PLAYER
-	// 		if (walking == 1) {
-	// 			renderTexture(
-	// 				playerSpriteSheet,
-	// 				game,
-	// 				&walkingAnimation[currentWalk]->frames[nextFrame(walkingAnimation[currentWalk])],
-	// 				player->x + cam.offsetX,
-	// 				player->y + cam.offsetY,
-	// 				playerSpriteSheet->sWidth,
-	// 				playerSpriteSheet->sHeight
-	// 			);
-	// 		} else {
-	// 			renderTexture(
-	// 				playerSpriteSheet,
-	// 				game,
-	// 				&walkingAnimation[currentWalk]->frames[walkingAnimation[currentWalk]->curFrame],
-	// 				player->x + cam.offsetX,
-	// 				player->y + cam.offsetY,
-	// 				playerSpriteSheet->sWidth,
-	// 				playerSpriteSheet->sHeight
-	// 			);
-	// 		}
-			
-	// 		// renderText(font1, game, 100, 50, 400, 50);
 
-	// 		// FPS LIMIT
-	// 		// float frameRate = 1000.0f / FPS_MAX;
-    //     	// if (deltaTime < frameRate)
-    //         // SDL_Delay ((int)(frameRate - deltaTime));
-
-	// 		SDL_RenderPresent(game->gRenderer);
-	// 	}
-
-
-	// 	freeTexture(playerSpriteSheet);
-	// 	playerSpriteSheet = NULL;
-
-	// 	freeTexture(backgroundSpriteSheet);
-	// 	backgroundSpriteSheet = NULL;
-
-	// 	// freeTexture(font1);
-	// 	// font1 = NULL;
-
-	// 	freeTiledMap(level->map);
-	// 	//free(level->content);
-	// 	level->content = NULL;
-	// 	free(level);
-	// 	level = NULL;
-
-	// 	close(game);
-	// 	free(game);
-	// 	game = NULL;
-	// }
 
 	return 0;
 }
-
-// void close(SDL_Game* g) {
-// 	Mix_FreeMusic(g->gMusic);
-//     g->gMusic = NULL;
-
-//     SDL_DestroyRenderer(g->gRenderer);
-//     SDL_DestroyWindow(g->gWindow);
-
-//     g->gWindow = NULL;
-//     g->gRenderer = NULL;
-	
-// 	TTF_Quit();
-//     IMG_Quit();
-//     SDL_Quit();
-// }

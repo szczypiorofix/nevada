@@ -3,6 +3,16 @@
 #pragma once
 
 
+typedef enum {
+    DIR_UP,
+    DIR_RIGHT,
+    DIR_DOWN,
+    DIR_LEFT,
+    DIR_UP_RIGHT,
+    DIR_DOWN_RIGHT,
+    DIR_DOWN_LEFT,
+    DIR_UP_LEFT
+} Direction;
 
 typedef struct Camera {
     int x;
@@ -22,6 +32,8 @@ typedef struct Player {
     int tileX;
     int tileY;
     int tileIndex;
+    int isMoving;
+    Direction direction;
 } Player;
 
 
@@ -32,6 +44,10 @@ typedef struct NPC {
     int velY;
     int width;
     int height;
+    int takingAction;
+    int takingActionCounter;
+    int maxTakingActionCounter;
+    Direction direction;
 } NPC;
 
 
@@ -41,5 +57,6 @@ void updateCamera(Camera* c, Player player);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
 
+int updateNPC(NPC* npc);
 
 #endif

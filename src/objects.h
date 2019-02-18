@@ -25,6 +25,7 @@ typedef struct Camera {
 
 
 typedef struct Player {
+    char* name;
     int x;
     int y;
     int velX;
@@ -44,6 +45,7 @@ typedef struct Player {
 
 
 typedef struct NPC {
+    char* name;
     int x;
     int y;
     int velX;
@@ -63,7 +65,7 @@ typedef struct NPC {
 
 
 // ------------------ PUBLIC FUNCTIONS ------------------
-Player* resetPlayer(void);
+Player* resetPlayer(char* name, int x, int y, int width, int height);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 void updateCamera(Camera* c, Player player);
 int getTileX(Player* p, unsigned int tw);

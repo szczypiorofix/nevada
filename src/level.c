@@ -19,6 +19,8 @@ int* parseData(xmlDocPtr doc, xmlNodePtr cur);
 TiledMap* parseMap(const char* fileName);
 void freeTiledMap(TiledMap* tiledMap);
 TileSetSource* getTileSetSource(const char* tsxFileName);
+TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter);
+int countTiledObjects(xmlNodePtr cur);
 
 
 // ------------------ "PUBLIC" FUNCTIONS ------------------
@@ -68,6 +70,8 @@ Level* getLevel() {
     // for (int i = 0; i < tiledMap->layersCount; i++) {
     //     printf("Layer info - id: %i, tilesCount: %i\n", tiledMap->layer[i].id, tiledMap->layer[i].data[0]);
     // }
+
+	xmlCleanupParser();
 
     Level* level = malloc(sizeof(Level));
     if (level == NULL) return NULL;
@@ -133,7 +137,8 @@ TiledMap* parseMap(const char* fileName) {
 
 	int layersCount = 0;
 	int tileSetCount = 0;
-	
+	int objectGroupCount = 0;
+
 	xmlNodePtr firstForCounter = cur;
 	
 	// Counting layers and tilesets
@@ -144,6 +149,9 @@ TiledMap* parseMap(const char* fileName) {
 		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"layer"))) {
 			layersCount++;
 		}
+		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"objectgroup"))) {
+			objectGroupCount++;
+		}
 		firstForCounter = firstForCounter->next;
 	}
 	
@@ -153,11 +161,17 @@ TiledMap* parseMap(const char* fileName) {
 		return NULL;
 	}
 
-	int lc = 0, tc = 0;
+	int lc = 0, tc = 0, ogc = 0;
 
 	Layer* layers = malloc(sizeof(Layer) * layersCount);
 	if (layers == NULL) {
 		printf("Malloc (creating Layer) error !!!\n");
+		return NULL;
+	}
+
+	ObjectGroup* objectGroups = malloc(sizeof(ObjectGroup) * objectGroupCount);
+	if (layers == NULL) {
+		printf("Malloc (creating ObjectGroup) error !!!\n");
 		return NULL;
 	}
 
@@ -178,13 +192,24 @@ TiledMap* parseMap(const char* fileName) {
 			layers[lc].data = parseData(doc, cur);
 			lc++;
 		}
+		if ((!xmlStrcmp(cur->name, (const xmlChar *)"objectgroup"))) {
+			objectGroups[ogc].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
+			objectGroups[ogc].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
+			objectGroups[ogc].objectsCount = countTiledObjects(cur);
+			objectGroups[ogc].objects = getTiledObjects(cur, objectGroups[ogc].objectsCount);
+			ogc++;
+		}
 	    cur = cur->next;
 	}
 	tiledMap->tileSet = tileSet;
 	tiledMap->layer = layers;
+	tiledMap->ObjectGroup = objectGroups;
 	tiledMap->layersCount = lc;
 	tiledMap->tileSetCount = tc;
+	tiledMap->objectGroupCount = ogc;
 
+	xmlFreeDoc(doc);	
+	
 	return tiledMap;
 } 
 
@@ -241,7 +266,6 @@ int* convertDataStringToArray(const xmlChar* s) {
 	}
 	// How many numbers = comas + 1
 	numbers++;
-	// printf("Chars: %i, Numbers: %u, cleanCharsNumber: %u\n", c, numbers, cleanCharsNumber);
 	c = 0;
 	char cleanCharsArray[cleanCharsNumber];
 	cleanCharsNumber = 0;
@@ -253,9 +277,8 @@ int* convertDataStringToArray(const xmlChar* s) {
 		}
 		c++;
 	}
-	//printf("Clean chars string:\n%s\n", cleanCharsArray);
-	c = 0;
 
+	c = 0;
 	char delim[] = ",";
 	char *ptr = strtok(cleanCharsArray, delim);
 	int* numArr = malloc(sizeof(int) * numbers);
@@ -271,6 +294,83 @@ int* convertDataStringToArray(const xmlChar* s) {
 	
 	return numArr;
 }
+
+
+int countTiledObjects(xmlNodePtr cur) {
+	cur = cur->xmlChildrenNode;
+	int objectsCounter = 0;
+	while (cur != NULL) {
+	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"object"))) {
+			objectsCounter++;
+ 	    }
+		cur = cur->next;
+	}
+	return objectsCounter;
+}
+
+TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
+	
+	TiledObject* objects = malloc(sizeof(TiledObject) * tiledObjectsCounter);
+	if (objects == NULL) {
+		printf("Malloc (creating TiledObject) error !!!\n");
+		return NULL;
+	}
+	cur = cur->xmlChildrenNode;
+	int i = 0;
+	while (cur != NULL) {
+	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"object"))) {
+		    objects[i].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
+			objects[i].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
+			objects[i].type = (char *)xmlGetProp(cur, (const xmlChar *) "type");
+			objects[i].template = (char *)xmlGetProp(cur, (const xmlChar *) "template");
+			objects[i].x = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "x"));
+			objects[i].y = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "y"));
+
+
+			char tmp[50] = DIR_RES_IMAGES;
+			strcat(tmp, objects[i].template);
+			xmlDocPtr txDoc;
+			xmlNodePtr txCurNode;
+			txDoc = xmlParseFile(tmp);
+			if (txDoc == NULL) {
+				fprintf(stderr, "Document not parsed successfully.\n");
+				exit(0);
+			}
+			txCurNode = xmlDocGetRootElement(txDoc);
+			if (txCurNode == NULL) {
+				fprintf(stderr,"empty document\n");
+				xmlFreeDoc(txDoc);
+				exit(0);
+			}
+			if (xmlStrcmp(txCurNode->name, (const xmlChar *) "template")) {
+				fprintf(stderr,"document of the wrong type, root node != template !!! \n");
+				xmlFreeDoc(txDoc);
+				exit(0);
+			}
+			txCurNode = txCurNode->xmlChildrenNode;
+			while (txCurNode != NULL) {
+				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"tileset"))) {
+					// tilesets
+					objects[i].source = (char *)xmlGetProp(txCurNode, (const xmlChar *) "source");
+					objects[i].firstGid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "firstgid"));
+				}
+				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"object"))) {
+					// objects
+					objects[i].gid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "gid"));
+					objects[i].width = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "width"));
+					objects[i].height = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "height"));
+				}
+				
+				txCurNode = txCurNode->next;
+			}
+			xmlFreeDoc(txDoc);
+			i++;
+ 	    }
+		cur = cur->next;
+	}
+	return objects;
+}
+
 
 int* parseData(xmlDocPtr doc, xmlNodePtr cur) {
 	xmlChar* key;
@@ -314,7 +414,7 @@ TileSetSource* getTileSetSource(const char* tsxFileName) {
 	}
 	
 	if (xmlStrcmp(tsxCurNode->name, (const xmlChar *) "tileset")) {
-		fprintf(stderr,"document of the wrong type, root node != map !!! \n");
+		fprintf(stderr,"document of the wrong type, root node != tileset !!! \n");
 		xmlFreeDoc(tsxDoc);
 		exit(0);
 	}

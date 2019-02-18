@@ -1,3 +1,3 @@
 @ECHO OFF
-make rebuild
+REM make rebuild
 drmemory bin\debug\nevada.exe

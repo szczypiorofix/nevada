@@ -33,6 +33,27 @@ typedef struct Layer {
     int* data;
 } Layer;
 
+typedef struct TiledObject {
+    int id;
+    char* name;
+    char* type;
+    char* template;
+    int x;
+    int y;
+    int firstGid;
+    char* source;
+    int gid;
+    int width;
+    int height;
+} TiledObject;
+
+typedef struct ObjectGroup {
+    int id;
+    char* name;
+    int objectsCount;
+    TiledObject* objects;
+} ObjectGroup;
+
 typedef struct TiledMap {
     int width;
     int height;
@@ -40,10 +61,12 @@ typedef struct TiledMap {
     int tileHeight;
     int nextLayerId;
     int nextObjectGid;
-    TileSet* tileSet;
-    Layer* layer;
     int layersCount;
     int tileSetCount;
+    int objectGroupCount;
+    TileSet* tileSet;
+    Layer* layer;
+    ObjectGroup* ObjectGroup;
 } TiledMap;
 
 

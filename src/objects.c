@@ -7,7 +7,7 @@
 
 
 // ------------------ FORWARD DECLARATION ------------------
-Player* resetPlayer(void);
+Player* resetPlayer(char* name, int x, int y, int width, int height);
 void updateCamera(Camera* c, Player player);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
@@ -19,15 +19,17 @@ void updateCollisionsPlayer(Player* p, Camera* cam);
 
 
 // ------------------ PUBLIC FUNCTIONS ------------------
-Player* resetPlayer(void) {
+Player* resetPlayer(char* name, int x, int y, int width, int height) {
     Player* p = malloc(sizeof(Player));
 	if (p == NULL) return NULL;
-    p->x = SCREEN_WIDTH / 2;
-    p->y = SCREEN_HEIGHT / 2;
+    
+    p->name = name;
+    p->x = x;
+    p->y = y;
     p->velX = 0;
     p->velY = 0;
-    p->width = 52;
-	p->height = 72;
+    p->width = width;
+	p->height = height;
     p->direction = DIR_RIGHT;
     p->isMoving = 0;
     SDL_Rect cu = { p->x, p->y, p->width, 5 };
@@ -180,6 +182,9 @@ int updateNPC(NPC* npc) {
 NPC* setNPC(int x, int y, int width, int height, Direction direction) {
     NPC* n = malloc(sizeof(NPC));
 	if (n == NULL) return NULL;
+    
+    n->name = "NPC...";
+
     n->x = x;
     n->y = y;
     n->velX = 0;

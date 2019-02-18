@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="2019.02.10" orientation="orthogonal" renderorder="right-down" width="32" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="21" nextobjectid="2">
+<map version="1.2" tiledversion="2019.02.10" orientation="orthogonal" renderorder="right-down" width="32" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="22" nextobjectid="13">
  <tileset firstgid="1" source="grassland.tsx"/>
+ <tileset firstgid="257" source="animals1.tsx"/>
  <layer id="18" name="background" width="32" height="20">
   <data encoding="csv">
 18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,
@@ -73,5 +74,10 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="17" name="npc"/>
+ <objectgroup id="17" name="npc">
+  <object id="12" template="npc.tx" name="npc" type="npc" x="448" y="320"/>
+ </objectgroup>
+ <objectgroup id="21" name="player">
+  <object id="10" template="npc.tx" name="player" type="player" x="640" y="576"/>
+ </objectgroup>
 </map>

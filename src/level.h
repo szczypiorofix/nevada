@@ -2,6 +2,8 @@
 #define LEVEL_H
 #pragma once
 
+#include <SDL2/SDL.h>
+
 
 // ------------------ STRUCTS ------------------
 
@@ -52,12 +54,14 @@ typedef struct Level {
     unsigned short height;
     unsigned int size;
     TiledMap* map;
+    int textureNameCount;
+    char* textureName[];
 } Level;
 
 
 // ------------------ PUBLIC FUNCTIONS ------------------
 
-Level* getLevel(void);
+Level* getLevel();
 void freeTiledMap(TiledMap* tiledMap);
 
 #endif

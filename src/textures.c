@@ -11,9 +11,10 @@
 // ------------------ FORWARD DECLARATION ------------------
 Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(Texture* t);
-void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height);
+void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y);
 int releaseAnimation(Animation** an);
 
+int checkCollision(SDL_Rect r1, SDL_Rect r2);
 
 // ------------------ "PUBLIC" FUNCTIONS ------------------
 
@@ -37,8 +38,8 @@ void freeTexture(Texture* t) {
 }
 
 
-void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height) {
-    SDL_Rect renderQuad = {x, y, width, height};
+void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y) {
+    SDL_Rect renderQuad = {x, y, t->sWidth, t->sHeight};
     SDL_RenderCopy(renderer, t->mTexture, clip, &renderQuad);
 }
 
@@ -121,6 +122,7 @@ Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, uns
     anim->speed = speed;
     anim->counter = 0;
     anim->curFrame = 0;
+    anim->spriteSheet = t;
 
     anim->frames = malloc(sizeof(SDL_Rect) * size);
     if (anim->frames == NULL) return NULL;
@@ -150,5 +152,14 @@ int nextFrame(Animation* an) {
     return an->curFrame;
 }
 
+
+int checkCollision(SDL_Rect r1, SDL_Rect r2) {
+    return (
+        r1.x + r1.w > r2.x &&
+        r1.y + r1.h > r2.y &&
+        r1.x < r2.x + r2.w &&
+        r1.y < r2.y + r2.h
+    );
+}
 
 // ------------------ "PRIVATE" FUNCTIONS ------------------

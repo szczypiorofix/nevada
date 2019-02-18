@@ -25,7 +25,9 @@
 			"stdlib.h": "c",
 			"sdl_opengl.h": "c",
 			"objects.h": "c",
-			"tree.h": "c"
+			"tree.h": "c",
+			"parser.h": "c",
+			"xmlio.h": "c"
 		},
 		"editor.fontFamily": "Noto Mono, monospace",
 		"editor.lineHeight": 16,

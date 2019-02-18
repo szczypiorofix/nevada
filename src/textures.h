@@ -25,6 +25,7 @@ typedef struct Animation {
     int speed;
     int curFrame;
     int counter;
+    Texture* spriteSheet;
 } Animation;
 
 
@@ -34,10 +35,12 @@ typedef struct Animation {
 
 Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(Texture* t);
-void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, unsigned int width, unsigned int height);
+void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y);
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, Texture* t);
 Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 int nextFrame(Animation* an);
 int releaseAnimation(Animation** an);
+
+int checkCollision(SDL_Rect r1, SDL_Rect r2);
 
 #endif

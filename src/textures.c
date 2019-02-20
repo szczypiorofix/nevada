@@ -2,16 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "textures.h"
 #include <SDL2/SDL_image.h>
+#include "textures.h"
 #include "level.h"
 
 
 
 // ------------------ FORWARD DECLARATION ------------------
-Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
-void freeTexture(Texture* t);
-void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y);
+SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
+void freeTexture(SpriteSheet* t);
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale);
 int releaseAnimation(Animation** an);
 
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
@@ -29,7 +29,7 @@ int releaseAnimation(Animation** an) {
 }
 
 
-void freeTexture(Texture* t) {
+void freeTexture(SpriteSheet* t) {
     if (t->mTexture != NULL) {
         SDL_DestroyTexture(t->mTexture);
         t->mTexture = NULL;
@@ -38,14 +38,14 @@ void freeTexture(Texture* t) {
 }
 
 
-void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y) {
-    SDL_Rect renderQuad = {x, y, t->sWidth, t->sHeight};
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale) {
+    SDL_Rect renderQuad = {x, y, t->tileWidth * scale, t->tileHeight * scale};
     SDL_RenderCopy(renderer, t->mTexture, clip, &renderQuad);
 }
 
 
-Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth) {
-    Texture* t = malloc(sizeof(Texture));
+SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int tileWidth, unsigned int tileHeight) {
+    SpriteSheet* t = malloc(sizeof(SpriteSheet));
     if (t == NULL) {
         fprintf(stderr, "Cannot load sprite sheet: %s !\n", fileName);
         return NULL;
@@ -72,34 +72,22 @@ Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Rend
         SDL_FreeSurface(loadedSurface);
     }
     t->mTexture = newTexture;
-    t->sWidth = spriteWidth;
-    t->sHeight = spriteHeigth;
-    t->spriteSheet = spritesheet;
+    t->tileWidth = tileWidth;
+    t->tileHeight = tileHeight;
     return t;
 }
 
 
-// SDL_Rect* getSpriteI(int textureWidth, int index, unsigned int width, unsigned int height) {
-//     SDL_Rect* r = malloc(sizeof(SDL_Rect));
-//     int col = textureWidth / width;
-//     r->x = ((index - 1) % col) * width;
-//     r->y = ((index - 1) / col) * height;
-//     r->w = width;
-//     r->h = height;
-//     return r;
-// }
-
-SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, Texture* t) {
+SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, SpriteSheet* t) {
     SDL_Rect* l = malloc(sizeof(SDL_Rect) * size);
     for (unsigned int i = 0; i < level->size; i++) {
-        // l[i] = *getSpriteI(t->width, level->content[layerCount].data[i], t->sWidth, t->sHeight);
-        int col = t->width / t->sWidth;
+        int col = t->width / t->tileWidth;
         
         SDL_Rect r = {
-            r.x = ((level->content[layerCount].data[i] - 1) % col) * t->sWidth,
-            r.y = ((level->content[layerCount].data[i] - 1) / col) * t->sHeight,
-            r.w = t->sWidth,
-            r.h = t->sHeight
+            r.x = ((level->content[layerCount].data[i] - 1) % col) * t->tileWidth,
+            r.y = ((level->content[layerCount].data[i] - 1) / col) * t->tileHeight,
+            r.w = t->tileWidth,
+            r.h = t->tileHeight
         };
         if ( (level->content[layerCount].data[i] - 1) == 0 ) {
             r.x = -1;
@@ -114,7 +102,7 @@ SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int
     return l;
 }
 
-Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames) {
+Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames) {
     Animation* anim = malloc(sizeof(Animation));
     if (anim == NULL) return NULL;
 
@@ -127,8 +115,7 @@ Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, uns
     anim->frames = malloc(sizeof(SDL_Rect) * size);
     if (anim->frames == NULL) return NULL;
     for (unsigned int i = 0; i < size; i++) {
-        // anim->frames[i] = *getSpriteI(t->width, frames[i], sw, sh);
-        int col = t->width / t->sWidth;
+        int col = t->width / t->tileWidth;
         SDL_Rect r = {
             r.x = ((frames[i] - 1) % col) * sw,
             r.y = ((frames[i] - 1) / col) * sh,

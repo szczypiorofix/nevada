@@ -97,7 +97,7 @@ bool initializeTTFFonts(Engine* engine) {
 
 AssetsList* createAssets(void) {
     printf("Preparing assets...\n");
-    AssetsList* list = createAssetsList(5, 3, sizeof(Texture), ASSETSLIST_SHRINK_AFTER_DELETE);
+    AssetsList* list = createAssetsList(5, 3, sizeof(SpriteSheet), ASSETSLIST_SHRINK_AFTER_DELETE);
     if (!list) {
         fprintf(stderr, "ERROR !!! Unable to create AssetsList !!!\n");
         return NULL;
@@ -116,9 +116,9 @@ Engine* engineStart(void) {
     initializeAudioSystem(engine);
     initializeTTFFonts(engine);
 
-    engine->assets = createAssets();
+    // engine->assets = createAssets();
     
-    if (engine->started == FALSE || engine->assets == NULL) return NULL;
+    if (engine->started == FALSE) return NULL;
    
     return engine;
 }
@@ -130,8 +130,7 @@ void engineDelay(Engine* engine) {
 }
 
 void engineStop(Engine** engine) {
-    printf("Releasing assets ...\n");
-    clearAssetsList( &(*engine)->assets );
+    // clearAssetsList( &(*engine)->assets );
 
     (*engine)->started = FALSE;
 
@@ -143,9 +142,7 @@ void engineStop(Engine** engine) {
 
     SDL_DestroyWindow((*engine)->window);
     (*engine)->window = NULL;
-    
-    printf("Free engine...\n");
-	
+    	
     free(*engine);
     (*engine) = NULL;
 

@@ -34,7 +34,7 @@
 
 
 typedef union DataTypes {
-  Texture* texture;
+  SpriteSheet* texture;
 } DataTypes;
 
 
@@ -54,7 +54,7 @@ typedef struct ArrayList {
   unsigned int chunkSize;
   unsigned int sizeOfType;
   unsigned int flags;
-  Texture** data;
+  SpriteSheet** data;
 } ArrayList;
 
 
@@ -63,9 +63,9 @@ typedef struct ArrayList {
 // Different types of data
 
 ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
-int addTextureToList(ArrayList* list, Texture* item);
+int addTextureToList(ArrayList* list, SpriteSheet* item);
 int clearList(ArrayList** list);
-Texture* getTextureFromArray(ArrayList* list, unsigned int index);
+SpriteSheet* getTextureFromArray(ArrayList* list, unsigned int index);
 
 
 

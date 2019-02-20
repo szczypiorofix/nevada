@@ -4,14 +4,14 @@
 
 
 AssetsList* createAssetsList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
-int addTextureToAssets(AssetsList* list, Texture* item);
+int addTextureToAssets(AssetsList* list, SpriteSheet* item);
 int clearAssetsList(AssetsList** list);
-Texture* getTextureFromAssets(AssetsList* list, unsigned int index);
+SpriteSheet* getTextureFromAssets(AssetsList* list, unsigned int index);
 
 
 
 
-Texture* getTextureFromAssets(AssetsList* list, unsigned int index) {
+SpriteSheet* getTextureFromAssets(AssetsList* list, unsigned int index) {
     if (list == NULL) {
         fprintf(stderr, "ERROR !!! AssetsList cannot be null !!!\n");
         return NULL;
@@ -23,7 +23,7 @@ Texture* getTextureFromAssets(AssetsList* list, unsigned int index) {
     return list->textures[index];
 }
 
-int addTextureToAssets(AssetsList* list, Texture* item) {
+int addTextureToAssets(AssetsList* list, SpriteSheet* item) {
     if (list == NULL) {
         fprintf(stderr, "AssetsList cannot be NULL !!!\n");
         return 0;
@@ -73,7 +73,7 @@ AssetsList* createAssetsList(unsigned int initialSize, unsigned int chunkSize, u
     printf("Piece size: %i\n", pieceSize);
     printf("Data size: %i\n", dataSize);
 
-    list->textures = malloc(list->maxSize * sizeof(Texture));
+    list->textures = malloc(list->maxSize * sizeof(SpriteSheet));
 
     return list;
 }

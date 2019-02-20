@@ -52,7 +52,7 @@ void freeTiledMap(TiledMap* tiledMap) {
 Level* getLevel() {
 	// char tmp[50] = DIR_RES_IMAGES;
 	// strcat(tmp, "map.tmx");
-    TiledMap* tiledMap = parseMap("res/images/map.tmx");
+    TiledMap* tiledMap = parseMap("res/images/worldmap.tmx");
     // printf("TiledMap width: %i x height:%i, tileWidth:%i, tileHeight:%i\n", tiledMap->width, tiledMap->height, tiledMap->tileWidth, tiledMap->tileHeight);
 
     int differentSizeOfLayers = 0;
@@ -71,8 +71,6 @@ Level* getLevel() {
     //     printf("Layer info - id: %i, tilesCount: %i\n", tiledMap->layer[i].id, tiledMap->layer[i].data[0]);
     // }
 
-	xmlCleanupParser();
-
     Level* level = malloc(sizeof(Level));
     if (level == NULL) return NULL;
 
@@ -83,6 +81,8 @@ Level* getLevel() {
 	// Loading texture file from map
 
 	level->textureNameCount = tiledMap->tileSetCount;
+	// printf("level->textureNameCount: %i\n", level->textureNameCount);
+	
 	for (int i = 0; i < tiledMap->tileSetCount; i++) {
 		level->textureName[i] = tiledMap->tileSet[i].tileSetSource->imageSource;
 	}
@@ -208,7 +208,9 @@ TiledMap* parseMap(const char* fileName) {
 	tiledMap->tileSetCount = tc;
 	tiledMap->objectGroupCount = ogc;
 
-	xmlFreeDoc(doc);	
+	xmlFreeDoc(doc);
+	xmlCleanupMemory();
+	xmlCleanupParser();
 	
 	return tiledMap;
 } 
@@ -433,6 +435,6 @@ TileSetSource* getTileSetSource(const char* tsxFileName) {
 		}
 		tsxCurNode = tsxCurNode->next;
 	}
-	
+	xmlFreeDoc(tsxDoc);
 	return tileSetSource;
 }

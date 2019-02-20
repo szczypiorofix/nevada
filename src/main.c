@@ -14,6 +14,8 @@
 #include "textures.h"
 
 
+int SCALE = 2;
+
 
 // FORWARD DECLARATION
 
@@ -21,36 +23,65 @@ int compare(int, int);
 
 
 
-// void renderText(Texture* t, SDL_Game* game, int x, int y, int w, int h) {
-//     SDL_Rect renderQuad = {x, y, w, h};
-//     SDL_RenderCopy(game->gRenderer, t->mTexture, NULL, &renderQuad);
-// }
+typedef struct TextFont {
+	char* text;
+	SDL_Color textColor;
+	TTF_Font* font;
+	SpriteSheet* texture;
+} TextFont;
 
-// Texture* loadFromRenderedText(const char* textureText, SDL_Game* game) {
-//     assert(game != NULL && textureText != NULL);
-//     Texture* t = malloc(sizeof(Texture));
-//     if (t == NULL) return NULL;
-//     TTF_Font *gFont = NULL;
-//     gFont = TTF_OpenFont("res/camingo.ttf", 28);
-//     if (gFont == NULL) {
-//         printf("Unable to create texture from %s! SDL Error: %s\n", "res/camingo.ttf", SDL_GetError());
-//     }
-//     SDL_Color textColor = {0xFF, 0x65, 0x00};
-//     SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText, textColor);
-//     if (textSurface == NULL) {
-//         printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
-//     } else {
-//         t->mTexture = SDL_CreateTextureFromSurface(game->gRenderer, textSurface);
-//         if (t->mTexture == NULL) {
-//             printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
-//         } else {
-//             t->width = textSurface->w;
-//             t->height = textSurface->h;
-//         }
-//         SDL_FreeSurface(textSurface);
-//     }
-//     return t;
-// }
+
+void renderText(TextFont* t, SDL_Renderer* renderer, int x, int y, int w, int h) {
+    SDL_Rect renderQuad = {x, y, w, h};
+    SDL_RenderCopy(renderer, t->texture->mTexture, NULL, &renderQuad);
+}
+
+
+void changeText(TextFont* t, SDL_Renderer* renderer, char* text) {
+	SDL_Surface* textSurface = TTF_RenderText_Solid(t->font, text, t->textColor);
+    if (textSurface == NULL) {
+        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+    } else {
+        t->texture->mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        if (t->texture->mTexture == NULL) {
+            printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
+        } else {
+            t->texture->width = textSurface->w;
+            t->texture->height = textSurface->h;
+        }
+        SDL_FreeSurface(textSurface);
+    }
+}
+
+TextFont* loadFromRenderedText(const char* textureText, SDL_Renderer* renderer) {
+	TextFont* tf = malloc(sizeof(TextFont));
+
+    tf->texture = malloc(sizeof(SpriteSheet));
+    if (tf->texture == NULL) return NULL;
+    
+   	tf->font = TTF_OpenFont("res/camingo.ttf", 28);
+    if (tf->font == NULL) {
+        printf("Unable to create texture from %s! SDL Error: %s\n", "res/camingo.ttf", SDL_GetError());
+    }
+    tf->textColor.r = 0xFF;
+	tf->textColor.g = 0x65;
+	tf->textColor.b = 0x00;
+	tf->textColor.a = 0xFF;
+    SDL_Surface* textSurface = TTF_RenderText_Solid(tf->font, textureText, tf->textColor);
+    if (textSurface == NULL) {
+        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+    } else {
+        tf->texture->mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        if (tf->texture->mTexture == NULL) {
+            printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
+        } else {
+            tf->texture->width = textSurface->w;
+            tf->texture->height = textSurface->h;
+        }
+        SDL_FreeSurface(textSurface);
+    }
+    return tf;
+}
 
 
 // void luaTest() {
@@ -153,15 +184,17 @@ int main(int argc, char* args[]) {
 	// String str2 = createString("Nowy string 2");
 	// printf("Data #2: %s\n", str2.str);
 
-	printf("Engine status: %s\n", engine->started == TRUE ? "working." : "start failure.");
+	// printf("Engine status: %s\n", engine->started == TRUE ? "working." : "start failure.");
 
 
-	Texture* playerSpriteSheet = loadSpriteSheet("animals1.png", NPC_SPRITESHEET, engine->renderer, 52, 72);
+	SpriteSheet* playerSpriteSheet = loadSpriteSheet("characters.png", engine->renderer, 16, 16);
 	// Texture* npc1SpriteSheet = loadSpriteSheet("birds1.png", NPC_SPRITESHEET, engine->renderer, 84, 72);
 	// Texture* npc2SpriteSheet = loadSpriteSheet("animals3.png", NPC_SPRITESHEET, engine->renderer, 84, 72);
 
 
 	loadMusic(engine, "res/a_funny_moment.mod");
+
+	SDL_Rect viewPort = { 10, 10, SCREEN_WIDTH - 20, SCREEN_HEIGHT - 20 };
 
 	Player* player = NULL;
 
@@ -197,15 +230,22 @@ int main(int argc, char* args[]) {
 			}
 		}
 	}
-
-	Texture* backgroundSpriteSheet = loadSpriteSheet(
+	player = resetPlayer(
+		"Player",
+		0,
+		0,
+		16,
+		16
+	);
+	SpriteSheet* backgroundSpriteSheet = loadSpriteSheet(
 		*level->textureName,
-		GRASSLAND1_SPRITESHEET,
 		engine->renderer,
 		level->map->tileWidth,
-		level->map->tileWidth
+		level->map->tileWidth 
 	);
 
+
+	SDL_Rect testRect = {0, 0, 64, 64};
 	
 
 	// addTextureToAssets(engine->assets, playerSpriteSheet);
@@ -214,6 +254,9 @@ int main(int argc, char* args[]) {
 
 	
 	// printf("Texture name %s, %i:%i\n", *level->textureName, level->map->tileWidth, level->map->tileWidth);
+
+	TextFont* text1 = loadFromRenderedText("Player X", engine->renderer);
+	TextFont* text2 = loadFromRenderedText("Player Y", engine->renderer);
 
 
 	SDL_Rect* layersRects[level->layers];
@@ -292,19 +335,38 @@ int main(int argc, char* args[]) {
 	player->direction = DIR_RIGHT;
 	playerWalkingAnimation[player->direction]->curFrame = 1;
 	
-
 	// Uint8 tr = 255, tg = 255, tb = 255;
 	// Uint8 alpha = 255;
+
+	// Setting up viewport
+	// SDL_RenderSetViewport(engine->renderer, &viewPort);
 
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == FALSE) {
 		
 		updateDeltaTime(engine);
 
+		int px = player->x;
+		int py = player->y;
+
 		while(SDL_PollEvent(&engine->event) != 0) {
 				if (engine->event.type == SDL_QUIT) {
 					engine->quit = TRUE;
 				} else {
+					
+					// ZOOM ??
+					if (engine->event.type == SDL_MOUSEWHEEL) {
+						if (engine->event.button.x == 1) {
+							if (SCALE < 10) SCALE++;
+							printf("ZOOM IN: %i\n", SCALE);
+						}
+						else if (engine->event.button.x == -1) {
+							if (SCALE > 1) SCALE--;
+							printf("ZOOM OUT: %i\n", SCALE);
+						}
+					}
+					
+
 					if (engine->event.type == SDL_KEYDOWN) {
 						switch (engine->event.key.keysym.sym) {
 							// case SDLK_9:
@@ -339,6 +401,7 @@ int main(int argc, char* args[]) {
 							// 	tb += 32;
 							// 	SDL_SetTextureColorMod(backgroundSpriteSheet->mTexture, tr, tg, tb);
 							// 	break;
+
 							case SDLK_ESCAPE:
 								engine->quit = 1;
 								break;
@@ -447,8 +510,8 @@ int main(int argc, char* args[]) {
 		// PLAYER'S VELOCITY
 		player->x += player->velX;
 		player->y += player->velY;
-		player->tileX = getTileX(player, backgroundSpriteSheet->sWidth);
-		player->tileY = getTileY(player, backgroundSpriteSheet->sHeight);
+		player->tileX = getTileX(player, backgroundSpriteSheet->tileWidth);
+		player->tileY = getTileY(player, backgroundSpriteSheet->tileHeight);
 		player->tileIndex = player->tileY * level->width + player->tileX;
 
 		// ###### NPCs UPDATE #######
@@ -462,7 +525,7 @@ int main(int argc, char* args[]) {
 		// updateCollisionsNPC(dogs[1], &cam);
 		// updateCollisionsNPC(dogs[2], &cam);
 
-		updateCollisionsPlayer(player, &cam);
+		// updateCollisionsPlayer(player, &cam);
 
 
 		// if ( checkCollision(player->col_right, dogs[0]->col_left) ) player->x -= SPEED;
@@ -476,7 +539,7 @@ int main(int argc, char* args[]) {
 		
 		// ###### CAMERA UPDATE ######
 		
-		updateCamera(&cam, *player);
+		updateCamera(&cam, player);
 		
 		// ###########################
 		
@@ -493,14 +556,15 @@ int main(int argc, char* args[]) {
 		
 		// ------------------ RENDER START ------------------
 		
+
 		for (int i = -7; i < 8; i++) {
 			for (int j = -5; j < 6; j++) {
 				if (
 					// Draw only the right tiles
-					((player->x + (i * backgroundSpriteSheet->sWidth) + (player->width / 2)) / 64) >= 0 &&
-					((player->x + (i * backgroundSpriteSheet->sWidth) + (player->width / 2)) / 64) < level->map->width &&
-					((player->y + (j * backgroundSpriteSheet->sHeight) + (player->height / 2)) / 64) >= 0 &&
-					((player->y + (j * backgroundSpriteSheet->sHeight) + (player->height / 2)) / 64) < level->map->height
+					((player->x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) >= 0 &&
+					((player->x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) < level->map->width &&
+					((player->y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) >= 0 &&
+					((player->y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) < level->map->height
 					) {
 
 					for (int l = 0; l < level->layers; l++) {
@@ -512,34 +576,100 @@ int main(int argc, char* args[]) {
 									backgroundSpriteSheet,
 									engine->renderer,
 									&layersRects[l][(player->tileY + j) * level->width + player->tileX + i],
-									(( ((player->x + (i * 64) + (player->width / 2)) / 64) % backgroundSpriteSheet->sWidth) * 64) + cam.offsetX,
-									(( ((player->y + (j * 64) + (player->height / 2)) / 64) % backgroundSpriteSheet->sHeight) * 64) + cam.offsetY
+									(( ( (player->x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) % backgroundSpriteSheet->tileWidth) * backgroundSpriteSheet->tileWidth) + cam.offsetX,
+									(( ( (player->y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) % backgroundSpriteSheet->tileHeight) * backgroundSpriteSheet->tileHeight) + cam.offsetY,
+									SCALE
 								);
-							}	
+							}
 
 					}
 				}
 			}
 		}
 
-		// RENDER PLAYER
+		// SDL_Rect xx1 = { 48, 0, 16, 16 };
+		// SDL_Rect xx2 = { 64, 0, 16, 16 };
+		// SDL_Rect xx3 = { 80, 0, 16, 16 };
+
+		// renderTexture(
+		// 	backgroundSpriteSheet,
+		// 	engine->renderer,
+		// 	&xx1,
+		// 	100 + cam.offsetX - (0 * SCALE * 16),
+		// 	100 + cam.offsetY - (0 * SCALE * 16),
+		// 	SCALE
+		// );
+		// renderTexture(
+		// 	backgroundSpriteSheet,
+		// 	engine->renderer,
+		// 	&xx2,
+		// 	100 + cam.offsetX - (1 * SCALE * 16),
+		// 	100 + cam.offsetY - (0 * SCALE * 16),
+		// 	SCALE
+		// );
+		// renderTexture(
+		// 	backgroundSpriteSheet,
+		// 	engine->renderer,
+		// 	&xx3,
+		// 	100 + cam.offsetX - (2 * SCALE * 16),
+		// 	100 + cam.offsetY - (0 * SCALE * 16),
+		// 	SCALE
+		// );
+
+
+		testRect.x = 100 - cam.offsetX;
+		testRect.y = 100 - cam.offsetY;
+		testRect.w = 16 * SCALE;
+		testRect.h = 16 * SCALE;
+
+
+	
+		SDL_SetRenderDrawColor( engine->renderer, 0x4F, 0x30, 0x90, 0xFF );
+        SDL_RenderFillRect( engine->renderer, &testRect );
+
+		SDL_RenderDrawRect(engine->renderer, &viewPort);
+
+
+		/*
+			STEROWANIE JEST ODWRÓCONE - DO PORAWKI!!!
+		*/
+
+		/** RENDER PLAYER */
 		if (player->isMoving == 1) {
 			renderTexture(
 				playerSpriteSheet,
 				engine->renderer,
 				&playerWalkingAnimation[player->direction]->frames[nextFrame(playerWalkingAnimation[player->direction])],
-				player->x + cam.offsetX,
-				player->y + cam.offsetY
+				(SCREEN_WIDTH / 2) - ( (player->width * SCALE) / 2),
+				(SCREEN_HEIGHT / 2) - ( (player->height * SCALE) / 2),
+				SCALE
 			);
 		} else {
 			renderTexture(
 				playerSpriteSheet,
 				engine->renderer,
 				&playerWalkingAnimation[player->direction]->frames[playerWalkingAnimation[player->direction]->curFrame],
-				player->x + cam.offsetX,
-				player->y + cam.offsetY
+				(SCREEN_WIDTH / 2) - ( (player->width * SCALE) / 2),
+				(SCREEN_HEIGHT / 2) - ( (player->height * SCALE) / 2),
+				SCALE
 			);
 		}
+		
+
+		char str_px[12];
+		char str_py[12];
+
+		if (px != player->x) {
+			sprintf(str_px, "%s %d", "CX:", cam.offsetY);
+			changeText(text1, engine->renderer, str_px);
+		}
+		if (py != player->y) {
+			sprintf(str_py, "%s %d", "CY:", cam.offsetY);
+			changeText(text2, engine->renderer, str_py);
+		}
+	
+		renderText(text1, engine->renderer, 10, 10, 60, 30);
+		renderText(text2, engine->renderer, 10, 30, 60, 30);
 
 		// NPCs
 		// for (int dg = 0; dg < dogsCount; dg++) {
@@ -569,10 +699,10 @@ int main(int argc, char* args[]) {
 		// SDL_RenderDrawRect(engine->renderer, &dog1->col_left);
 
 
-		SDL_RenderDrawRect(engine->renderer, &player->col_up);
-		SDL_RenderDrawRect(engine->renderer, &player->col_right);
-		SDL_RenderDrawRect(engine->renderer, &player->col_down);
-		SDL_RenderDrawRect(engine->renderer, &player->col_left);
+		// SDL_RenderDrawRect(engine->renderer, &player->col_up);
+		// SDL_RenderDrawRect(engine->renderer, &player->col_right);
+		// SDL_RenderDrawRect(engine->renderer, &player->col_down);
+		// SDL_RenderDrawRect(engine->renderer, &player->col_left);
 
 		// ------------------- RENDER END -------------------
 		engineDelay(engine);

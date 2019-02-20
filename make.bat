@@ -25,7 +25,12 @@ IF "%1"=="release" (GOTO rel) ELSE (GOTO checkRebuild)
 
 REM Checking if parameter == "rebuild"
 :checkRebuild
-IF "%1"=="rebuild" (GOTO reb) ELSE (GOTO unknownParameter)
+IF "%1"=="rebuild" (GOTO reb) ELSE (GOTO checkClean)
+
+
+REM Checking if parameter == "clean"
+:checkClean
+IF "%1"=="clean" (GOTO cle) ELSE (GOTO unknownParameter)
 
 
 REM Debug
@@ -46,6 +51,13 @@ REM Rebuild
 :reb
 ECHO Rebuilding whole project
 mingw32-make -B debug
+GOTO eof
+
+
+REM Clean
+:cle
+ECHO Cleaning up project
+mingw32-make clean
 GOTO eof
 
 

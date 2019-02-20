@@ -67,7 +67,7 @@ typedef struct NPC {
 // ------------------ PUBLIC FUNCTIONS ------------------
 Player* resetPlayer(char* name, int x, int y, int width, int height);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
-void updateCamera(Camera* c, Player player);
+void updateCamera(Camera* c, Player* player);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
 

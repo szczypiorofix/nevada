@@ -8,7 +8,7 @@
 
 // ------------------ FORWARD DECLARATION ------------------
 Player* resetPlayer(char* name, int x, int y, int width, int height);
-void updateCamera(Camera* c, Player player);
+void updateCamera(Camera* c, Player* player);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
 int updateNPC(NPC* npc);
@@ -44,13 +44,13 @@ Player* resetPlayer(char* name, int x, int y, int width, int height) {
 }
 
 
-void updateCamera(Camera* c, Player player) {
-    c->x = - player.x + (SCREEN_WIDTH / 2) - (player.width / 2);
-    c->y = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
-    if (c->x < 0)
-        c->offsetX = - player.x + (SCREEN_WIDTH / 2) - (player.width / 2);
-    if (c->y < 0)
-        c->offsetY = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
+void updateCamera(Camera* c, Player* player) {
+    // c->x = - player.x + (SCREEN_WIDTH / 2) - (player.width / 2);
+    // c->y = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
+    // c->offsetX = - player->x + (SCREEN_WIDTH / 2) - (player->width / 2);
+    // c->offsetY = - player->y + (SCREEN_HEIGHT / 2) - (player->height / 2);
+    c->offsetX = ( player->x + player->width / 2 ) - SCREEN_WIDTH / 2;
+    c->offsetY = ( player->y + player->height / 2 ) - SCREEN_HEIGHT / 2;
 }
 
 

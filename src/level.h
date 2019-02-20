@@ -2,8 +2,6 @@
 #define LEVEL_H
 #pragma once
 
-#include <SDL2/SDL.h>
-
 
 // ------------------ STRUCTS ------------------
 

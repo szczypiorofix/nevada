@@ -9,15 +9,14 @@
 
 
 
-typedef struct Texture {
+typedef struct SpriteSheet {
     SDL_Texture* mTexture;
     char* name;
-    enum SpriteSheets spriteSheet;
     int width;
     int height;
-    int sWidth;
-    int sHeight;
-} Texture;
+    int tileWidth;
+    int tileHeight;
+} SpriteSheet;
 
 typedef struct Animation {
     int size;
@@ -25,7 +24,7 @@ typedef struct Animation {
     int speed;
     int curFrame;
     int counter;
-    Texture* spriteSheet;
+    SpriteSheet* spriteSheet;
 } Animation;
 
 
@@ -33,11 +32,11 @@ typedef struct Animation {
 
 // ------------------ "PUBLIC" FUNCTIONS ------------------
 
-Texture* loadSpriteSheet(char* fileName, enum SpriteSheets spritesheet, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
-void freeTexture(Texture* t);
-void renderTexture(Texture* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y);
-SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, Texture* t);
-Animation* prepareAnimation(Texture* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
+SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
+void freeTexture(SpriteSheet* t);
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale);
+SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, SpriteSheet* t);
+Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 int nextFrame(Animation* an);
 int releaseAnimation(Animation** an);
 

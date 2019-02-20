@@ -15,15 +15,15 @@ typedef struct AssetsList {
   unsigned int chunkSize;
   unsigned int sizeOfType;
   unsigned int flags;
-  Texture** textures;
+  SpriteSheet** textures;
 } AssetsList;
 
 
 
 AssetsList* createAssetsList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
-int addTextureToAssets(AssetsList* list, Texture* item);
+int addTextureToAssets(AssetsList* list, SpriteSheet* item);
 int clearAssetsList(AssetsList** list);
-Texture* getTextureFromAssets(AssetsList* list, unsigned int index);
+SpriteSheet* getTextureFromAssets(AssetsList* list, unsigned int index);
 
 
 #endif

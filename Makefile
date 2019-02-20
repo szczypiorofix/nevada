@@ -27,7 +27,7 @@ bin/release/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)
 
 
 # main.o
-$(ODIR)/main.o: $(SOURCE)/main.c $(SOURCE)/main.h
+$(ODIR)/main.o: $(SOURCE)/main.c $(SOURCE)/main.h $(SOURCE)/engine.c $(SOURCE)/engine.h $(SOURCE)/objects.c $(SOURCE)/objects.h $(SOURCE)/textures.c $(SOURCE)/textures.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/main.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/main.o
 
 # defines.o
@@ -35,7 +35,7 @@ $(ODIR)/defines.o: $(SOURCE)/defines.c $(SOURCE)/defines.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/defines.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/defines.o
 
 # engine.o
-$(ODIR)/engine.o: $(SOURCE)/engine.c $(SOURCE)/engine.h
+$(ODIR)/engine.o: $(SOURCE)/engine.c $(SOURCE)/engine.h $(SOURCE)/defines.h $(SOURCE)/textures.h $(SOURCE)/assetslist.c $(SOURCE)/assetslist.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/engine.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/engine.o
 
 # arraylist.o
@@ -65,7 +65,6 @@ $(ODIR)/objects.o: $(SOURCE)/objects.c $(SOURCE)/objects.h
 # registry.o
 $(ODIR)/registry.o: $(SOURCE)/registry.c $(SOURCE)/registry.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/registry.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/registry.o
-
 
 # compare.o
 $(ODIR)/compare.o: $(SOURCE)/compare.asm

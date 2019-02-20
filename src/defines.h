@@ -51,11 +51,6 @@ typedef unsigned long int uint64;
 
 // ------------------ ENUMS ------------------
 
-enum SpriteSheets {
-    NPC_SPRITESHEET,                // 0
-    GRASSLAND1_SPRITESHEET          // 1
-} spriteSheets;
-
 
 
 

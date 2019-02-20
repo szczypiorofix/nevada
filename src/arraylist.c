@@ -24,12 +24,12 @@
 
 ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned int sizeOfType, unsigned int flags);
 int clearList(ArrayList** list);
-int addTextureToList(ArrayList* list, Texture* item);
-Texture* getTextureFromArray(ArrayList* list, unsigned int index);
+int addTextureToList(ArrayList* list, SpriteSheet* item);
+SpriteSheet* getTextureFromArray(ArrayList* list, unsigned int index);
 
 
 
-Texture* getTextureFromArray(ArrayList* list, unsigned int index) {
+SpriteSheet* getTextureFromArray(ArrayList* list, unsigned int index) {
     if (list == NULL) {
         fprintf(stderr, "ERROR !!! ArrayList cannot be null !!!\n");
         return 0;
@@ -41,7 +41,7 @@ Texture* getTextureFromArray(ArrayList* list, unsigned int index) {
     return list->data[index];
 }
 
-int addTextureToList(ArrayList* list, Texture* item) {
+int addTextureToList(ArrayList* list, SpriteSheet* item) {
     if (list == NULL) {
         fprintf(stderr, "ArrayList cannot be NULL !!!\n");
         return 0;
@@ -91,7 +91,7 @@ ArrayList* createList(unsigned int initialSize, unsigned int chunkSize, unsigned
     printf("Piece size: %i\n", pieceSize);
     printf("Data size: %i\n", dataSize);
 
-    list->data = malloc(list->maxSize * sizeof(Texture));
+    list->data = malloc(list->maxSize * sizeof(SpriteSheet));
 
     return list;
 }

@@ -32,14 +32,22 @@ typedef struct Animation {
 
 // ------------------ "PUBLIC" FUNCTIONS ------------------
 
+
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
+
 void freeTexture(SpriteSheet* t);
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale);
+
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip);
+
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, SpriteSheet* t);
+
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
+
 int nextFrame(Animation* an);
+
 int releaseAnimation(Animation** an);
 
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
+
 
 #endif

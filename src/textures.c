@@ -11,7 +11,7 @@
 // ------------------ FORWARD DECLARATION ------------------
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale);
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip);
 int releaseAnimation(Animation** an);
 
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
@@ -38,9 +38,13 @@ void freeTexture(SpriteSheet* t) {
 }
 
 
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale) {
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip) { 
     SDL_Rect renderQuad = {x, y, t->tileWidth * scale, t->tileHeight * scale};
-    SDL_RenderCopy(renderer, t->mTexture, clip, &renderQuad);
+    // if (clip != NULL) {
+    //     renderQuad.w = clip->w;
+	// 	renderQuad.h = clip->h;
+    // }
+    SDL_RenderCopyEx(renderer, t->mTexture, clip, &renderQuad, angle, center, flip);
 }
 
 
@@ -80,15 +84,17 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
 
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, SpriteSheet* t) {
     SDL_Rect* l = malloc(sizeof(SDL_Rect) * size);
+    int col = t->width / t->tileWidth;
+
     for (unsigned int i = 0; i < level->size; i++) {
-        int col = t->width / t->tileWidth;
-        
+
         SDL_Rect r = {
             r.x = ((level->content[layerCount].data[i] - 1) % col) * t->tileWidth,
             r.y = ((level->content[layerCount].data[i] - 1) / col) * t->tileHeight,
             r.w = t->tileWidth,
             r.h = t->tileHeight
         };
+
         if ( (level->content[layerCount].data[i] - 1) == 0 ) {
             r.x = -1;
             r.y = -1;
@@ -96,9 +102,9 @@ SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int
             r.h = -1;
         }
         l[i] = r;
-        
-        
+
     }
+
     return l;
 }
 

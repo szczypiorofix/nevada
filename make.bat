@@ -9,7 +9,8 @@ GOTO eof
 REM Parameter is empty. Running default makefile build.
 :emptyParameter
 echo Parameter is empty. Running default makefile build.
-mingw32-make
+mingw32-make debug
+mingw32-make release
 GOTO eof
 
 
@@ -57,7 +58,9 @@ GOTO eof
 REM Clean
 :cle
 ECHO Cleaning up project
-mingw32-make clean
+IF EXIST "bin\debug\nevada.exe" DEL "bin\debug\nevada.exe"
+IF EXIST "bin\release\nevada.exe" DEL "bin\release\nevada.exe"
+DEL obj\*.* /q
 GOTO eof
 
 

@@ -49,8 +49,8 @@ void updateCamera(Camera* c, Player* player) {
     // c->y = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
     // c->offsetX = - player->x + (SCREEN_WIDTH / 2) - (player->width / 2);
     // c->offsetY = - player->y + (SCREEN_HEIGHT / 2) - (player->height / 2);
-    c->offsetX = ( player->x + player->width / 2 ) - SCREEN_WIDTH / 2;
-    c->offsetY = ( player->y + player->height / 2 ) - SCREEN_HEIGHT / 2;
+    c->offsetX = player->x + (player->width / 2) - (SCREEN_WIDTH / 2);
+    c->offsetY = player->y + (player->height / 2) - (SCREEN_HEIGHT / 2);
 }
 
 

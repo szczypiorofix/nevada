@@ -22,6 +22,9 @@ typedef struct Engine
 {
     bool started;
     bool quit;
+    short int scale;
+    short int minScale;
+    short int maxScale;
     SDL_Event event;
     SDL_Window* window;
     SDL_Renderer* renderer;

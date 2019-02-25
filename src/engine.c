@@ -29,6 +29,9 @@ Engine* createEngine(void) {
     engine->renderer = NULL;
     engine->music = NULL;
     engine->musicVolume = 20;
+    engine->scale = 2;
+    engine->minScale = 1;
+    engine->maxScale = 5;
     engine->delayTime = 0.0f;
     engine->deltaTime = 0.0f;
     engine->startTick = 0L;

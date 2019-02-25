@@ -24,8 +24,7 @@ typedef struct Camera {
 typedef struct Player {
     char* name;
     Vector2 vec;
-    float velX;
-    float velY;
+    Vector2 moveVec;
     short int width;
     short int height;
     int angle;
@@ -45,10 +44,8 @@ typedef struct Player {
 
 typedef struct NPC {
     char* name;
-    float x;
-    float y;
-    float velX;
-    float velY;
+    Vector2 vec;
+    Vector2 moveVec;
     short int width;
     short int height;
     short int takingAction;
@@ -73,7 +70,7 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 Ground* setGround(float x, float y, short int width, short int height);
 
-void updateCamera(Camera* c, Player* player);
+void updateCamera(Camera* c, Player* player, int scale);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
 

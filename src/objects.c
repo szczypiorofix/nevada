@@ -8,7 +8,7 @@
 
 // ------------------ FORWARD DECLARATION ------------------
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
-void updateCamera(Camera* c, Player* player);
+void updateCamera(Camera* c, Player* player, int scale);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
 int updateNPC(NPC* npc);
@@ -28,13 +28,12 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
     }
     
     p->name = name;
-    p->velX = 0.0f;
-    p->velY = 0.0f;
     p->width = width;
 	p->height = height;
     p->direction = DIR_RIGHT;
     
     p->vec = setVector(x, y);
+    p->moveVec = setVector(0, 0);
     
     p->angle = 0;
     p->angleVel = 0;
@@ -52,24 +51,9 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
 }
 
 
-void updateCamera(Camera* c, Player* player) {
-    // c->x = - player.x + (SCREEN_WIDTH / 2) - (player.width / 2);
-    // c->y = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
-    // c->x = - player->x + (SCREEN_WIDTH / 2) - (player->width / 2);
-    // c->y = - player->y + (SCREEN_HEIGHT / 2) - (player->height / 2);
-
-    // c->offsetX = player->x + (player->width / 2) - (SCREEN_WIDTH / 2);
-    // c->offsetY = player->y + (player->height / 2) - (SCREEN_HEIGHT / 2);
-
-    // c->x = player->x + (player->width * scale) - (SCREEN_WIDTH / 2);
-    // c->y = player->y + (player->height * scale) - (SCREEN_HEIGHT / 2);
-
-    // c->x = player->x + (player->width)  - (SCREEN_WIDTH / 2);
-    // c->y = player->y + (player->height) - (SCREEN_HEIGHT / 2);
-
-    c->vec.x = player->vec.x + (player->width / 2) - (SCREEN_WIDTH / 2);
-    c->vec.y = player->vec.y + (player->height / 2) - (SCREEN_HEIGHT / 2);
-
+void updateCamera(Camera* c, Player* player, int scale) {
+    c->vec.x = (player->vec.x * scale) - (SCREEN_WIDTH / 2);
+    c->vec.y = (player->vec.y * scale) - (SCREEN_HEIGHT / 2);
 }
 
 
@@ -84,13 +68,13 @@ int getTileY(Player* p, unsigned int th) {
 
 
 void updateCollisionsNPC(NPC* npc, Camera* cam) {
-    SDL_Rect cu = { npc->x  + cam->vec.x, npc->y + cam->vec.y, npc->width, 5 };
+    SDL_Rect cu = { npc->vec.x  + cam->vec.x, npc->vec.y + cam->vec.y, npc->width, 5 };
     npc->col_up = cu;
-    SDL_Rect cr = { npc->x + npc->width + cam->vec.x, npc->y + cam->vec.y, 5, npc->height };
+    SDL_Rect cr = { npc->vec.x + npc->width + cam->vec.x, npc->vec.y + cam->vec.y, 5, npc->height };
     npc->col_right = cr;
-    SDL_Rect cd = { npc->x + cam->vec.x, npc->y + npc->height + cam->vec.y, npc->width, 5};
+    SDL_Rect cd = { npc->vec.x + cam->vec.x, npc->vec.y + npc->height + cam->vec.y, npc->width, 5};
     npc->col_down = cd;
-    SDL_Rect cl = { npc->x + cam->vec.x, npc->y + cam->vec.y, 5, npc->height };
+    SDL_Rect cl = { npc->vec.x + cam->vec.x, npc->vec.y + cam->vec.y, 5, npc->height };
     npc->col_left = cl;
 }
 
@@ -118,7 +102,7 @@ int randomNPCActivity_wait() {
 
 
 int updateNPC(NPC* npc) {
-    
+
     // COUNTING ACTIONS TIME
     if (npc->takingActionCounter < npc->maxTakingActionCounter)
         npc->takingActionCounter++;
@@ -132,51 +116,51 @@ int updateNPC(NPC* npc) {
             switch (random(0, 8)) {
             // Basic directions
             case DIR_UP:
-                npc->velX = 0;
-                npc->velY = -NPC_SPEED;
+                npc->moveVec.x = 0;
+                npc->moveVec.y = -NPC_SPEED;
                 npc->direction = DIR_UP;
                 npc->maxTakingActionCounter = randomNPCActivity_move();
                 break;
             case DIR_RIGHT:
-                npc->velX = NPC_SPEED;
-                npc->velY = 0;
+                npc->moveVec.x = NPC_SPEED;
+                npc->moveVec.y = 0;
                 npc->direction = DIR_RIGHT;
                 npc->maxTakingActionCounter = randomNPCActivity_move();
                 break;
             case DIR_DOWN:
-                npc->velX = 0;
-                npc->velY = NPC_SPEED;
+                npc->moveVec.x = 0;
+                npc->moveVec.y = NPC_SPEED;
                 npc->direction = DIR_DOWN;
                 npc->maxTakingActionCounter = randomNPCActivity_move();
                 break;
             case DIR_LEFT:
-                npc->velX = -NPC_SPEED;
-                npc->velY = 0;
+                npc->moveVec.x = -NPC_SPEED;
+                npc->moveVec.y = 0;
                 npc->direction = DIR_LEFT;
                 npc->maxTakingActionCounter = randomNPCActivity_move();
                 break;
             // Additional directions
             case DIR_UP_RIGHT:
-                npc->velX = NPC_SPEED;
-                npc->velY = -NPC_SPEED;
+                npc->moveVec.x = NPC_SPEED;
+                npc->moveVec.y = -NPC_SPEED;
                 npc->direction = DIR_RIGHT;
                 npc->maxTakingActionCounter = randomNPCActivity_move();
                 break;
             case DIR_DOWN_RIGHT:
-                npc->velX = NPC_SPEED;
-                npc->velY = NPC_SPEED;
+                npc->moveVec.x = NPC_SPEED;
+                npc->moveVec.y = NPC_SPEED;
                 npc->direction = DIR_RIGHT;
                 npc->maxTakingActionCounter = randomNPCActivity_move();
                 break;
             case DIR_DOWN_LEFT:
-                npc->velX = -NPC_SPEED;
-                npc->velY = NPC_SPEED;
+                npc->moveVec.x = -NPC_SPEED;
+                npc->moveVec.y = NPC_SPEED;
                 npc->direction = DIR_LEFT;
                 npc->maxTakingActionCounter = randomNPCActivity_move();
                 break;
             case DIR_UP_LEFT:
-                npc->velX = -NPC_SPEED;
-                npc->velY = -NPC_SPEED;
+                npc->moveVec.x = -NPC_SPEED;
+                npc->moveVec.y = -NPC_SPEED;
                 npc->direction = DIR_LEFT;
                 npc->maxTakingActionCounter = randomNPCActivity_move();
                 break;
@@ -186,13 +170,12 @@ int updateNPC(NPC* npc) {
             npc->takingAction = 0;
             npc->takingActionCounter = 0;
             npc->maxTakingActionCounter = randomNPCActivity_wait();
-            npc->velX = 0;
-            npc->velY = 0;
+            npc->moveVec.x = 0;
+            npc->moveVec.y = 0;
         }  
     }
 
-    npc->x += npc->velX;
-    npc->y += npc->velY;
+    addVector(&npc->vec, &npc->moveVec);
 
     return 1;
 }
@@ -207,23 +190,22 @@ NPC* setNPC(int x, int y, int width, int height, Direction direction) {
     
     n->name = "NPC...";
 
-    n->x = x;
-    n->y = y;
-    n->velX = 0;
-    n->velY = 0;
+    n->vec = setVector(x, y);
+    n->moveVec = setVector(0, 0);
+
     n->width = width;
 	n->height = height;
     n->direction = direction;
     n->takingAction = 0;
     n->takingActionCounter = 0;
     n->maxTakingActionCounter = 0;
-    SDL_Rect cu = { n->x, n->y, n->width, 5 };
+    SDL_Rect cu = { n->vec.x, n->vec.y, n->width, 5 };
     n->col_up = cu;
-    SDL_Rect cr = { n->x + n->width, n->y, 5, n->height };
+    SDL_Rect cr = { n->vec.x + n->width, n->vec.y, 5, n->height };
     n->col_right = cr;
-    SDL_Rect cd = { n->x, n->y + n->height, n->width, 5};
+    SDL_Rect cd = { n->vec.x, n->vec.y + n->height, n->width, 5};
     n->col_down = cd;
-    SDL_Rect cl = { n->x, n->y, 5, n->height };
+    SDL_Rect cl = { n->vec.x, n->vec.y, 5, n->height };
     n->col_left = cl;
     return n;
 }

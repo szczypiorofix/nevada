@@ -17,6 +17,7 @@
 #define NPC_SPEED 1
 
 
+
 // Booleans
 #define FALSE 0
 #define TRUE  1

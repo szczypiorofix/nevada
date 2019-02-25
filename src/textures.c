@@ -7,11 +7,10 @@
 #include "level.h"
 
 
-
 // ------------------ FORWARD DECLARATION ------------------
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 int releaseAnimation(Animation** an);
 
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
@@ -38,8 +37,8 @@ void freeTexture(SpriteSheet* t) {
 }
 
 
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode) { 
-    SDL_Rect renderQuad = {x, y, t->tileWidth, t->tileHeight};
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode) { 
+    SDL_Rect renderQuad = {x, y, t->tileWidth * scale, t->tileHeight * scale};
     // if (clip != NULL) {
     //     renderQuad.w = clip->w;
 	// 	renderQuad.h = clip->h;
@@ -50,10 +49,6 @@ void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x
         SDL_RenderDrawRect(renderer, &renderQuad);
     }
     else if (mode == 2) {
-        // renderQuad.x++;
-        // renderQuad.y++;
-        // renderQuad.w--;
-        // renderQuad.h--;
         SDL_RenderDrawRect(renderer, &renderQuad);
     } else {
         SDL_RenderCopyEx(renderer, t->mTexture, clip, &renderQuad, angle, center, flip);

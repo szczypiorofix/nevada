@@ -627,24 +627,96 @@ int main(int argc, char* args[]) {
 
 		SDL_SetRenderDrawColor(engine->renderer, 120, 120, 120, 200);
 		// Tilesy
-		for (int layer = 0; layer < level->layers; layer++) {
-			for (unsigned int i = 0; i < level->size; i++) {
-				if (grounds[layer][i].gid > 0)
-					renderTexture(
-						backgroundSpriteSheet,
-						engine->renderer,
-						&layersRects[layer][i],
-						(grounds[layer][i].vec.x * engine->scale) - cam.vec.x,
-						(grounds[layer][i].vec.y * engine->scale) - cam.vec.y,
-						engine->scale,
-						0,
-						NULL,
-						SDL_FLIP_NONE,
-						displayMode
-					);
+		// for (int layer = 0; layer < level->layers; layer++) {
+		// 	for (unsigned int i = 0; i < level->size; i++) {
+		// 		if (grounds[layer][i].gid > 0)
+		// 			renderTexture(
+		// 				backgroundSpriteSheet,
+		// 				engine->renderer,
+		// 				&layersRects[layer][i],
+		// 				(grounds[layer][i].vec.x * engine->scale) - cam.vec.x,
+		// 				(grounds[layer][i].vec.y * engine->scale) - cam.vec.y,
+		// 				engine->scale,
+		// 				0,
+		// 				NULL,
+		// 				SDL_FLIP_NONE,
+		// 				displayMode
+		// 			);
 			
+		// 	}
+		// }
+
+		
+
+
+		for (int i = -7; i < 8; i++) {
+			for (int j = -5; j < 6; j++) {
+				if (
+					// Draw only the right tiles
+					((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) >= 0 &&
+					((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) < level->map->width &&
+					((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) >= 0 &&
+					((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) < level->map->height
+					) {
+
+					for (int l = 0; l < level->layers; l++) {
+
+						if ((player->tileY + j) * level->width + player->tileX + i >= 0) {
+							
+							if ( layersRects[l][(player->tileY + j) * level->width + player->tileX + i].w > 0 ) {
+
+
+								int bx = ( 
+									(
+										( 
+											(int) (
+												(player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2))
+												 / backgroundSpriteSheet->tileWidth
+											)
+											% backgroundSpriteSheet->tileWidth
+										) * backgroundSpriteSheet->tileWidth
+									) * engine->scale
+								) - cam.vec.x;
+
+								int by = (
+									(
+										(
+											(int) (
+												(player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2))
+												/ backgroundSpriteSheet->tileHeight
+											)
+											% backgroundSpriteSheet->tileHeight
+										) * backgroundSpriteSheet->tileHeight
+									) * engine->scale
+								) - cam.vec.y;
+								
+								
+								renderTexture(
+									backgroundSpriteSheet,
+									engine->renderer,
+									&layersRects[l][(player->tileY + j) * level->width + player->tileX + i],
+									
+									bx,
+									by,
+
+									engine->scale,
+									0,
+									NULL,
+									SDL_FLIP_NONE,
+									displayMode
+								);
+								
+							}
+
+						}
+							
+					}
+				}
 			}
 		}
+
+
+
 
 
 		SDL_SetRenderDrawColor(engine->renderer, 250, 20, 20, 200);
@@ -692,7 +764,7 @@ int main(int argc, char* args[]) {
 			changeText(cxText, engine->renderer, str_cx);			
 		}
 		if (py != player->vec.y) {
-			sprintf(str_py, "%s %.3f", "CX:", player->vec.y);
+			sprintf(str_py, "%s %.3f", "PY:", player->vec.y);
 			changeText(pyText, engine->renderer, str_py);
 			sprintf(str_cy, "%s %.3f", "CY:", cam.vec.y);
 			changeText(cyText, engine->renderer, str_cy);

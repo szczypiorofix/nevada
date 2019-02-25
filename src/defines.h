@@ -13,7 +13,7 @@
 #define WALK_LEFT 3
 
 
-#define SPEED 2
+#define SPEED 1
 #define NPC_SPEED 1
 
 

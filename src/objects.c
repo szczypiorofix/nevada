@@ -7,7 +7,7 @@
 
 
 // ------------------ FORWARD DECLARATION ------------------
-Player* resetPlayer(char* name, int x, int y, int width, int height);
+Player* resetPlayer(char* name, float x, float y, short int width, short int height);
 void updateCamera(Camera* c, Player* player);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
@@ -15,30 +15,38 @@ int updateNPC(NPC* npc);
 int random(int min, int max);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 void updateCollisionsNPC(NPC* npc, Camera* cam);
+Ground* setGround(float x, float y, short int width, short int height);
 void updateCollisionsPlayer(Player* p, Camera* cam);
 
 
 // ------------------ PUBLIC FUNCTIONS ------------------
-Player* resetPlayer(char* name, int x, int y, int width, int height) {
+Player* resetPlayer(char* name, float x, float y, short int width, short int height) {
     Player* p = malloc(sizeof(Player));
-	if (p == NULL) return NULL;
+	if (p == NULL) {
+        fprintf(stderr, "Malloc error while creating Player!!!\n");
+        return NULL;
+    }
     
     p->name = name;
-    p->x = x;
-    p->y = y;
-    p->velX = 0;
-    p->velY = 0;
+    p->velX = 0.0f;
+    p->velY = 0.0f;
     p->width = width;
 	p->height = height;
     p->direction = DIR_RIGHT;
+    
+    p->vec = setVector(x, y);
+    
+    p->angle = 0;
+    p->angleVel = 0;
+    p->speed = 0;
     p->isMoving = 0;
-    SDL_Rect cu = { p->x, p->y, p->width, 5 };
+    SDL_Rect cu = { p->vec.x, p->vec.y, p->width, 5 };
     p->col_up = cu;
-    SDL_Rect cr = { p->x + p->width, p->y, 5, p->height };
+    SDL_Rect cr = { p->vec.x + p->width, p->vec.y, 5, p->height };
     p->col_right = cr;
-    SDL_Rect cd = { p->x, p->y + p->height, p->width, 5};
+    SDL_Rect cd = { p->vec.x, p->vec.y + p->height, p->width, 5};
     p->col_down = cd;
-    SDL_Rect cl = { p->x, p->y, 5, p->height };
+    SDL_Rect cl = { p->vec.x, p->vec.y, 5, p->height };
     p->col_left = cl;
     return p;
 }
@@ -47,43 +55,54 @@ Player* resetPlayer(char* name, int x, int y, int width, int height) {
 void updateCamera(Camera* c, Player* player) {
     // c->x = - player.x + (SCREEN_WIDTH / 2) - (player.width / 2);
     // c->y = - player.y + (SCREEN_HEIGHT / 2) - (player.height / 2);
-    // c->offsetX = - player->x + (SCREEN_WIDTH / 2) - (player->width / 2);
-    // c->offsetY = - player->y + (SCREEN_HEIGHT / 2) - (player->height / 2);
-    c->offsetX = player->x + (player->width / 2) - (SCREEN_WIDTH / 2);
-    c->offsetY = player->y + (player->height / 2) - (SCREEN_HEIGHT / 2);
+    // c->x = - player->x + (SCREEN_WIDTH / 2) - (player->width / 2);
+    // c->y = - player->y + (SCREEN_HEIGHT / 2) - (player->height / 2);
+
+    // c->offsetX = player->x + (player->width / 2) - (SCREEN_WIDTH / 2);
+    // c->offsetY = player->y + (player->height / 2) - (SCREEN_HEIGHT / 2);
+
+    // c->x = player->x + (player->width * scale) - (SCREEN_WIDTH / 2);
+    // c->y = player->y + (player->height * scale) - (SCREEN_HEIGHT / 2);
+
+    // c->x = player->x + (player->width)  - (SCREEN_WIDTH / 2);
+    // c->y = player->y + (player->height) - (SCREEN_HEIGHT / 2);
+
+    c->vec.x = player->vec.x + (player->width / 2) - (SCREEN_WIDTH / 2);
+    c->vec.y = player->vec.y + (player->height / 2) - (SCREEN_HEIGHT / 2);
+
 }
 
 
 int getTileX(Player* p, unsigned int tw) {
-    return ( (p->x + (p->width / 2)) / tw );
+    return ( (p->vec.x + (p->width / 2)) / tw );
 }
 
 
 int getTileY(Player* p, unsigned int th) {
-    return ( (p->y + (p->height / 2)) / th );
+    return ( (p->vec.y + (p->height / 2)) / th );
 }
 
 
 void updateCollisionsNPC(NPC* npc, Camera* cam) {
-    SDL_Rect cu = { npc->x  + cam->offsetX, npc->y + cam->offsetY, npc->width, 5 };
+    SDL_Rect cu = { npc->x  + cam->vec.x, npc->y + cam->vec.y, npc->width, 5 };
     npc->col_up = cu;
-    SDL_Rect cr = { npc->x + npc->width + cam->offsetX, npc->y + cam->offsetY, 5, npc->height };
+    SDL_Rect cr = { npc->x + npc->width + cam->vec.x, npc->y + cam->vec.y, 5, npc->height };
     npc->col_right = cr;
-    SDL_Rect cd = { npc->x + cam->offsetX, npc->y + npc->height + cam->offsetY, npc->width, 5};
+    SDL_Rect cd = { npc->x + cam->vec.x, npc->y + npc->height + cam->vec.y, npc->width, 5};
     npc->col_down = cd;
-    SDL_Rect cl = { npc->x + cam->offsetX, npc->y + cam->offsetY, 5, npc->height };
+    SDL_Rect cl = { npc->x + cam->vec.x, npc->y + cam->vec.y, 5, npc->height };
     npc->col_left = cl;
 }
 
 
 void updateCollisionsPlayer(Player* p, Camera* cam) {
-    SDL_Rect cu = { p->x  + cam->offsetX, p->y + cam->offsetY, p->width, 5 };
+    SDL_Rect cu = { p->vec.x  + cam->vec.x, p->vec.y + cam->vec.y, p->width, 5 };
     p->col_up = cu;
-    SDL_Rect cr = { p->x + p->width + cam->offsetX, p->y + cam->offsetY, 5, p->height };
+    SDL_Rect cr = { p->vec.x + p->width + cam->vec.x, p->vec.y + cam->vec.y, 5, p->height };
     p->col_right = cr;
-    SDL_Rect cd = { p->x + cam->offsetX, p->y + p->height + cam->offsetY, p->width, 5};
+    SDL_Rect cd = { p->vec.x + cam->vec.x, p->vec.y + p->height + cam->vec.y, p->width, 5};
     p->col_down = cd;
-    SDL_Rect cl = { p->x + cam->offsetX, p->y + cam->offsetY, 5, p->height };
+    SDL_Rect cl = { p->vec.x + cam->vec.x, p->vec.y + cam->vec.y, 5, p->height };
     p->col_left = cl;
 }
 
@@ -181,7 +200,10 @@ int updateNPC(NPC* npc) {
 
 NPC* setNPC(int x, int y, int width, int height, Direction direction) {
     NPC* n = malloc(sizeof(NPC));
-	if (n == NULL) return NULL;
+	if (n == NULL) {
+        fprintf(stderr, "Malloc error while creating NPC!!!\n");
+        return NULL;
+    }
     
     n->name = "NPC...";
 
@@ -204,6 +226,20 @@ NPC* setNPC(int x, int y, int width, int height, Direction direction) {
     SDL_Rect cl = { n->x, n->y, 5, n->height };
     n->col_left = cl;
     return n;
+}
+
+
+Ground* setGround(float x, float y, short int width, short int height) {
+    Ground* g = malloc(sizeof(Ground));
+	if (g == NULL) {
+        fprintf(stderr, "Malloc error while creating Ground!!!\n");
+        return NULL;
+    }
+    g->vec = setVector(x, y);
+    g->width = width;
+    g->height = height;
+    g->gid = 0;
+    return g;
 }
 
 // ------------------ "PRIVATE" FUNCTIONS ------------------

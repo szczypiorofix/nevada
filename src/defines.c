@@ -1,43 +1,82 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "defines.h"
 
 
 // ------------------ FORWARD DECLARATION ------------------
 int fromBinary(const char *s);
-// char* getFromResourceImagesDir(char* file);
-// char* getFromResourceDir(char* file);
 char* copyStringFromPointer(const char* s);
 int releaseString(void* string);
 
 
+// Vector2
+Vector2 setVector(float x, float y);
+void rotateVector(Vector2* vector, float angle);
+void addVector(Vector2* v1, const Vector2* v2);
+void subVector(Vector2* v1, const Vector2* v2);
+void mulVector(Vector2* v1, const Vector2* v2);
+void divVector(Vector2* v1, const Vector2* v2);
+void normalizeVetor(Vector2* v);
 
+
+// ------------------ VECTOR2 FUNCTIONS ------------------
+
+// Vector2* createVector(float x, float y) {
+// 	Vector2* v = malloc(sizeof(Vector2));
+// 	if (v == NULL) {
+// 		fprintf(stderr, "Error while allocating memory for Vector2 !!!\n");
+// 		return NULL;
+// 	}
+// 	v->x = x;
+// 	v->y = y;
+// 	return v;
+// }
+
+Vector2 setVector(float x, float y) {
+	Vector2 v = {x, y};
+	return v;
+}
+
+void rotateVector(Vector2* vector, float angle) {
+	float radAngle = (float)(angle * DEG_TO_RAD);
+	vector->x = (float)(vector->x * cos(radAngle) - vector->y * sin(radAngle));
+	vector->y = (float)(vector->x * sin(radAngle) + vector->y * cos(radAngle));
+}
+
+void addVector(Vector2* v1, const Vector2* v2) {
+	v1->x += v2->x;
+	v1->y += v2->y;
+}
+
+void subVector(Vector2* v1, const Vector2* v2) {
+	v1->x -= v2->x;
+	v1->y -= v2->y;
+}
+
+void mulVector(Vector2* v1, const Vector2* v2) {
+	v1->x *= v2->x;
+	v1->y *= v2->y;
+}
+
+void divVector(Vector2* v1, const Vector2* v2) {
+	v1->x /= v2->x;
+	v1->y /= v2->y;
+}
+
+void normalizeVetor(Vector2* v) {
+	float mag = (float) sqrt(v->x * v->x + v->y * v->y);
+	v->x = (float) (v->x / mag);
+	v->y = (float) (v->y / mag);
+}
 
 // ------------------ COMMON FUNCTIONS ------------------
 
 int fromBinary(const char *s) {
   return (int) strtol(s, NULL, 2);
 }
-
-// char* getFromResourceImagesDir(char* file) {
-// 	const char *dir = DIR_RES_IMAGES;
-	
-// 	// NEED TO FREE RESULT !
-// 	char *result = malloc(strlen(file) + strlen(dir) + 1);
-// 	strcpy(result, dir);
-// 	strncat(result, file, strlen(file));
-// 	return result;
-// }
-
-// char* getFromResourceDir(char* file) {
-// 	const char *dir = DIR_RES;
-// 	char *result = malloc(strlen(file) + strlen(dir) + 1);
-// 	strcpy(result, dir);
-// 	strncat(result, file, strlen(file));
-// 	return result;
-// }
 
 char* copyStringFromPointer(const char* s) {
 	int sl = strlen(s) + 1;

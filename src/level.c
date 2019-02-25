@@ -90,7 +90,7 @@ Level* getLevel() {
     level->content = tiledMap->layer;
     level->layers = tiledMap->layersCount;
     level->map = tiledMap;
-    
+	level->columns = level->size / level->height;
     return level;
 }
 

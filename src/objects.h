@@ -17,25 +17,24 @@ typedef enum {
 } Direction;
 
 typedef struct Camera {
-    int x;
-    int y;
-    int offsetX;
-    int offsetY;
+    Vector2 vec;
 } Camera;
 
 
 typedef struct Player {
     char* name;
-    int x;
-    int y;
-    int velX;
-    int velY;
-    int width;
-    int height;
+    Vector2 vec;
+    float velX;
+    float velY;
+    short int width;
+    short int height;
+    int angle;
+    int angleVel;
+    int speed;
     int tileX;
     int tileY;
     int tileIndex;
-    int isMoving;
+    short int isMoving;
     Direction direction;
     SDL_Rect col_up;
     SDL_Rect col_right;
@@ -46,15 +45,15 @@ typedef struct Player {
 
 typedef struct NPC {
     char* name;
-    int x;
-    int y;
-    int velX;
-    int velY;
-    int width;
-    int height;
-    int takingAction;
-    int takingActionCounter;
-    int maxTakingActionCounter;
+    float x;
+    float y;
+    float velX;
+    float velY;
+    short int width;
+    short int height;
+    short int takingAction;
+    short int takingActionCounter;
+    short int maxTakingActionCounter;
     Direction direction;
     SDL_Rect col_up;
     SDL_Rect col_right;
@@ -62,11 +61,18 @@ typedef struct NPC {
     SDL_Rect col_left;
 } NPC;
 
-
+typedef struct Ground {
+    Vector2 vec;
+    short int width;
+    short int height;
+    short int gid;
+} Ground;
 
 // ------------------ PUBLIC FUNCTIONS ------------------
-Player* resetPlayer(char* name, int x, int y, int width, int height);
+Player* resetPlayer(char* name, float x, float y, short int width, short int height);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
+Ground* setGround(float x, float y, short int width, short int height);
+
 void updateCamera(Camera* c, Player* player);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);

@@ -28,7 +28,7 @@ bin/release/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)
 
 
 # main.o
-$(ODIR)/main.o: $(SOURCE)/main.c $(SOURCE)/main.h $(SOURCE)/engine.c $(SOURCE)/engine.h $(SOURCE)/objects.c $(SOURCE)/objects.h $(SOURCE)/textures.c $(SOURCE)/textures.h
+$(ODIR)/main.o: $(SOURCE)/main.c $(SOURCE)/main.h $(SOURCE)/engine.c $(SOURCE)/engine.h $(SOURCE)/objects.c $(SOURCE)/objects.h $(SOURCE)/textures.c $(SOURCE)/textures.h $(SOURCE)/defines.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/main.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/main.o
 
 

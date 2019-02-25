@@ -37,7 +37,7 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
 
 void freeTexture(SpriteSheet* t);
 
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip);
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, SpriteSheet* t);
 

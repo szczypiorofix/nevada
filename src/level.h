@@ -76,6 +76,7 @@ typedef struct Level {
     unsigned int size;
     TiledMap* map;
     int textureNameCount;
+    int columns;
     char* textureName[];
 } Level;
 

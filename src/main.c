@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 // #include <lua.h>
 // #include <lauxlib.h>
@@ -14,13 +15,18 @@
 #include "textures.h"
 
 
-int SCALE = 2;
-
 
 // FORWARD DECLARATION
 
 int compare(int, int);
 
+
+typedef struct ViewSpace {
+	float x;
+	float y;
+	float width;
+	float height;
+} ViewSpace;
 
 
 typedef struct TextFont {
@@ -199,10 +205,7 @@ int main(int argc, char* args[]) {
 	Player* player = NULL;
 
 	Camera cam;
-	cam.x = 0;
-	cam.y = 0;
-	cam.offsetX = 0;
-	cam.offsetY = 0;
+	cam.vec = setVector(0, 0);
 
 	// LEVEL STUFF...
 	Level* level = getLevel();
@@ -255,13 +258,39 @@ int main(int argc, char* args[]) {
 	
 	// printf("Texture name %s, %i:%i\n", *level->textureName, level->map->tileWidth, level->map->tileWidth);
 
-	TextFont* text1 = loadFromRenderedText("Player X", engine->renderer);
-	TextFont* text2 = loadFromRenderedText("Player Y", engine->renderer);
+	TextFont* pxText = loadFromRenderedText("Player X", engine->renderer);
+	TextFont* pyText = loadFromRenderedText("Player Y", engine->renderer);
+	TextFont* cxText = loadFromRenderedText("Cam X", engine->renderer);
+	TextFont* cyText = loadFromRenderedText("Cam Y", engine->renderer);
 
 
 	SDL_Rect* layersRects[level->layers];
 	for (int i = 0; i < level->layers; i++) {
 		layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);
+	}
+
+	// Ground objects
+	Ground* grounds[level->layers];
+
+	for (int l = 0; l < level->layers; l++) {
+		Ground* g = malloc(sizeof(Ground) * level->size);
+		if (g == NULL) {
+			fprintf(stderr, "Error alocating memory for Ground layer!\n");
+			exit(0);
+		}
+
+		for (unsigned int i = 0; i < level->size; i++) {
+			if (level->content[l].data[i] > 0) {
+				g[i].gid = level->content[l].data[i];
+				g[i].vec.x = (i % level->columns) * backgroundSpriteSheet->tileWidth;
+				g[i].vec.y = (i / level->columns) * backgroundSpriteSheet->tileHeight; 
+			} else {
+				g[i].gid = 0;
+				g[i].vec.x = 0;
+				g[i].vec.y = 0;
+			}
+		}
+		grounds[l] = g;
 	}
 
 	Animation* playerWalkingAnimation[4];
@@ -335,81 +364,46 @@ int main(int argc, char* args[]) {
 	player->direction = DIR_RIGHT;
 	playerWalkingAnimation[player->direction]->curFrame = 1;
 	
-	// Uint8 tr = 255, tg = 255, tb = 255;
-	// Uint8 alpha = 255;
-
-	// Setting up viewport
-	// SDL_RenderSetViewport(engine->renderer, &viewPort);
-
+	Vector2 moveVector = setVector(0, 0);
 
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == FALSE) {
 		
 		updateDeltaTime(engine);
 
-		int px = player->x;
-		int py = player->y;
+		float px = player->vec.x;
+		float py = player->vec.y;		
+		
 
 		while(SDL_PollEvent(&engine->event) != 0) {
 				if (engine->event.type == SDL_QUIT) {
 					engine->quit = TRUE;
 				} else {
-					
 					// ZOOM ??
-					if (engine->event.type == SDL_MOUSEWHEEL) {
-						if (engine->event.button.x == 1) {
-							if (SCALE < 10) SCALE++;
-							printf("ZOOM IN: %i\n", SCALE);
-						}
-						else if (engine->event.button.x == -1) {
-							if (SCALE > 2) SCALE--;
-							printf("ZOOM OUT: %i\n", SCALE);
-						}
-					}
-					
-
-					if (engine->event.type == SDL_KEYDOWN) {
-						switch (engine->event.key.keysym.sym) {
-							// case SDLK_9:
-							// 	alpha += 32;
-							// 	SDL_SetTextureAlphaMod(backgroundSpriteSheet->mTexture, alpha);
-							// 	break;
-							// case SDLK_0:
-							// 	alpha -= 32;
-							// 	SDL_SetTextureAlphaMod(backgroundSpriteSheet->mTexture, alpha);
-							// 	break;
-							// case SDLK_u:
-							// 	tr -= 32;
-							// 	SDL_SetTextureColorMod(backgroundSpriteSheet->mTexture, tr, tg, tb);
-							// 	break;
-							// case SDLK_i:
-							// 	tr += 32;
-							// 	SDL_SetTextureColorMod(backgroundSpriteSheet->mTexture, tr, tg, tb);
-							// 	break;
-							// case SDLK_j:
-							// 	tg -= 32;
-							// 	SDL_SetTextureColorMod(backgroundSpriteSheet->mTexture, tr, tg, tb);
-							// 	break;
-							// case SDLK_k:
-							// 	tg += 32;
-							// 	SDL_SetTextureColorMod(backgroundSpriteSheet->mTexture, tr, tg, tb);
-							// 	break;
-							// case SDLK_n:
-							// 	tb -= 32;
-							// 	SDL_SetTextureColorMod(backgroundSpriteSheet->mTexture, tr, tg, tb);
-							// 	break;
-							// case SDLK_m:
-							// 	tb += 32;
-							// 	SDL_SetTextureColorMod(backgroundSpriteSheet->mTexture, tr, tg, tb);
-							// 	break;
+					// if (engine->event.type == SDL_MOUSEWHEEL) {
+					// 	if (engine->event.button.x == 1) {
+					// 		if (engine->scale < engine->maxZoom) engine->scale++;
+					// 		printf("ZOOM IN: %i\n", engine->scale);
 							
+					// 	}
+					// 	else if (engine->event.button.x == -1) {
+					// 		if (engine->scale > engine->minZoom) engine->scale--;
+					// 		printf("ZOOM OUT: %i\n", engine->scale);
+							
+					// 	}
+					// }
+					if (engine->event.type == SDL_KEYDOWN) {
+						switch (engine->event.key.keysym.sym) {							
 							case SDLK_RETURN:
-								player->x = 0;
-								player->y = 0;
+								// player->x = 0;
+								// player->y = 0;
+								player->vec = setVector(0, 0);
 								break;
 							case SDLK_5:
-								player->x = 64;
-								player->y = 64;
+								// player->x = 16;
+								// player->y = 16;
+								player->vec = setVector(16, 16);
+								// normalizeVetor(&player->vector);
 								break;
 							case SDLK_ESCAPE:
 								engine->quit = 1;
@@ -417,18 +411,26 @@ int main(int argc, char* args[]) {
 							case SDLK_LEFT:
 							case SDLK_a:
 								player->velX = -SPEED;
+								moveVector.x = -SPEED;								
+								// player->angleVel = -5;
 								break;
 							case SDLK_RIGHT:
 							case SDLK_d:
 								player->velX = SPEED;
+								moveVector.x = SPEED;
+								// player->angleVel = 5;
 								break;
 							case SDLK_UP:
 							case SDLK_w:
 								player->velY = -SPEED;
+								moveVector.y = -SPEED;
+								// player->speed = SPEED;
 								break;
 							case SDLK_DOWN:
 							case SDLK_s:
 								player->velY = SPEED;
+								// player->speed = -SPEED;
+								moveVector.y = SPEED;
 								break;
 							case SDLK_1:
 								if (engine->musicVolume < MIX_MAX_VOLUME) engine->musicVolume++;
@@ -461,25 +463,37 @@ int main(int argc, char* args[]) {
 							case SDLK_a:
 								if (player->velX < 0) {
 									player->velX = 0;
+									moveVector.x = 0;
 								}
+								
+								// player->angleVel = 0;
+								
 								break;
 							case SDLK_RIGHT:
 							case SDLK_d:
 								if (player->velX > 0) {
 									player->velX = 0;
+									moveVector.x = 0;
 								}
+								
+								// player->angleVel = 0;
+								
 								break;
 							case SDLK_UP:
 							case SDLK_w:
 								if (player->velY < 0) {
 									player->velY = 0;
+									moveVector.y = 0;
 								}
+								// player->speed = 0;
 								break;
 							case SDLK_DOWN:
 							case SDLK_s:
 								if (player->velY > 0) {
 									player->velY = 0;
+									moveVector.y = 0;
 								}
+								// player->speed = 0;
 								break;
 						}
 
@@ -514,11 +528,23 @@ int main(int argc, char* args[]) {
 
 
 		// PLAYER'S VELOCITY
-		player->x += player->velX;
-		player->y += player->velY;
+		// player->x += player->velX;
+		// player->y += player->velY;
+
+		addVector(&player->vec, &moveVector);
+
+		
+		// player->angle += player->angleVel;
+		// if (player->angle < 0) player->angle = 360;
+		// if (player->angle > 360) player->angle = 0;
+		
+		// player->x += (player->speed * cos(player->angle * PI / 180));
+        // player->y += (player->speed * sin(player->angle * PI / 180));
+
 		player->tileX = getTileX(player, backgroundSpriteSheet->tileWidth);
 		player->tileY = getTileY(player, backgroundSpriteSheet->tileHeight);
 		player->tileIndex = player->tileY * level->width + player->tileX;
+
 
 		// ###### NPCs UPDATE #######
 		
@@ -549,6 +575,7 @@ int main(int argc, char* args[]) {
 		
 		// ###########################
 		
+
 		if (Mix_PlayingMusic() == 0) {
 			Mix_PlayMusic(engine->music, -1);
 		}
@@ -605,42 +632,91 @@ int main(int argc, char* args[]) {
 		// 	}
 		// }
 		
+
+		SDL_SetRenderDrawColor(engine->renderer, 250, 250, 250, 255);
+
+
+
 		// ---------------------- WORKING !!!! ------------------
-		int col = level->size / level->height;
+		// int col = level->size / level->height;
+
+		// for (int l = 0; l < level->layers; l++) {
+
+		// 	for (unsigned int i = 0; i < level->size; i++) {
+
+		// 		if (layersRects[l][i].w >= 0) {
+		// 			int x = (i % col) * backgroundSpriteSheet->tileWidth;
+		// 			int y = (i / col) * backgroundSpriteSheet->tileHeight;
+		// 			int bx = ( x * SCALE) - cam.offsetX;
+		// 			int by = ( y * SCALE) - cam.offsetY;
+
+		// 			renderTexture(
+		// 				backgroundSpriteSheet,
+		// 				engine->renderer,
+		// 				&layersRects[l][i],
+		// 				bx
+		// 				//  - ( ( (level->width  / 2) + player->x) * backgroundSpriteSheet->tileWidth * SCALE)
+		// 					  ,
+		// 				by
+		// 				//  - ( ( (level->height / 2) + player->y) * backgroundSpriteSheet->tileHeight * SCALE)
+		// 					  ,
+		// 				SCALE,
+		// 				0,
+		// 				NULL,
+		// 				SDL_FLIP_NONE,
+		// 				2
+		// 			);
+				
+		// 		}
+					
+		// 	}
+		// }
+
+
 
 		for (int l = 0; l < level->layers; l++) {
-
 			for (unsigned int i = 0; i < level->size; i++) {
-
-				if (layersRects[l][i].w >= 0) {
-					int x = (i % col) * backgroundSpriteSheet->tileWidth;
-					int y = (i / col) * backgroundSpriteSheet->tileHeight;
-					int bx = ( x * SCALE) - cam.offsetX;
-					int by = ( y * SCALE) - cam.offsetY;
-
+				if (grounds[l][i].gid > 0)
 					renderTexture(
 						backgroundSpriteSheet,
 						engine->renderer,
 						&layersRects[l][i],
-						bx - ( 
-							( (level->width  / 2) + player->x) *
-							backgroundSpriteSheet->tileWidth *
-							  SCALE),
-						by - ( 
-							( (level->height / 2) + player->y) *
-							backgroundSpriteSheet->tileHeight *
-							  SCALE),
-						SCALE,
+						grounds[l][i].vec.x - cam.vec.x,
+						grounds[l][i].vec.y - cam.vec.y,
 						0,
 						NULL,
-						SDL_FLIP_NONE
+						SDL_FLIP_NONE,
+						0
 					);
-				
-				}
-					
+			
 			}
 		}
 
+		// for (unsigned int i = 0; i < level->size; i++) {
+
+		// 	for (int l = 0; l < level->layers; l++) {
+		// 		int rx = (i % col) * backgroundSpriteSheet->tileWidth;
+		// 		int ry = (i / col) * backgroundSpriteSheet->tileHeight; 
+		// 		int sx = (rx * engine->scale) - cam.x;
+		// 		int sy = (ry * engine->scale) - cam.y;
+		// 		renderTexture(
+		// 			backgroundSpriteSheet,
+		// 			engine->renderer,
+		// 			&layersRects[l][i],
+		// 			sx,
+		// 			sy,
+		// 			engine->scale,
+		// 			0,
+		// 			NULL,
+		// 			SDL_FLIP_NONE,
+		// 			1
+		// 		);
+		// 	}		
+		// }
+
+
+
+		SDL_SetRenderDrawColor(engine->renderer, 250, 50, 50, 255);
 
 		/** RENDER PLAYER */
 		if (player->isMoving == 1) {
@@ -648,42 +724,56 @@ int main(int argc, char* args[]) {
 				playerSpriteSheet,
 				engine->renderer,
 				&playerWalkingAnimation[player->direction]->frames[nextFrame(playerWalkingAnimation[player->direction])],
-				(player->x - cam.offsetX) - ( (player->width * SCALE) / 2),
-				(player->y - cam.offsetY) - ( (player->height * SCALE) / 2),
-				SCALE,
-				0,
+				//player->rx,// - ( (player->width * engine->scale) / 2),
+				//player->ry,// - ( (player->height * engine->scale) / 2),
+				player->vec.x - cam.vec.x,
+				player->vec.y - cam.vec.y,
+				player->angle,
 				NULL,
-				SDL_FLIP_NONE
+				SDL_FLIP_NONE,
+				0
 			);
 		} else {
 			renderTexture(
 				playerSpriteSheet,
 				engine->renderer,
 				&playerWalkingAnimation[player->direction]->frames[playerWalkingAnimation[player->direction]->curFrame],
-				(player->x - cam.offsetX) - ( (player->width * SCALE) / 2),
-				(player->y - cam.offsetY) - ( (player->height * SCALE) / 2),
-				SCALE,
-				0,
+				//player->rx,// - ( (player->width * engine->scale) / 2),
+				//player->ry,// - ( (player->height * engine->scale) / 2),
+				player->vec.x - cam.vec.x,
+				player->vec.y - cam.vec.y,
+				player->angle,
 				NULL,
-				SDL_FLIP_NONE
+				SDL_FLIP_NONE,
+				0
 			);
 		}
 		
 
-		char str_px[12];
-		char str_py[12];
+		char str_px[50];
+		char str_py[50];
+		char str_cx[50];
+		char str_cy[50];
 
-		if (px != player->x) {
-			sprintf(str_px, "%s %d", "PX:", player->x);
-			changeText(text1, engine->renderer, str_px);
+
+		if (px != player->vec.x) {
+			sprintf(str_px, "%s %.3f", "PX:", player->vec.x);
+			changeText(pxText, engine->renderer, str_px);
+			sprintf(str_cx, "%s %.3f", "CX:", cam.vec.x);
+			changeText(cxText, engine->renderer, str_cx);			
 		}
-		if (py != player->y) {
-			sprintf(str_py, "%s %d", "PY:", player->y);
-			changeText(text2, engine->renderer, str_py);
+		if (py != player->vec.y) {
+			sprintf(str_py, "%s %.3f", "CX:", player->vec.y);
+			changeText(pyText, engine->renderer, str_py);
+			sprintf(str_cy, "%s %.3f", "CY:", cam.vec.y);
+			changeText(cyText, engine->renderer, str_cy);
 		}
-	
-		renderText(text1, engine->renderer, 10, 10, 60, 30);
-		renderText(text2, engine->renderer, 10, 30, 60, 30);
+
+		renderText(pxText, engine->renderer, 10, 10, 120, 30);
+		renderText(pyText, engine->renderer, 10, 30, 120, 30);
+		renderText(cxText, engine->renderer, 10, 50, 120, 30);
+		renderText(cyText, engine->renderer, 10, 70, 120, 30);
+
 
 		// NPCs
 		// for (int dg = 0; dg < dogsCount; dg++) {

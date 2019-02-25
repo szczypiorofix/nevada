@@ -12,8 +12,10 @@
 #define WALK_DOWN 2
 #define WALK_LEFT 3
 
+
 #define SPEED 2
 #define NPC_SPEED 1
+
 
 // Booleans
 #define FALSE 0
@@ -26,6 +28,10 @@ typedef unsigned char bool;
 
 #define DIR_RES_IMAGES "res/images/"
 #define DIR_RES "res/"
+
+
+#define PI 3.14159265
+#define DEG_TO_RAD PI / 180.0f
 
 
 // ------------------ TYPEDEFS ------------------
@@ -48,6 +54,20 @@ typedef unsigned long int uint64;
 
 
 
+// ------------------ VECTOR2 ------------------
+typedef struct Vector2 {
+    float x;
+    float y;
+} Vector2;
+
+Vector2 setVector(float x, float y);
+void rotateVector(Vector2* vector, float angle);
+void addVector(Vector2* v1, const Vector2* v2);
+void subVector(Vector2* v1, const Vector2* v2);
+void mulVector(Vector2* v1, const Vector2* v2);
+void divVector(Vector2* v1, const Vector2* v2);
+void normalizeVetor(Vector2* v);
+
 
 // ------------------ ENUMS ------------------
 
@@ -58,8 +78,6 @@ typedef unsigned long int uint64;
 // ------------------ COMMON FUNCTIONS ------------------
 
 int fromBinary(const char *s);
-// char* getFromResourceImagesDir(char* file);
-// char* getFromResourceDir(char* file);
 char* copyStringFromPointer(const char* s);
 
 

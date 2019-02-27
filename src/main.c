@@ -233,8 +233,8 @@ int main(int argc, char* args[]) {
 	}
 	player = resetPlayer(
 		"Player",
-		0,
-		0,
+		32,
+		32,
 		16,
 		16
 	);
@@ -278,18 +278,15 @@ int main(int argc, char* args[]) {
 		}
 
 		for (unsigned int i = 0; i < level->size; i++) {
-			if (level->content[l].data[i] > 0) {
-				g[i].gid = level->content[l].data[i];
-				g[i].vec.x = (i % level->columns) * backgroundSpriteSheet->tileWidth;
-				g[i].vec.y = (i / level->columns) * backgroundSpriteSheet->tileHeight; 
-			} else {
-				g[i].gid = 0;
-				g[i].vec.x = 0;
-				g[i].vec.y = 0;
-			}
+			g[i].gid = level->content[l].data[i];
+			g[i].width = level->content[l].width;
+			g[i].height = level->content[l].height;
+			g[i].vec.x = (i % level->columns) * backgroundSpriteSheet->tileWidth;
+			g[i].vec.y = (i / level->columns) * backgroundSpriteSheet->tileHeight;
 		}
 		grounds[l] = g;
 	}
+
 
 	Animation* playerWalkingAnimation[4];
 
@@ -535,7 +532,7 @@ int main(int argc, char* args[]) {
 
 		player->tileX = getTileX(player, backgroundSpriteSheet->tileWidth);
 		player->tileY = getTileY(player, backgroundSpriteSheet->tileHeight);
-		player->tileIndex = player->tileY * level->width + player->tileX;
+		player->tileIndex = (player->tileY * level->width) + player->tileX;
 
 
 		// ###### NPCs UPDATE #######
@@ -626,7 +623,7 @@ int main(int argc, char* args[]) {
 		
 
 		SDL_SetRenderDrawColor(engine->renderer, 120, 120, 120, 200);
-		// Tilesy
+		/** Tilesy */
 		// for (int layer = 0; layer < level->layers; layer++) {
 		// 	for (unsigned int i = 0; i < level->size; i++) {
 		// 		if (grounds[layer][i].gid > 0)
@@ -648,73 +645,113 @@ int main(int argc, char* args[]) {
 
 		
 
-
-		for (int i = -7; i < 8; i++) {
-			for (int j = -5; j < 6; j++) {
-				if (
-					// Draw only the right tiles
-					((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) >= 0 &&
-					((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) < level->map->width &&
-					((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) >= 0 &&
-					((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) < level->map->height
-					) {
-
-					for (int l = 0; l < level->layers; l++) {
-
-						if ((player->tileY + j) * level->width + player->tileX + i >= 0) {
+		// for (int layer = 0; layer < level->layers; layer++)
+		// for (int i = -3; i < 3; i++) {
+		// 	for (int j = -3; j < 3; j++) {
+		// 		// if (
+		// 		// 	// Draw only the right tiles
+		// 		// 	((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) >= 0 &&
+		// 		// 	((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) < level->map->width &&
+		// 		// 	((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) >= 0 &&
+		// 		// 	((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) < level->map->height
+		// 		// 	) {
+		// 				// if ((player->tileY + j) * level->width + player->tileX + i >= 0) {
 							
-							if ( layersRects[l][(player->tileY + j) * level->width + player->tileX + i].w > 0 ) {
-
-
-								int bx = ( 
-									(
-										( 
-											(int) (
-												(player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2))
-												 / backgroundSpriteSheet->tileWidth
-											)
-											% backgroundSpriteSheet->tileWidth
-										) * backgroundSpriteSheet->tileWidth
-									) * engine->scale
-								) - cam.vec.x;
-
-								int by = (
-									(
-										(
-											(int) (
-												(player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2))
-												/ backgroundSpriteSheet->tileHeight
-											)
-											% backgroundSpriteSheet->tileHeight
-										) * backgroundSpriteSheet->tileHeight
-									) * engine->scale
-								) - cam.vec.y;
+		// 					// if ( layersRects[layer][(player->tileY + j) * level->width + player->tileX + i].w > 0 ) {
+							
 								
-								
-								renderTexture(
-									backgroundSpriteSheet,
-									engine->renderer,
-									&layersRects[l][(player->tileY + j) * level->width + player->tileX + i],
+		// 						renderTexture(
+		// 							backgroundSpriteSheet,
+		// 							engine->renderer,
+		// 							&layersRects[layer][(player->tileY + j) * level->width + player->tileX + i],
 									
-									bx,
-									by,
+		// 							( 
+		// 								(
+		// 									grounds[layer][
+		// 										((int) player->vec.x + (i * 16) + player->width / 2) / backgroundSpriteSheet->tileWidth
+		// 									].vec.x
+		// 								) * engine->scale
+		// 							) - cam.vec.x,
+		// 							( 
+		// 								(
+		// 									grounds[layer][
+		// 										((int) player->vec.y + (i * 16) + player->height / 2) / backgroundSpriteSheet->tileHeight
+		// 									].vec.y
+		// 								) * engine->scale
+		// 							) - cam.vec.y,
 
-									engine->scale,
-									0,
-									NULL,
-									SDL_FLIP_NONE,
-									displayMode
-								);
+		// 							engine->scale,
+		// 							0,
+		// 							NULL,
+		// 							SDL_FLIP_NONE,
+		// 							displayMode
+		// 						);
 								
-							}
+		// 					// }							
+		// 			// }
+		// 		// }
+		// 	}
+		// }
+		
+		// int layer = 1;
+		for (int i = -9; i < 9; i++) {
+			for (int j = -7; j < 7; j++) {
+				for (int layer = 0; layer < level->layers; layer++) {
+					if ((player->tileY + j) * level->width + player->tileX + i >= 0)
+					if (layersRects[layer][(player->tileY + j) * level->width + player->tileX + i].w > 0)
+					renderTexture(
+						backgroundSpriteSheet,
+						engine->renderer,
+						&layersRects[layer][(player->tileY + j) * level->width + player->tileX + i],
+						
+						( 
+							(
+								grounds[layer][player->tileIndex].vec.x  + (i*16)
+							) * engine->scale
+						) - cam.vec.x,
+						
+						( 
+							(
+								grounds[layer][player->tileIndex].vec.y  + (j*16)
+							) * engine->scale
+						) - cam.vec.y,
 
-						}
-							
-					}
+						engine->scale,
+						0,
+						NULL,
+						SDL_FLIP_NONE,
+						displayMode
+					);
 				}
 			}
 		}
+		
 
+		// renderTexture(
+		// 	backgroundSpriteSheet,
+		// 	engine->renderer,
+		// 	&layersRects[0][(player->tileY + 0) * level->width + player->tileX + 0],
+			
+		// 	( 
+		// 		(
+		// 			grounds[0][player->tileIndex].vec.x - (grounds[0][player->tileIndex].width)
+		// 		) * engine->scale
+		// 	) - cam.vec.x,
+			
+		// 	( 
+		// 		(
+		// 			grounds[0][player->tileIndex].vec.y - (grounds[0][player->tileIndex].height)
+		// 		) * engine->scale
+		// 	) - cam.vec.y,
+
+		// 	engine->scale,
+		// 	0,
+		// 	NULL,
+		// 	SDL_FLIP_NONE,
+		// 	displayMode
+		// );
+
+		
 
 
 

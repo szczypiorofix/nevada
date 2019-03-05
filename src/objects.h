@@ -27,18 +27,12 @@ typedef struct Player {
     Vector2 moveVec;
     short int width;
     short int height;
-    int angle;
-    int angleVel;
-    int speed;
     int tileX;
     int tileY;
     int tileIndex;
     short int isMoving;
     Direction direction;
-    SDL_Rect col_up;
-    SDL_Rect col_right;
-    SDL_Rect col_down;
-    SDL_Rect col_left;
+    SDL_Rect col;
 } Player;
 
 
@@ -52,10 +46,7 @@ typedef struct NPC {
     short int takingActionCounter;
     short int maxTakingActionCounter;
     Direction direction;
-    SDL_Rect col_up;
-    SDL_Rect col_right;
-    SDL_Rect col_down;
-    SDL_Rect col_left;
+    SDL_Rect col;
 } NPC;
 
 typedef struct Ground {
@@ -70,13 +61,15 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 Ground* setGround(float x, float y, short int width, short int height);
 
-void updateCamera(Camera* c, Player* player, int scale);
+void updateCamera(Camera* c, Player* player, Level* level, int scale);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
 
-int updateNPC(NPC* npc);
-void updateCollisionsNPC(NPC* npc, Camera* cam);
-void updateCollisionsPlayer(Player* p, Camera* cam);
+int updateNPC(NPC* npc, Level* level);
+void updateCollisionsNPC(NPC* npc, Camera* cam, int scale);
+void updateCollisionsPlayer(Player* p, Camera* cam, int scale);
+
+void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
 
 
 #endif

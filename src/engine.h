@@ -13,8 +13,6 @@
 #include "assetslist.h"
 
 
-#define ENGINE_FPS_MAX 60
-
 // ------------------ STRUCTS ------------------
 
 
@@ -25,17 +23,24 @@ typedef struct Engine
     short int scale;
     short int minScale;
     short int maxScale;
+    short int tilesOnScreenFromCenterX;
+    short int tilesOnScreenFromCenterY;
     SDL_Event event;
     SDL_Window* window;
     SDL_Renderer* renderer;
     Mix_Music *music;
-    unsigned long int startTick;
-    unsigned long int endTick;
-    unsigned short int fpsCounter;
+    // unsigned long int startTick;
+    // unsigned long int endTick;
+    // unsigned short int fpsCounter;
+    // long lastLoopTime;
     unsigned short int musicVolume;
-    float delayTime;
-    float deltaTime;
+    // float delayTime;
+    // float deltaTime;
+    // unsigned short int fps;
     unsigned short int fps;
+    unsigned int frameStart;
+    unsigned int frameEnd;
+    unsigned int deltaTime;
     AssetsList* assets;
 } Engine;
 

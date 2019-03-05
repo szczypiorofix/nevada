@@ -154,6 +154,7 @@ int nextFrame(Animation* an) {
 }
 
 
+
 int checkCollision(SDL_Rect r1, SDL_Rect r2) {
     return (
         r1.x + r1.w > r2.x &&

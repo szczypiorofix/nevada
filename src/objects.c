@@ -2,21 +2,23 @@
 #include <stdlib.h>
 
 #include "defines.h"
+#include "level.h"
 #include "objects.h"
 
 
 
 // ------------------ FORWARD DECLARATION ------------------
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
-void updateCamera(Camera* c, Player* player, int scale);
+void updateCamera(Camera* c, Player* player, Level* level, int scale);
 int getTileX(Player* p, unsigned int tw);
 int getTileY(Player* p, unsigned int th);
-int updateNPC(NPC* npc);
+int updateNPC(NPC* npc, Level* level);
 int random(int min, int max);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
-void updateCollisionsNPC(NPC* npc, Camera* cam);
+void updateCollisionsNPC(NPC* npc, Camera* cam, int scale);
 Ground* setGround(float x, float y, short int width, short int height);
-void updateCollisionsPlayer(Player* p, Camera* cam);
+void updateCollisionsPlayer(Player* p, Camera* cam, int scale);
+void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
 
 
 // ------------------ PUBLIC FUNCTIONS ------------------
@@ -34,26 +36,25 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
     
     p->vec = setVector(x, y);
     p->moveVec = setVector(0, 0);
-    
-    p->angle = 0;
-    p->angleVel = 0;
-    p->speed = 0;
+
     p->isMoving = 0;
-    SDL_Rect cu = { p->vec.x, p->vec.y, p->width, 5 };
-    p->col_up = cu;
-    SDL_Rect cr = { p->vec.x + p->width, p->vec.y, 5, p->height };
-    p->col_right = cr;
-    SDL_Rect cd = { p->vec.x, p->vec.y + p->height, p->width, 5};
-    p->col_down = cd;
-    SDL_Rect cl = { p->vec.x, p->vec.y, 5, p->height };
-    p->col_left = cl;
+    SDL_Rect c = { p->vec.x, p->vec.y, p->width, p->height };
+    p->col = c;
     return p;
 }
 
 
-void updateCamera(Camera* c, Player* player, int scale) {
-    c->vec.x = (player->vec.x * scale) - (SCREEN_WIDTH / 2);
-    c->vec.y = (player->vec.y * scale) - (SCREEN_HEIGHT / 2);
+void updateCamera(Camera* c, Player* player, Level* level, int scale) {
+
+    // if ( (player->vec.x * scale) - (SCREEN_WIDTH / 2)  > 0 
+    //     && (player->vec.x * scale) < (level->width * 16)
+    // )   
+        c->vec.x = (player->vec.x * scale) - (SCREEN_WIDTH / 2);
+    
+    // if ( (player->vec.y * scale) - (SCREEN_HEIGHT / 2) > 0 
+
+    // )    
+        c->vec.y = (player->vec.y * scale) - (SCREEN_HEIGHT / 2);
 }
 
 
@@ -67,27 +68,25 @@ int getTileY(Player* p, unsigned int th) {
 }
 
 
-void updateCollisionsNPC(NPC* npc, Camera* cam) {
-    SDL_Rect cu = { npc->vec.x  + cam->vec.x, npc->vec.y + cam->vec.y, npc->width, 5 };
-    npc->col_up = cu;
-    SDL_Rect cr = { npc->vec.x + npc->width + cam->vec.x, npc->vec.y + cam->vec.y, 5, npc->height };
-    npc->col_right = cr;
-    SDL_Rect cd = { npc->vec.x + cam->vec.x, npc->vec.y + npc->height + cam->vec.y, npc->width, 5};
-    npc->col_down = cd;
-    SDL_Rect cl = { npc->vec.x + cam->vec.x, npc->vec.y + cam->vec.y, 5, npc->height };
-    npc->col_left = cl;
+void updateCollisionsNPC(NPC* npc, Camera* cam, int scale) {
+    SDL_Rect c = { 
+        ( (npc->vec.x - (npc->width / 2)) * scale) - cam->vec.x,
+        ( (npc->vec.y - (npc->height / 2)) * scale) - cam->vec.y,
+        npc->width * scale,
+        npc->height * scale,
+    };
+    npc->col = c;
 }
 
 
-void updateCollisionsPlayer(Player* p, Camera* cam) {
-    SDL_Rect cu = { p->vec.x  + cam->vec.x, p->vec.y + cam->vec.y, p->width, 5 };
-    p->col_up = cu;
-    SDL_Rect cr = { p->vec.x + p->width + cam->vec.x, p->vec.y + cam->vec.y, 5, p->height };
-    p->col_right = cr;
-    SDL_Rect cd = { p->vec.x + cam->vec.x, p->vec.y + p->height + cam->vec.y, p->width, 5};
-    p->col_down = cd;
-    SDL_Rect cl = { p->vec.x + cam->vec.x, p->vec.y + cam->vec.y, 5, p->height };
-    p->col_left = cl;
+void updateCollisionsPlayer(Player* p, Camera* cam, int scale) {
+    SDL_Rect c = { 
+        ( (p->vec.x - (p->width / 2)) * scale) - cam->vec.x,
+        ( (p->vec.y - (p->height / 2)) * scale) - cam->vec.y,
+        p->width * scale,
+        p->height * scale,
+    };
+    p->col = c;
 }
 
 
@@ -101,7 +100,7 @@ int randomNPCActivity_wait() {
 }
 
 
-int updateNPC(NPC* npc) {
+int updateNPC(NPC* npc, Level* level) {
 
     // COUNTING ACTIONS TIME
     if (npc->takingActionCounter < npc->maxTakingActionCounter)
@@ -175,8 +174,15 @@ int updateNPC(NPC* npc) {
         }  
     }
 
-    addVector(&npc->vec, &npc->moveVec);
-
+    // addVector(&npc->vec, &npc->moveVec);
+    if (npc->vec.x < npc->width / 2)
+        npc->vec.x = npc->width / 2;
+    if (npc->vec.y < npc->height / 2)
+        npc->vec.y = npc->height / 2;
+    if (npc->vec.x > (level->width * level->map->tileWidth) - npc->width)
+        npc->vec.x = (level->width * level->map->tileWidth) - npc->width;
+    if (npc->vec.y > (level->height * level->map->tileHeight) - npc->height)
+        npc->vec.y = (level->height * level->map->tileHeight) - npc->height;
     return 1;
 }
 
@@ -199,14 +205,8 @@ NPC* setNPC(int x, int y, int width, int height, Direction direction) {
     n->takingAction = 0;
     n->takingActionCounter = 0;
     n->maxTakingActionCounter = 0;
-    SDL_Rect cu = { n->vec.x, n->vec.y, n->width, 5 };
-    n->col_up = cu;
-    SDL_Rect cr = { n->vec.x + n->width, n->vec.y, 5, n->height };
-    n->col_right = cr;
-    SDL_Rect cd = { n->vec.x, n->vec.y + n->height, n->width, 5};
-    n->col_down = cd;
-    SDL_Rect cl = { n->vec.x, n->vec.y, 5, n->height };
-    n->col_left = cl;
+    SDL_Rect c = { n->vec.x, n->vec.y, n->width, n->height };
+    n->col = c;
     return n;
 }
 
@@ -223,6 +223,13 @@ Ground* setGround(float x, float y, short int width, short int height) {
     g->gid = 0;
     return g;
 }
+
+
+void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer) {
+    SDL_RenderDrawRect(renderer, &npc->col);
+}
+
+
 
 // ------------------ "PRIVATE" FUNCTIONS ------------------
 

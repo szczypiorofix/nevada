@@ -3,6 +3,11 @@
 
 #include "engine.h"
 
+
+const int TARGET_FPS = 60;
+const long OPTIMAL_TIME = 1000 / TARGET_FPS;
+
+
 // ------------------ FORWARD DECLARATION ------------------
 Engine* createEngine(void);
 bool initSDL(Engine* engine);
@@ -32,13 +37,21 @@ Engine* createEngine(void) {
     engine->scale = 2;
     engine->minScale = 1;
     engine->maxScale = 5;
-    engine->delayTime = 0.0f;
-    engine->deltaTime = 0.0f;
-    engine->startTick = 0L;
-    engine->endTick = 0L;
-    engine->fpsCounter = 0;
-    engine->delayTime = 0.0f;
-    engine->deltaTime = 0.0f;
+    engine->tilesOnScreenFromCenterX = 0;
+    engine->tilesOnScreenFromCenterY = 0;
+    // engine->delayTime = 0.0f;
+    // engine->deltaTime = 0.0f;
+    // engine->startTick = 0L;
+    // engine->endTick = 0L;
+    // engine->lastLoopTime = SDL_GetPerformanceCounter();
+    // engine->fpsCounter = 0;
+    // engine->delayTime = 0.0f;
+    // engine->deltaTime = 0.0f;
+    
+    engine->frameStart = 0;
+    engine->frameEnd = 0;
+    engine->deltaTime = 0;
+
     engine->fps = 0;
     engine->assets = NULL;
 
@@ -126,11 +139,6 @@ Engine* engineStart(void) {
     return engine;
 }
 
-void engineDelay(Engine* engine) {
-    float frameRate = (float) (1000.0f / ENGINE_FPS_MAX);
-    if (engine->deltaTime < frameRate)
-        SDL_Delay((int)(frameRate - engine->deltaTime));
-}
 
 void engineStop(Engine** engine) {
     // clearAssetsList( &(*engine)->assets );
@@ -155,18 +163,23 @@ void engineStop(Engine** engine) {
 }
 
 
-void updateDeltaTime(Engine* engine) {
-    engine->startTick = SDL_GetPerformanceCounter();
-    engine->deltaTime = (float)(engine->startTick - engine->endTick) / SDL_GetPerformanceFrequency();
-    engine->endTick = engine->startTick;
-    engine->fpsCounter++;
-    engine->delayTime += engine->deltaTime;
-    if (engine->delayTime >= 1.0f) {
-        engine->delayTime -= 1.0f;
-        engine->fps = engine->fpsCounter;
-        engine->fpsCounter = 0;
-    }
-}
+// void updateDeltaTime(Engine* engine) {
+//     engine->startTick = SDL_GetPerformanceCounter();
+//     engine->deltaTime = (float)(engine->startTick - engine->endTick) / SDL_GetPerformanceFrequency();
+//     engine->endTick = engine->startTick;
+//     engine->fpsCounter++;
+//     engine->delayTime += engine->deltaTime;
+//     if (engine->delayTime >= 1.0f) {
+//         engine->delayTime -= 1.0f;
+//         engine->fps = engine->fpsCounter;
+//         engine->fpsCounter = 0;
+//     }
+// }
+
+
+// void engineDelay(Engine* engine) {
+    
+// }
 
 int loadMusic(Engine* engine, char* musicFile) {
     engine->music = Mix_LoadMUS(musicFile);

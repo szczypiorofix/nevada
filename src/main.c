@@ -234,7 +234,7 @@ int main(int argc, char* args[]) {
 	}
 	player = resetPlayer(
 		"Player",
-		32,
+		96,
 		32,
 		16,
 		16
@@ -302,61 +302,101 @@ int main(int argc, char* args[]) {
 	playerWalkingAnimation[WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerDown);
 	playerWalkingAnimation[WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
 
+
+
+
+
+
+	// NPCs
+	// const int npcCount = 3;
+	// NPC* npcs[npcCount];
+
+	// npcs[0] = setNPC(
+	// 	152,
+	// 	280,
+	// 	playerSpriteSheet->tileWidth,
+	// 	playerSpriteSheet->tileHeight,
+	// 	DIR_RIGHT);
+	// unsigned int framesNPC1Left[]  = {13, 14, 15};
+	// unsigned int framesNPC1Right[] = {25, 26, 27};
+	// unsigned int framesNPC1Up[]    = {37, 38, 39};
+	// unsigned int framesNPC1Down[]  = {1,  2,  3};
+
+	// Animation* animations[npcCount][4];
+	
+	// animations[0][WALK_UP]    = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Up);
+	// animations[0][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Right);
+	// animations[0][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Down);
+	// animations[0][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Left);
+
+
+	// npcs[1] = setNPC(
+	// 	230,
+	// 	180,
+	// 	playerSpriteSheet->tileWidth,
+	// 	playerSpriteSheet->tileHeight,
+	// 	DIR_RIGHT
+	// );
+	// unsigned int framesNPC2Left[]  = {67, 68, 69};
+	// unsigned int framesNPC2Right[] = {79, 80, 81};
+	// unsigned int framesNPC2Up[]    = {91, 92, 93};
+	// unsigned int framesNPC2Down[]  = {55, 56, 57};
+
+	// animations[1][WALK_UP]    = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Up);
+	// animations[1][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Right);
+	// animations[1][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Down);
+	// animations[1][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Left);
+
+	// npcs[2] = setNPC(
+	// 	330,
+	// 	320,
+	// 	playerSpriteSheet->tileWidth,
+	// 	playerSpriteSheet->tileHeight,
+	// 	DIR_RIGHT
+	// );
+	// unsigned int framesNPC3Left[]  = {22, 23, 24};
+	// unsigned int framesNPC3Right[] = {34, 35, 36};
+	// unsigned int framesNPC3Up[]    = {46, 47, 48};
+	// unsigned int framesNPC3Down[]  = {10, 11, 12};
+	
+	// animations[2][WALK_UP]    = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Up);
+	// animations[2][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Right);
+	// animations[2][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Down);
+	// animations[2][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Left);
+
+
 	const int npcCount = 3;
 	NPC* npcs[npcCount];
-	// DOGS
-	npcs[0] = setNPC(
-		152,
-		280,
-		playerSpriteSheet->tileWidth,
-		playerSpriteSheet->tileHeight,
-		DIR_RIGHT);
-	unsigned int framesNPC1Left[]  = {13, 14, 15};
-	unsigned int framesNPC1Right[] = {25, 26, 27};
-	unsigned int framesNPC1Up[]    = {37, 38, 39};
-	unsigned int framesNPC1Down[]  = {1,  2,  3};
-
 	Animation* animations[npcCount][4];
 	
-	animations[0][WALK_UP]    = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Up);
-	animations[0][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Right);
-	animations[0][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Down);
-	animations[0][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Left);
+	for (int i = 0; i < npcCount; i++) {
+		npcs[i] = setNPC(
+			10 + (i * 20),
+			10 + (i * 16),
+			playerSpriteSheet->tileWidth,
+			playerSpriteSheet->tileHeight,
+			DIR_RIGHT);
+		
+		unsigned int framesNPC1Left[]  = {13, 14, 15};
+		unsigned int framesNPC1Right[] = {25, 26, 27};
+		unsigned int framesNPC1Up[]    = {37, 38, 39};
+		unsigned int framesNPC1Down[]  = {1,  2,  3};
 
+		animations[i][WALK_UP]    = prepareAnimation(playerSpriteSheet, 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Up);
+		animations[i][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Right);
+		animations[i][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Down);
+		animations[i][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Left);
 
-	npcs[1] = setNPC(
-		230,
-		180,
-		playerSpriteSheet->tileWidth,
-		playerSpriteSheet->tileHeight,
-		DIR_RIGHT
-	);
-	unsigned int framesNPC2Left[]  = {67, 68, 69};
-	unsigned int framesNPC2Right[] = {79, 80, 81};
-	unsigned int framesNPC2Up[]    = {91, 92, 93};
-	unsigned int framesNPC2Down[]  = {55, 56, 57};
+	}
 
-	animations[1][WALK_UP]    = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Up);
-	animations[1][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Right);
-	animations[1][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Down);
-	animations[1][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Left);
-
-	npcs[2] = setNPC(
-		330,
-		320,
-		playerSpriteSheet->tileWidth,
-		playerSpriteSheet->tileHeight,
-		DIR_RIGHT
-	);
-	unsigned int framesNPC3Left[]  = {22, 23, 24};
-	unsigned int framesNPC3Right[] = {34, 35, 36};
-	unsigned int framesNPC3Up[]    = {46, 47, 48};
-	unsigned int framesNPC3Down[]  = {10, 11, 12};
 	
-	animations[2][WALK_UP]    = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Up);
-	animations[2][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Right);
-	animations[2][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Down);
-	animations[2][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Left);
+
+
+
+
+
+
+
 
 	player->direction = DIR_RIGHT;
 	playerWalkingAnimation[player->direction]->curFrame = 1;
@@ -491,9 +531,9 @@ int main(int argc, char* args[]) {
 		
 		// ###### PLAYER UPDATE ######
 
-		updateCollisionsNPC(npcs[0], &cam, engine->scale);
-		updateCollisionsNPC(npcs[1], &cam, engine->scale);
-		updateCollisionsNPC(npcs[2], &cam, engine->scale);
+		for (int i = 0; i < npcCount; i++)
+			updateCollisionsNPC(npcs[i], &cam, engine->scale);
+		
 
 		updateCollisionsPlayer(player, &cam, engine->scale);
 
@@ -526,39 +566,39 @@ int main(int argc, char* args[]) {
 
 
 		/** ------------------- COLLISSIONS -------------- */
-		updateCollisionsNPC(npcs[0], &cam, engine->scale);
-		updateCollisionsNPC(npcs[1], &cam, engine->scale);
-		updateCollisionsNPC(npcs[2], &cam, engine->scale);
+		for (int i = 0; i < npcCount; i++)
+			updateCollisionsNPC(npcs[i], &cam, engine->scale);
+		
 
 		int npcCollision[npcCount];
-		npcCollision[0] = 0;
-		npcCollision[1] = 0;
-		npcCollision[2] = 0;
+		for (int i = 0; i < npcCount; i++)
+			npcCollision[i] = 0;
+		
 
 		// ###### NPCs UPDATE #######
 		for (int i = 0; i < npcCount; i++) {
 		
 			updateNPC(npcs[i], level);
 			for (int n = 0; n < npcCount; n++) {
-				// SDL_Rect npcTempRect = {
-				// 	( (npcs[i]->vec.x + npcs[i]->moveVec.x ) * engine->scale) - cam.vec.x,
-				// 	( (npcs[i]->vec.y + npcs[i]->moveVec.y ) * engine->scale) - cam.vec.y,
-				// 	npcs[i]->width * engine->scale,
-				// 	npcs[i]->height * engine->scale
-				// };
-				// if (i != n)
-				// if (checkCollision(npcTempRect, npcs[n]->col) != 0) {
-				// 	npcCollision[i] = 1;
-				// }
+				SDL_Rect npcTempRect = {
+					( (npcs[i]->vec.x + npcs[i]->moveVec.x ) * engine->scale) - cam.vec.x,
+					( (npcs[i]->vec.y + npcs[i]->moveVec.y ) * engine->scale) - cam.vec.y,
+					npcs[i]->width * engine->scale,
+					npcs[i]->height * engine->scale
+				};
+				if (i != n)
+				if (checkCollision(npcTempRect, npcs[n]->col) != 0) {
+					npcCollision[i] = n;
+				}
 				if (checkCollision(npcs[i]->col, player->col) != 0) {
-					npcCollision[i] = 1;
+					npcCollision[i] = -1;
 				}
 			}
 
 			if (npcCollision[i] == 0) {
 				addVector(&npcs[i]->vec, &npcs[i]->moveVec);
 			} else {
-				printf("NPC Coll !!!\n");
+				printf("NPC %i Coll %i !!!\n", i, npcCollision[i]);
 			}
 		}
 

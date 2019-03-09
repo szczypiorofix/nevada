@@ -10,8 +10,8 @@
 // ------------------ FORWARD DECLARATION ------------------
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
 void updateCamera(Camera* c, Player* player, Level* level, int scale);
-int getTileX(Player* p, unsigned int tw);
-int getTileY(Player* p, unsigned int th);
+int getTileX(Player* p, unsigned int tileWith);
+int getTileY(Player* p, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
 int random(int min, int max);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
@@ -58,13 +58,13 @@ void updateCamera(Camera* c, Player* player, Level* level, int scale) {
 }
 
 
-int getTileX(Player* p, unsigned int tw) {
-    return ( (p->vec.x + (p->width / 2)) / tw );
+int getTileX(Player* p, unsigned int tileWidth) {
+    return ( (p->vec.x + (p->width / 2)) / tileWidth );
 }
 
 
-int getTileY(Player* p, unsigned int th) {
-    return ( (p->vec.y + (p->height / 2)) / th );
+int getTileY(Player* p, unsigned int tileHeight) {
+    return ( (p->vec.y + (p->height / 2)) / tileHeight );
 }
 
 

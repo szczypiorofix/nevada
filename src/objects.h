@@ -62,8 +62,8 @@ NPC* setNPC(int x, int y, int width, int height, Direction direction);
 Ground* setGround(float x, float y, short int width, short int height);
 
 void updateCamera(Camera* c, Player* player, Level* level, int scale);
-int getTileX(Player* p, unsigned int tw);
-int getTileY(Player* p, unsigned int th);
+int getTileX(Player* p, unsigned int tileWidth);
+int getTileY(Player* p, unsigned int tileHeight);
 
 int updateNPC(NPC* npc, Level* level);
 void updateCollisionsNPC(NPC* npc, Camera* cam, int scale);

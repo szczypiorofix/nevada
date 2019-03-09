@@ -22,13 +22,6 @@ int SPEED = 2;
 int compare(int, int);
 
 
-typedef struct ViewSpace {
-	float x;
-	float y;
-	float width;
-	float height;
-} ViewSpace;
-
 
 typedef struct TextFont {
 	char* text;
@@ -303,68 +296,6 @@ int main(int argc, char* args[]) {
 	playerWalkingAnimation[WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
 
 
-
-
-
-
-	// NPCs
-	// const int npcCount = 3;
-	// NPC* npcs[npcCount];
-
-	// npcs[0] = setNPC(
-	// 	152,
-	// 	280,
-	// 	playerSpriteSheet->tileWidth,
-	// 	playerSpriteSheet->tileHeight,
-	// 	DIR_RIGHT);
-	// unsigned int framesNPC1Left[]  = {13, 14, 15};
-	// unsigned int framesNPC1Right[] = {25, 26, 27};
-	// unsigned int framesNPC1Up[]    = {37, 38, 39};
-	// unsigned int framesNPC1Down[]  = {1,  2,  3};
-
-	// Animation* animations[npcCount][4];
-	
-	// animations[0][WALK_UP]    = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Up);
-	// animations[0][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Right);
-	// animations[0][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Down);
-	// animations[0][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, npcs[0]->width, npcs[0]->height, 3, framesNPC1Left);
-
-
-	// npcs[1] = setNPC(
-	// 	230,
-	// 	180,
-	// 	playerSpriteSheet->tileWidth,
-	// 	playerSpriteSheet->tileHeight,
-	// 	DIR_RIGHT
-	// );
-	// unsigned int framesNPC2Left[]  = {67, 68, 69};
-	// unsigned int framesNPC2Right[] = {79, 80, 81};
-	// unsigned int framesNPC2Up[]    = {91, 92, 93};
-	// unsigned int framesNPC2Down[]  = {55, 56, 57};
-
-	// animations[1][WALK_UP]    = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Up);
-	// animations[1][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Right);
-	// animations[1][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Down);
-	// animations[1][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 5, npcs[1]->width, npcs[1]->height, 3, framesNPC2Left);
-
-	// npcs[2] = setNPC(
-	// 	330,
-	// 	320,
-	// 	playerSpriteSheet->tileWidth,
-	// 	playerSpriteSheet->tileHeight,
-	// 	DIR_RIGHT
-	// );
-	// unsigned int framesNPC3Left[]  = {22, 23, 24};
-	// unsigned int framesNPC3Right[] = {34, 35, 36};
-	// unsigned int framesNPC3Up[]    = {46, 47, 48};
-	// unsigned int framesNPC3Down[]  = {10, 11, 12};
-	
-	// animations[2][WALK_UP]    = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Up);
-	// animations[2][WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Right);
-	// animations[2][WALK_DOWN]  = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Down);
-	// animations[2][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 3, npcs[2]->width, npcs[2]->height, 3, framesNPC3Left);
-
-
 	const int npcCount = 3;
 	NPC* npcs[npcCount];
 	Animation* animations[npcCount][4];
@@ -627,26 +558,15 @@ int main(int argc, char* args[]) {
 		player->tileX = getTileX(player, backgroundSpriteSheet->tileWidth);
 		player->tileY = getTileY(player, backgroundSpriteSheet->tileHeight);
 		player->tileIndex = (player->tileY * level->width) + player->tileX;
-		
-		
-		
+
 		// ##########################
 
 		
-
-	
-
 
 		// ###### CAMERA UPDATE ######
 		updateCamera(&cam, player, level,  engine->scale);
 		// ###########################
 
-
-
-		
-
-
-		
 
 		// ---------------------- ENGINE UPDATE ----------------------
 		engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (backgroundSpriteSheet->tileWidth * engine->scale) / 2) + 2;
@@ -658,13 +578,10 @@ int main(int argc, char* args[]) {
 
 
 
-
-
 		/** ---------- Render part ---------- */
 		SDL_SetRenderDrawColor(engine->renderer, 0, 0, 0, 255);
 		SDL_RenderClear(engine->renderer);
 	
-
 		
 
 		// ------------------ RENDER START ------------------
@@ -672,24 +589,6 @@ int main(int argc, char* args[]) {
 		SDL_SetRenderDrawColor(engine->renderer, 120, 120, 120, 200);
 		
 		/** Tilesy */
-		// for (int layer = 0; layer < level->layers; layer++) {
-		// 	for (unsigned int i = 0; i < level->size; i++) {
-		// 		if (grounds[layer][i].gid > 0)
-		// 			renderTexture(
-		// 				backgroundSpriteSheet,
-		// 				engine->renderer,
-		// 				&layersRects[layer][i],
-		// 				(grounds[layer][i].vec.x * engine->scale) - cam.vec.x,
-		// 				(grounds[layer][i].vec.y * engine->scale) - cam.vec.y,
-		// 				engine->scale,
-		// 				0,
-		// 				NULL,
-		// 				SDL_FLIP_NONE,
-		// 				displayMode
-		// 			);
-		// 	}
-		// }
-		
 	
 		for (int i = -engine->tilesOnScreenFromCenterX; i < engine->tilesOnScreenFromCenterX; i++) {
 			for (int j = -engine->tilesOnScreenFromCenterY; j < engine->tilesOnScreenFromCenterY; j++) {
@@ -720,6 +619,20 @@ int main(int argc, char* args[]) {
 				}
 			}
 		}
+
+
+				
+		// for (unsigned int i = 0; i < level->size; i++) {
+			
+
+		// 	int x = (grounds[0][i].vec.x * engine->scale) - cam.vec.x;
+		// 	int y = (grounds[0][i].vec.y * engine->scale) - cam.vec.y;
+
+		// 	SDL_Rect renderQuad = {x, y, backgroundSpriteSheet->tileWidth * engine->scale, backgroundSpriteSheet->tileHeight * engine->scale};
+		// 	SDL_RenderCopy(engine->renderer, backgroundSpriteSheet->mTexture, &layersRects[0][i], &renderQuad);
+		// }
+
+
 
 
 		/** RENDER PLAYER */

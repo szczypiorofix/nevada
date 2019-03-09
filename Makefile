@@ -17,12 +17,12 @@ debug: bin/debug/$(OUTPUT)
 release: bin/release/$(OUTPUT)
 
 # debug
-bin/debug/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(ODIR)/registry.o
+bin/debug/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(ODIR)/registry.o
 	$(CC) $(CWARNFLAGS) $(OPTIMIZEFLAG) $(ODIR)/*.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/debug/$(OUTPUT)
 
 
 # release
-bin/release/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/list.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(ODIR)/registry.o
+bin/release/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/arraylist.o $(ODIR)/assetslist.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o $(ODIR)/registry.o
 	$(CC) $(NOCONSOLE) $(ODIR)/*.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/release/$(OUTPUT)
 
 
@@ -50,12 +50,6 @@ $(ODIR)/arraylist.o: $(SOURCE)/arraylist.c $(SOURCE)/arraylist.h
 # assetslist.o
 $(ODIR)/assetslist.o: $(SOURCE)/assetslist.c $(SOURCE)/assetslist.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/assetslist.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/assetslist.o
-
-
-# list.o
-$(ODIR)/list.o: $(SOURCE)/list.c $(SOURCE)/list.h
-	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/list.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/list.o
-
 
 # level.o
 $(ODIR)/level.o: $(SOURCE)/level.c $(SOURCE)/level.h

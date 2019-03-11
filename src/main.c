@@ -296,14 +296,14 @@ int main(int argc, char* args[]) {
 	playerWalkingAnimation[WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
 
 
-	const int npcCount = 15;
+	const int npcCount = 30;
 	NPC* npcs[npcCount];
 	Animation* animations[npcCount][4];
 	
 	for (int i = 0; i < npcCount; i++) {
 		npcs[i] = setNPC(
-			10 + (i * 20),
-			10 + (i * 16),
+			10 + (i * 17),
+			10 + (i * 17),
 			playerSpriteSheet->tileWidth,
 			playerSpriteSheet->tileHeight,
 			DIR_RIGHT);
@@ -492,11 +492,7 @@ int main(int argc, char* args[]) {
 		/** ------------------- COLLISSIONS -------------- */
 		for (int i = 0; i < npcCount; i++)
 			updateCollisionsNPC(npcs[i], &cam, engine->scale);
-		
 
-		// int npcCollision[npcCount];
-		// for (int i = 0; i < npcCount; i++)
-		// 	npcCollision[i] = 0;
 		
 		// ###### NPCs UPDATE #######
 		for (int i = 0; i < npcCount; i++) {
@@ -516,7 +512,14 @@ int main(int argc, char* args[]) {
 					npcs[n]->width * engine->scale,
 					npcs[n]->height * engine->scale
 				};
-				if (checkCollision(npc1TempRect, npc2TempRect) != 0) {
+				
+				SDL_Rect pTempCol = {
+				( (player->vec.x + player->moveVec.x ) * engine->scale) - cam.vec.x,
+				( (player->vec.y + player->moveVec.y ) * engine->scale) - cam.vec.y,
+				player->width * engine->scale,
+				player->height * engine->scale};
+
+				if (checkCollision(npc1TempRect, npc2TempRect) != 0 || checkCollision(npc2TempRect, pTempCol) != 0) {
 					npcs[i]->moveVec = setVector(0, 0);
 					npcs[n]->moveVec = setVector(0, 0);
 					

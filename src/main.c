@@ -296,7 +296,7 @@ int main(int argc, char* args[]) {
 	playerWalkingAnimation[WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerLeft);		
 
 
-	const int npcCount = 3;
+	const int npcCount = 15;
 	NPC* npcs[npcCount];
 	Animation* animations[npcCount][4];
 	
@@ -319,13 +319,6 @@ int main(int argc, char* args[]) {
 		animations[i][WALK_LEFT]  = prepareAnimation(playerSpriteSheet, 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Left);
 
 	}
-
-	
-
-
-
-
-
 
 
 
@@ -501,36 +494,47 @@ int main(int argc, char* args[]) {
 			updateCollisionsNPC(npcs[i], &cam, engine->scale);
 		
 
-		int npcCollision[npcCount];
-		for (int i = 0; i < npcCount; i++)
-			npcCollision[i] = 0;
+		// int npcCollision[npcCount];
+		// for (int i = 0; i < npcCount; i++)
+		// 	npcCollision[i] = 0;
 		
-
 		// ###### NPCs UPDATE #######
 		for (int i = 0; i < npcCount; i++) {
 		
 			updateNPC(npcs[i], level);
-			for (int n = 0; n < npcCount; n++) {
-				SDL_Rect npcTempRect = {
+
+			for (int n = i + 1; n < npcCount; n++) {
+				SDL_Rect npc1TempRect = {
 					( (npcs[i]->vec.x + npcs[i]->moveVec.x ) * engine->scale) - cam.vec.x,
 					( (npcs[i]->vec.y + npcs[i]->moveVec.y ) * engine->scale) - cam.vec.y,
 					npcs[i]->width * engine->scale,
 					npcs[i]->height * engine->scale
 				};
-				if (i != n)
-				if (checkCollision(npcTempRect, npcs[n]->col) != 0) {
-					npcCollision[i] = n;
+				SDL_Rect npc2TempRect = {
+					( (npcs[n]->vec.x + npcs[n]->moveVec.x ) * engine->scale) - cam.vec.x,
+					( (npcs[n]->vec.y + npcs[n]->moveVec.y ) * engine->scale) - cam.vec.y,
+					npcs[n]->width * engine->scale,
+					npcs[n]->height * engine->scale
+				};
+				if (checkCollision(npc1TempRect, npc2TempRect) != 0) {
+					npcs[i]->moveVec = setVector(0, 0);
+					npcs[n]->moveVec = setVector(0, 0);
+					
+					int rx = rand() % 3;
+					if (rx > 0) {
+						npcs[i]->maxTakingActionCounter = 0;
+						npcs[n]->maxTakingActionCounter = 0;
+					}
+					if (rx > 1) {
+						npcs[i]->takingActionCounter = 0;
+						npcs[n]->takingActionCounter = 0;
+					}
+					npcs[i]->takingAction = 0;
+					npcs[n]->takingAction = 0;
 				}
-				if (checkCollision(npcs[i]->col, player->col) != 0) {
-					npcCollision[i] = -1;
-				}
+				
 			}
-
-			if (npcCollision[i] == 0) {
-				addVector(&npcs[i]->vec, &npcs[i]->moveVec);
-			} else {
-				printf("NPC %i Coll %i !!!\n", i, npcCollision[i]);
-			}
+			addVector(&npcs[i]->vec, &npcs[i]->moveVec);
 		}
 
 		SDL_Rect pTempCol = {
@@ -549,7 +553,7 @@ int main(int argc, char* args[]) {
 		if (collisionsPlayerAndNPC == 0) {
 			addVector(&player->vec, &player->moveVec);
 		} else {
-			printf("Collissions!!!\n");	
+			// printf("Collissions!!!\n");	
 		}
 
 		// --------------------------------------------
@@ -620,19 +624,13 @@ int main(int argc, char* args[]) {
 			}
 		}
 
-
-				
+	
 		// for (unsigned int i = 0; i < level->size; i++) {
-			
-
 		// 	int x = (grounds[0][i].vec.x * engine->scale) - cam.vec.x;
 		// 	int y = (grounds[0][i].vec.y * engine->scale) - cam.vec.y;
-
 		// 	SDL_Rect renderQuad = {x, y, backgroundSpriteSheet->tileWidth * engine->scale, backgroundSpriteSheet->tileHeight * engine->scale};
 		// 	SDL_RenderCopy(engine->renderer, backgroundSpriteSheet->mTexture, &layersRects[0][i], &renderQuad);
 		// }
-
-
 
 
 		/** RENDER PLAYER */
@@ -667,10 +665,10 @@ int main(int argc, char* args[]) {
 		}
 
 		// NPCs
-		for (int dg = 0; dg < npcCount; dg++) {
-			Animation* curAnim = animations[dg][npcs[dg]->direction];
+		for (int n = 0; n < npcCount; n++) {
+			Animation* curAnim = animations[n][npcs[n]->direction];
 			SDL_Rect* clip;
-			if (npcs[dg]->takingAction == 1)
+			if (npcs[n]->takingAction == 1)
 				clip = &curAnim->frames[nextFrame(curAnim)];
 			else
 				clip = &curAnim->frames[curAnim->curFrame];
@@ -679,8 +677,8 @@ int main(int argc, char* args[]) {
 				curAnim->spriteSheet,
 				engine->renderer,
 				clip,
-				( (npcs[dg]->vec.x - (npcs[dg]->width / 2) ) * engine->scale) - cam.vec.x,
-				( (npcs[dg]->vec.y - (npcs[dg]->height / 2) ) * engine->scale) - cam.vec.y,
+				( (npcs[n]->vec.x - (npcs[n]->width / 2) ) * engine->scale) - cam.vec.x,
+				( (npcs[n]->vec.y - (npcs[n]->height / 2) ) * engine->scale) - cam.vec.y,
 				engine->scale,
 				0,
 				NULL,

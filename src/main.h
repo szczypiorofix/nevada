@@ -3,4 +3,7 @@
 #pragma once
 
 
+int compare(int, int);
+
+
 #endif

@@ -17,7 +17,6 @@ int SPEED = 2;
 
 // FORWARD DECLARATION
 
-int compare(int, int);
 
 
 
@@ -174,23 +173,9 @@ int main(int argc, char* args[]) {
 
 	Engine* engine = engineStart();
 
-	// registryInit();
-
-	// String str1 = createString("Nowy 1");
-	// printf("Data #1: %s\n", str1.str);
-
-	// String str2 = createString("Nowy string 2");
-	// printf("Data #2: %s\n", str2.str);
-
-	// printf("Engine status: %s\n", engine->started == TRUE ? "working." : "start failure.");
-
-
 	SpriteSheet* playerSpriteSheet = loadSpriteSheet("characters.png", engine->renderer, 16, 16);
 
-
 	loadMusic(engine, "res/a_funny_moment.mod");
-
-	// SDL_Rect viewPort = { 10, 10, SCREEN_WIDTH - 20, SCREEN_HEIGHT - 20 };
 
 	Player* player = NULL;
 
@@ -236,17 +221,6 @@ int main(int argc, char* args[]) {
 		level->map->tileWidth,
 		level->map->tileWidth 
 	);
-
-
-	// SDL_Rect testRect = {0, 0, 64, 64};
-	
-
-	// addTextureToAssets(engine->assets, playerSpriteSheet);
-	// addTextureToAssets(engine->assets, npc1SpriteSheet);
-	// addTextureToAssets(engine->assets, backgroundSpriteSheet);
-
-	
-	// printf("Texture name %s, %i:%i\n", *level->textureName, level->map->tileWidth, level->map->tileWidth);
 
 	TextFont* pxText = loadFromRenderedText("Player X", engine->renderer);
 	TextFont* pyText = loadFromRenderedText("Player Y", engine->renderer);
@@ -330,11 +304,6 @@ int main(int argc, char* args[]) {
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == FALSE) {
 		
-		
-		// engine->frameStart = SDL_GetTicks();
-		// SDL_Delay(1000 / 60);
-
-
 		float px = player->vec.x;
 		float py = player->vec.y;
 		
@@ -593,6 +562,7 @@ int main(int argc, char* args[]) {
 	
 		SDL_SetRenderDrawColor(engine->renderer, 120, 120, 120, 200);
 		
+
 		/** Tilesy */
 	
 		for (int i = -engine->tilesOnScreenFromCenterX; i < engine->tilesOnScreenFromCenterX; i++) {
@@ -625,17 +595,8 @@ int main(int argc, char* args[]) {
 			}
 		}
 
-	
-		// for (unsigned int i = 0; i < level->size; i++) {
-		// 	int x = (grounds[0][i].vec.x * engine->scale) - cam.vec.x;
-		// 	int y = (grounds[0][i].vec.y * engine->scale) - cam.vec.y;
-		// 	SDL_Rect renderQuad = {x, y, backgroundSpriteSheet->tileWidth * engine->scale, backgroundSpriteSheet->tileHeight * engine->scale};
-		// 	SDL_RenderCopy(engine->renderer, backgroundSpriteSheet->mTexture, &layersRects[0][i], &renderQuad);
-		// }
-
 
 		/** RENDER PLAYER */
-		
 		
 		if (player->isMoving == 1) {
 			renderTexture(
@@ -728,12 +689,12 @@ int main(int argc, char* args[]) {
 		SDL_RenderDrawRect(engine->renderer, &player->col);
 
 		// ------------------- RENDER END -------------------
+		
 		// engineDelay(engine);
 		SDL_RenderPresent(engine->renderer);
 
 		// engine->frameEnd = SDL_GetTicks();
 		// engine->deltaTime = engine->frameEnd - engine->frameStart;
-		
 	}
 
 	// ------------------ RELEASING ... ----------------------
@@ -775,8 +736,6 @@ int main(int argc, char* args[]) {
 	free(level);
 	level = NULL;
 	
-
-	// registryRelease();
 	engineStop(&engine);
 
 	return 0;

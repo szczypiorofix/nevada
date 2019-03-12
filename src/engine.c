@@ -18,7 +18,6 @@ struct Engine* engineStart();
 void engineStop(Engine** engine);
 void engineDelay(Engine* engine);
 
-AssetsList* createAssets(void);
 int loadMusic(Engine* engine, char* musicFile);
 
 
@@ -53,7 +52,6 @@ Engine* createEngine(void) {
     engine->deltaTime = 0;
 
     engine->fps = 0;
-    engine->assets = NULL;
 
     return engine;
 }
@@ -109,16 +107,6 @@ bool initializeTTFFonts(Engine* engine) {
         engine->started = FALSE;
     }
     return engine->started;
-}
-
-AssetsList* createAssets(void) {
-    printf("Preparing assets...\n");
-    AssetsList* list = createAssetsList(5, 3, sizeof(SpriteSheet), ASSETSLIST_SHRINK_AFTER_DELETE);
-    if (!list) {
-        fprintf(stderr, "ERROR !!! Unable to create AssetsList !!!\n");
-        return NULL;
-    }
-    return list;
 }
 
 

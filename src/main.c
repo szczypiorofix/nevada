@@ -8,10 +8,8 @@
 // #include <lualib.h>
 
 #include "main.h"
-#include "registry.h"
 #include "engine.h"
 #include "objects.h"
-#include "assetslist.h"
 #include "textures.h"
 
 

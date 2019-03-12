@@ -3,8 +3,6 @@
 #pragma once
 
 
-#include "registry.h"
-
 // ------------------ CONSTANTS ------------------
 
 #define WALK_UP 0

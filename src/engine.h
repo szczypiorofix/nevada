@@ -10,7 +10,6 @@
 
 #include "defines.h"
 #include "textures.h"
-#include "assetslist.h"
 
 
 // ------------------ STRUCTS ------------------
@@ -41,7 +40,6 @@ typedef struct Engine
     unsigned int frameStart;
     unsigned int frameEnd;
     unsigned int deltaTime;
-    AssetsList* assets;
 } Engine;
 
 

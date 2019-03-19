@@ -38,6 +38,7 @@ void freeTexture(SpriteSheet* t) {
 
 
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode) { 
+    if (t == NULL || clip == NULL) return;
     SDL_Rect renderQuad = {x, y, t->tileWidth * scale, t->tileHeight * scale};
     // if (clip != NULL) {
     //     renderQuad.w = clip->w;

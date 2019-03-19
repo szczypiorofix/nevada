@@ -9,15 +9,15 @@
 
 // ------------------ FORWARD DECLARATION ------------------
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
-void updateCamera(Camera* c, Player* player, Level* level, int scale);
+void updateCamera(Camera* c, const Player* player, const Level* level, const int scale);
 int getTileX(Player* p, unsigned int tileWith);
 int getTileY(Player* p, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
 int random(int min, int max);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
-void updateCollisionsNPC(NPC* npc, Camera* cam, int scale);
+void updateCollisionsNPC(NPC* npc, const Camera* cam, const int scale);
 Ground* setGround(float x, float y, short int width, short int height);
-void updateCollisionsPlayer(Player* p, Camera* cam, int scale);
+void updateCollisionsPlayer(Player* p, const Camera* cam, const int scale);
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
 
 
@@ -33,6 +33,11 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
     p->width = width;
 	p->height = height;
     p->direction = DIR_RIGHT;
+    p->speed = 2.0f;
+
+    p->tileIndex = 0;
+    p->tileX = 0;
+    p->tileY = 0;
     
     p->vec = setVector(x, y);
     p->moveVec = setVector(0, 0);
@@ -44,15 +49,15 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
 }
 
 
-void updateCamera(Camera* c, Player* player, Level* level, int scale) {
+void updateCamera(Camera* c, const Player* player, const Level* level, const int scale) {
 
     // if ( (player->vec.x * scale) - (SCREEN_WIDTH / 2)  > 0 
-    //     && (player->vec.x * scale) < (level->width * 16)
+    //     && (player->vec.x * scale) < (level->width * 16 * scale)
     // )   
         c->vec.x = (player->vec.x * scale) - (SCREEN_WIDTH / 2);
     
     // if ( (player->vec.y * scale) - (SCREEN_HEIGHT / 2) > 0 
-
+    //     && (player->vec.y * scale) < (level->height * 16 * scale)
     // )    
         c->vec.y = (player->vec.y * scale) - (SCREEN_HEIGHT / 2);
 }
@@ -68,25 +73,19 @@ int getTileY(Player* p, unsigned int tileHeight) {
 }
 
 
-void updateCollisionsNPC(NPC* npc, Camera* cam, int scale) {
-    SDL_Rect c = { 
-        ( (npc->vec.x - (npc->width / 2)) * scale) - cam->vec.x,
-        ( (npc->vec.y - (npc->height / 2)) * scale) - cam->vec.y,
-        npc->width * scale,
-        npc->height * scale,
-    };
-    npc->col = c;
+void updateCollisionsNPC(NPC* npc, const Camera* cam, const int scale) {
+    npc->col.x = ( (npc->vec.x - (npc->width / 2)) * scale) - cam->vec.x;
+    npc->col.y = ( (npc->vec.y - (npc->height / 2)) * scale) - cam->vec.y;
+    npc->col.w = npc->width * scale;
+    npc->col.h = npc->height * scale;
 }
 
 
-void updateCollisionsPlayer(Player* p, Camera* cam, int scale) {
-    SDL_Rect c = { 
-        ( (p->vec.x - (p->width / 2)) * scale) - cam->vec.x,
-        ( (p->vec.y - (p->height / 2)) * scale) - cam->vec.y,
-        p->width * scale,
-        p->height * scale,
-    };
-    p->col = c;
+void updateCollisionsPlayer(Player* p, const Camera* cam, const int scale) {
+    p->col.x = ( (p->vec.x - (p->width / 2)) * scale) - cam->vec.x;
+    p->col.y = ( (p->vec.y - (p->height / 2)) * scale) - cam->vec.y;
+    p->col.w = p->width * scale;
+    p->col.h = p->height * scale;
 }
 
 

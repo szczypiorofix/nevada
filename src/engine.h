@@ -28,18 +28,16 @@ typedef struct Engine
     SDL_Window* window;
     SDL_Renderer* renderer;
     Mix_Music *music;
-    // unsigned long int startTick;
-    // unsigned long int endTick;
-    // unsigned short int fpsCounter;
-    // long lastLoopTime;
+
     unsigned short int musicVolume;
-    // float delayTime;
-    // float deltaTime;
-    // unsigned short int fps;
-    unsigned short int fps;
-    unsigned int frameStart;
-    unsigned int frameEnd;
-    unsigned int deltaTime;
+    float fps;
+    float FPS;
+    double previous;
+    double lag;
+    unsigned int ticks;
+    unsigned int TICKS;
+    unsigned short int fpsCap;
+    unsigned int displayMode;
 } Engine;
 
 

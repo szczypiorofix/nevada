@@ -38,20 +38,14 @@ Engine* createEngine(void) {
     engine->maxScale = 5;
     engine->tilesOnScreenFromCenterX = 0;
     engine->tilesOnScreenFromCenterY = 0;
-    // engine->delayTime = 0.0f;
-    // engine->deltaTime = 0.0f;
-    // engine->startTick = 0L;
-    // engine->endTick = 0L;
-    // engine->lastLoopTime = SDL_GetPerformanceCounter();
-    // engine->fpsCounter = 0;
-    // engine->delayTime = 0.0f;
-    // engine->deltaTime = 0.0f;
-    
-    engine->frameStart = 0;
-    engine->frameEnd = 0;
-    engine->deltaTime = 0;
-
-    engine->fps = 0;
+    engine->fps = 0.0f;
+    engine->FPS = 0.0f;
+    engine->fpsCap = 0;
+    engine->ticks = 0;
+    engine->TICKS = 0;
+    engine->previous = 0L;
+    engine->lag = 0L;
+    engine->displayMode = 0;
 
     return engine;
 }
@@ -74,7 +68,7 @@ bool createWindow(Engine* engine) {
 
 
 bool createRenderer(Engine* engine) {
-    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
     if (engine->renderer == NULL) {
         printf("SDL_CreateRenderer() Error: %s\n", SDL_GetError());
         engine->started = FALSE;

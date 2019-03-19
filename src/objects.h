@@ -25,6 +25,7 @@ typedef struct Player {
     char* name;
     Vector2 vec;
     Vector2 moveVec;
+    float speed;
     short int width;
     short int height;
     int tileX;
@@ -61,13 +62,13 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 Ground* setGround(float x, float y, short int width, short int height);
 
-void updateCamera(Camera* c, Player* player, Level* level, int scale);
+void updateCamera(Camera* c, const Player* player, const Level* level, const int scale);
 int getTileX(Player* p, unsigned int tileWidth);
 int getTileY(Player* p, unsigned int tileHeight);
 
 int updateNPC(NPC* npc, Level* level);
-void updateCollisionsNPC(NPC* npc, Camera* cam, int scale);
-void updateCollisionsPlayer(Player* p, Camera* cam, int scale);
+void updateCollisionsNPC(NPC* npc, const Camera* cam, const int scale);
+void updateCollisionsPlayer(Player* p, const Camera* cam, const int scale);
 
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
 

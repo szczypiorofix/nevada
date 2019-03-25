@@ -43,16 +43,16 @@ void luaScriptingTest() {
 		/**
 		 * CALLING LUA FUNCTION FROM C
 		 * */
-		// lua_getglobal(L, "AddStuff");
+		lua_getglobal(L, "AddStuff");
 		
-		// if (lua_isfunction(L, -1)) {
-		// 	lua_pushnumber(L, 3.5f);
-		// 	lua_pushnumber(L, 7.1f);
+		if (lua_isfunction(L, -1)) {
+			lua_pushnumber(L, 3.5f);
+			lua_pushnumber(L, 7.1f);
 
-		// 	if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
-		// 		printf("[C] Called in Lua 'AddStuff(3.5f, 7.1f)', got: %f\n", (float) lua_tonumber(L, -1));
-		// 	}
-		// }
+			if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
+				printf("[C] Called in Lua 'AddStuff(3.5f, 7.1f)', got: %f\n", (float) lua_tonumber(L, -1));
+			}
+		}
 
 		
 
@@ -60,42 +60,42 @@ void luaScriptingTest() {
 		/**
 		 * LUA call specific players from eg database
 		 * */
-		// lua_getglobal(L, "GetPlayer");
+		lua_getglobal(L, "GetPlayer");
 		
-		// if (lua_isfunction(L, -1)) {
+		if (lua_isfunction(L, -1)) {
 			
-		// 	lua_pushnumber(L, 1); // 0 - Todd, 1 - Pete
+			lua_pushnumber(L, 1); // 0 - Todd, 1 - Pete
 
-		// 	if (CheckLua(L, lua_pcall(L, 1, 1, 0))) {
+			if (CheckLua(L, lua_pcall(L, 1, 1, 0))) {
 				
-		// 		if (lua_istable(L, -1)) {
-		// 			lua_pushstring(L, "Name");
-		// 			lua_gettable(L, -2);
-		// 			printf("Player name is %s\n", lua_tostring(L, -1));
-		// 			lua_pop(L, 1);
+				if (lua_istable(L, -1)) {
+					lua_pushstring(L, "Name");
+					lua_gettable(L, -2);
+					printf("Player name is %s\n", lua_tostring(L, -1));
+					lua_pop(L, 1);
 
-		// 			lua_pushstring(L, "Level");
-		// 			lua_gettable(L, -2);
-		// 			printf("Player level: %i\n", (int) lua_tonumber(L, -1));
-		// 			lua_pop(L, 1);
-		// 		}
-		// 	}
-		// }
+					lua_pushstring(L, "Level");
+					lua_gettable(L, -2);
+					printf("Player level: %i\n", (int) lua_tonumber(L, -1));
+					lua_pop(L, 1);
+				}
+			}
+		}
 
 
-		// lua_getglobal(L, "DoAThing");
+		lua_getglobal(L, "DoAThing");
 		
-		// if (lua_isfunction(L, -1)) {
+		if (lua_isfunction(L, -1)) {
 			
-		// 	lua_pushnumber(L, 5.0f);
-		// 	lua_pushnumber(L, 6.0f);
+			lua_pushnumber(L, 5.0f);
+			lua_pushnumber(L, 6.0f);
 
-		// 	if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
+			if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
 				
-		// 		printf("[C] Called in Lua 'DoAThing(5.0f, 6.0f)', got: %f\n", (float) lua_tonumber(L, -1));
+				printf("[C] Called in Lua 'DoAThing(5.0f, 6.0f)', got: %f\n", (float) lua_tonumber(L, -1));
 
-		// 	}
-		// }
+			}
+		}
 
 
 
@@ -103,16 +103,16 @@ void luaScriptingTest() {
 		 * 
 		 * CALLING LUA FUNCTION
 		 * */
-		// lua_getglobal(L, "compareInts");
+		lua_getglobal(L, "compareInts");
 		
-		// if (lua_isfunction(L, -1)) {
-		// 	lua_pushnumber(L, 2.0f);
-		// 	lua_pushnumber(L, 2.0f);
+		if (lua_isfunction(L, -1)) {
+			lua_pushnumber(L, 2.0f);
+			lua_pushnumber(L, 2.0f);
 
-		// 	if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
-		// 		printf("[C] Called in Lua compareInts, got: %f\n", (float) lua_tonumber(L, -1));
-		// 	}
-		// }
+			if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
+				printf("[C] Called in Lua compareInts, got: %f\n", (float) lua_tonumber(L, -1));
+			}
+		}
 
 		lua_getglobal(L, "getPlayerName");
 		

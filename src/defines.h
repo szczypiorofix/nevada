@@ -10,13 +10,8 @@
 #define WALK_DOWN 2
 #define WALK_LEFT 3
 
+
 #define NPC_SPEED 1
-
-
-// Booleans
-#define FALSE 0
-#define TRUE  1
-typedef unsigned char bool;
 
 
 #define SCREEN_WIDTH 800

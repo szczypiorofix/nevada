@@ -10,9 +10,9 @@ const long OPTIMAL_TIME = 1000 / TARGET_FPS;
 
 // ------------------ FORWARD DECLARATION ------------------
 Engine* createEngine(void);
-bool initSDL(Engine* engine);
-bool createWindow(Engine* engine);
-bool createRenderer(Engine* engine);
+int initSDL(Engine* engine);
+int createWindow(Engine* engine);
+int createRenderer(Engine* engine);
 
 struct Engine* engineStart();
 void engineStop(Engine** engine);
@@ -27,8 +27,8 @@ Engine* createEngine(void) {
     Engine* engine = malloc(sizeof(Engine));
     if (engine == NULL) return NULL;
     
-    engine->started = FALSE;
-    engine->quit = FALSE;
+    engine->started = 0;
+    engine->quit = 0;
     engine->window = NULL;
     engine->renderer = NULL;
     engine->music = NULL;
@@ -50,55 +50,55 @@ Engine* createEngine(void) {
     return engine;
 }
 
-bool initSDL(Engine* engine) {
+int initSDL(Engine* engine) {
     engine->started = (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0);
-    if (engine->started == FALSE) printf( "SDL_Init() Error: %s\n", SDL_GetError());
+    if (!engine->started) printf( "SDL_Init() Error: %s\n", SDL_GetError());
     atexit(SDL_Quit);
     return engine->started;
 }
 
-bool createWindow(Engine* engine) {
+int createWindow(Engine* engine) {
     engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (engine->window == NULL) {
         printf( "SDL_CreateWindow() Error: %s\n", SDL_GetError());
-        engine->started = FALSE;
+        engine->started = 0;
     }
     return (engine->window == NULL);
 }
 
 
-bool createRenderer(Engine* engine) {
+int createRenderer(Engine* engine) {
     engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (engine->renderer == NULL) {
         printf("SDL_CreateRenderer() Error: %s\n", SDL_GetError());
-        engine->started = FALSE;
+        engine->started = 0;
     } else {
         SDL_SetRenderDrawColor(engine->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     }
     return (engine->renderer == NULL);
 }
 
-bool initializePngImages(Engine* engine) {
+int initializePngImages(Engine* engine) {
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
         printf( "IMG_Init() Error: %s\n", IMG_GetError());
-        engine->started = FALSE;
+        engine->started = 0;
     }
     return engine->started;
 }
 
-bool initializeAudioSystem(Engine* engine) {
+int initializeAudioSystem(Engine* engine) {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         printf("SDL_mixer Mix_OpenAudio() Error: %s\n", Mix_GetError());
-        engine->started = FALSE;
+        engine->started = 0;
     }
     return engine->started;
 }
 
-bool initializeTTFFonts(Engine* engine) {
+int initializeTTFFonts(Engine* engine) {
     if(TTF_Init() == -1) {
         printf( "SDL_ttf TTF_Init() Error: %s\n", TTF_GetError() );
-        engine->started = FALSE;
+        engine->started = 0;
     }
     return engine->started;
 }
@@ -116,7 +116,7 @@ Engine* engineStart(void) {
 
     // engine->assets = createAssets();
     
-    if (engine->started == FALSE) return NULL;
+    if (engine->started == 0) return NULL;
    
     return engine;
 }
@@ -125,7 +125,7 @@ Engine* engineStart(void) {
 void engineStop(Engine** engine) {
     // clearAssetsList( &(*engine)->assets );
 
-    (*engine)->started = FALSE;
+    (*engine)->started = 0;
 
     Mix_FreeMusic((*engine)->music);
     (*engine)->music = NULL;

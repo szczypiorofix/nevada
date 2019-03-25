@@ -15,10 +15,9 @@
 // ------------------ STRUCTS ------------------
 
 
-typedef struct Engine
-{
-    bool started;
-    bool quit;
+typedef struct Engine {
+    int started;
+    int quit;
     short int scale;
     short int minScale;
     short int maxScale;

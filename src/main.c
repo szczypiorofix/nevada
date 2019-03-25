@@ -84,7 +84,7 @@ void input(Engine* engine, Player* player) {
 	while(SDL_PollEvent(&engine->event) != 0) {
 
 		if (engine->event.type == SDL_QUIT) {
-			engine->quit = TRUE;
+			engine->quit = 1;
 		} else {
 			// ZOOM
 			if (engine->event.type == SDL_MOUSEWHEEL) {
@@ -372,7 +372,7 @@ int main(int argc, char* args[]) {
 
 
 	/* ------------------------------ GAME LOOP ------------------------------ */
-	while(engine->quit == FALSE) {	
+	while(engine->quit == 0) {	
 
 		curFrame = SDL_GetTicks();
 		elapsed = curFrame - prevFrame;

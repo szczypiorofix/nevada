@@ -28,7 +28,8 @@
 			"tree.h": "c",
 			"parser.h": "c",
 			"xmlio.h": "c",
-			"sdl.h": "c"
+			"sdl.h": "c",
+			"sdl_ttf.h": "c"
 		},
 		"editor.fontFamily": "Noto Mono, monospace",
 		"editor.lineHeight": 16,

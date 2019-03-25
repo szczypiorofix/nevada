@@ -1,5 +1,5 @@
-#ifndef OBJECTS_H_
-#define OBJECTS_H_
+#ifndef _OBJECTS_H_
+#define _OBJECTS_H_
 #pragma once
 
 #include "SDL2/SDL.h"

@@ -30,7 +30,7 @@ int lua_HostFunction(lua_State* L) {
 }
 
 
-void luaScriptingTest() {
+void luaScriptTest() {
 	lua_State* L = luaL_newstate();
 	luaL_openlibs(L);
 

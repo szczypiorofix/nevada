@@ -2,27 +2,17 @@
     "version": 4,
     "configurations": [
         {
-            "name": "x32",
+            "name": "MinGW",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "C:\\MinGW\bin\\gcc.exe",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}",
                 "C:\\mingw_dev_lib\\include"
             ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE"
-            ],
-            "compilerPath": "C:\\MinGW\\bin\\gcc.exe",
-            "intelliSenseMode": "msvc-x64",
+            "defines": [],
             "cStandard": "c11",
-            "cppStandard": "c++17",
-            "browse": {
-                "path": [
-                    "${workspaceFolder}/**",
-                    "C:\\mingw_dev_lib\\include"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            }
+            "cppStandard": "c++17"
+            
         }
     ]
 }

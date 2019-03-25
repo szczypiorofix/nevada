@@ -118,7 +118,7 @@ TiledMap* parseMap(const char* fileName) {
 	}
 
     if (xmlStrcmp(cur->name, (const xmlChar *) "map")) {
-		fprintf(stderr,"document of the wrong type, root node != map !!! \n");
+		fprintf(stderr,"Document of the wrong type, root node != map !!! \n");
 		xmlFreeDoc(doc);
 		exit(0);
 	}
@@ -155,13 +155,13 @@ TiledMap* parseMap(const char* fileName) {
 		firstForCounter = firstForCounter->next;
 	}
 	
+	int lc = 0, tc = 0, ogc = 0;
+
 	TileSet* tileSet = malloc(sizeof(TileSet) * tileSetCount);
 	if (tileSet == NULL) {
 		printf("Malloc (creating TileSet) error !!!\n");
 		return NULL;
 	}
-
-	int lc = 0, tc = 0, ogc = 0;
 
 	Layer* layers = malloc(sizeof(Layer) * layersCount);
 	if (layers == NULL) {

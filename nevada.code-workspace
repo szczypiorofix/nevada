@@ -35,6 +35,11 @@
 		"editor.fontLigatures": true,
 		"editor.mouseWheelZoom": true,
 		"editor.cursorWidth": 8,
-		"editor.cursorBlinking": "phase"
+		"editor.cursorBlinking": "phase",
+		"C_Cpp.intelliSenseCacheSize": 120,
+		"C_Cpp.default.intelliSenseMode": "gcc-x64",
+		"C_Cpp.default.cStandard": "c11",
+		"C_Cpp.default.cppStandard": "c++17",
+		"C_Cpp.intelliSenseCachePath": "${workspaceFolder}/pch"
 	}
 }

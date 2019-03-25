@@ -3,9 +3,9 @@
 #include <string.h>
 #include <math.h>
 
-// #include <lua.h>
-// #include <lauxlib.h>
-// #include <lualib.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
 #include "main.h"
 #include "engine.h"
@@ -82,6 +82,216 @@ TextFont* loadFromRenderedText(const char* textureText, SDL_Renderer* renderer) 
 
 
 
+void input(Engine* engine, Player* player) {
+
+	while(SDL_PollEvent(&engine->event) != 0) {
+
+		if (engine->event.type == SDL_QUIT) {
+			engine->quit = TRUE;
+		} else {
+			// ZOOM
+			if (engine->event.type == SDL_MOUSEWHEEL) {
+				if (engine->event.button.x == 1) {
+					if (engine->scale < engine->maxScale) engine->scale++;
+				}
+				else if (engine->event.button.x == -1) {
+					if (engine->scale > engine->minScale) engine->scale--;
+				}
+			}
+			if (engine->event.type == SDL_KEYDOWN) {
+				switch (engine->event.key.keysym.sym) {						
+					case SDLK_RETURN:
+						player->vec = setVector(0, 0);
+						break;
+					case SDLK_5:
+						player->vec = setVector(16, 16);
+						break;
+					case SDLK_RSHIFT:
+						engine->displayMode++;
+						if (engine->displayMode > 2) engine->displayMode = 0;
+						break;
+					case SDLK_ESCAPE:
+						engine->quit = 1;
+						break;
+					case SDLK_LEFT:
+					case SDLK_a:
+						player->moveVec.x = -player->speed;								
+						break;
+					case SDLK_RIGHT:
+					case SDLK_d:
+						player->moveVec.x = player->speed;
+						break;
+					case SDLK_UP:
+					case SDLK_w:
+						player->moveVec.y = -player->speed;
+						break;
+					case SDLK_DOWN:
+					case SDLK_s:
+						player->moveVec.y = player->speed;
+						break;
+					case SDLK_1:
+						if (engine->musicVolume < MIX_MAX_VOLUME) engine->musicVolume++;
+						Mix_VolumeMusic(engine->musicVolume);
+						break;
+					case SDLK_2:
+						if (engine->musicVolume > 0) engine->musicVolume--;
+						Mix_VolumeMusic(engine->musicVolume);
+						break;
+					case SDLK_SPACE:
+						if (Mix_PlayingMusic() == 0) {
+							Mix_PlayMusic(engine->music, -1);
+						} else {
+							if (Mix_PausedMusic() == 1) {
+								Mix_ResumeMusic();
+							} else {
+								Mix_PauseMusic();
+							}
+						}
+						break;
+				}
+			}
+			else if (engine->event.type == SDL_KEYUP) {
+
+				switch (engine->event.key.keysym.sym) {
+					case SDLK_F5:
+						if (engine->fpsCap == 0) engine->fpsCap = 1;
+						else engine->fpsCap = 0;
+						printf("VSYNC: %s\n", engine->fpsCap == 1 ? "on" : "off");
+						engine->fps = 0;
+						engine->ticks = 0;
+						break;
+					case SDLK_ESCAPE:
+						engine->quit = 1;
+						break;
+					case SDLK_LEFT:
+					case SDLK_a:
+						if (player->moveVec.x < 0) {
+							player->moveVec.x = 0;
+						}
+						break;
+					case SDLK_RIGHT:
+					case SDLK_d:
+						if (player->moveVec.x > 0) {
+							player->moveVec.x = 0;
+						}								
+						break;
+					case SDLK_UP:
+					case SDLK_w:
+						if (player->moveVec.y < 0) {
+							player->moveVec.y = 0;
+						}
+						break;
+					case SDLK_DOWN:
+					case SDLK_s:
+						if (player->moveVec.y > 0) {
+							player->moveVec.y = 0;
+						}
+						break;
+				}
+
+			}
+		}
+	}
+}
+
+
+// Little error checking utility function
+int CheckLua(lua_State *L, int r) {
+	if (r != LUA_OK) {
+		printf("ERROR: %s\n", lua_tostring(L, -1));
+		return 0;
+	}
+	return 1;
+}
+
+
+int lua_HostFunction(lua_State* L) {
+	
+	float a = (float) lua_tonumber(L, 1);
+	float b = (float) lua_tonumber(L, 2);
+	
+	printf("[C] HostFunction(%f, %f) \n", a, b);
+	
+	float c = a * b;
+	lua_pushnumber(L, c);
+
+	return 1;
+}
+
+
+void luaScriptingTest() {
+	lua_State* L = luaL_newstate();
+	luaL_openlibs(L);
+
+
+	lua_register(L, "HostFunction", lua_HostFunction);
+
+	
+	if (CheckLua(L, luaL_dofile(L, "res/script.lua"))) {
+		
+		/**
+		 * CALLING LUA FUNCTION FROM C
+		 * */
+		// lua_getglobal(L, "AddStuff");
+		
+		// if (lua_isfunction(L, -1)) {
+		// 	lua_pushnumber(L, 3.5f);
+		// 	lua_pushnumber(L, 7.1f);
+
+		// 	if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
+		// 		printf("[C] Called in Lua 'AddStuff(3.5f, 7.1f)', got: %f\n", (float) lua_tonumber(L, -1));
+		// 	}
+		// }
+
+		
+
+		
+		/**
+		 * LUA call specific players from eg database
+		 * */
+		// lua_getglobal(L, "GetPlayer");
+		
+		// if (lua_isfunction(L, -1)) {
+			
+		// 	lua_pushnumber(L, 1); // 0 - Todd, 1 - Pete
+
+		// 	if (CheckLua(L, lua_pcall(L, 1, 1, 0))) {
+				
+		// 		if (lua_istable(L, -1)) {
+		// 			lua_pushstring(L, "Name");
+		// 			lua_gettable(L, -2);
+		// 			printf("Player name is %s\n", lua_tostring(L, -1));
+		// 			lua_pop(L, 1);
+
+		// 			lua_pushstring(L, "Level");
+		// 			lua_gettable(L, -2);
+		// 			printf("Player level: %i\n", (int) lua_tonumber(L, -1));
+		// 			lua_pop(L, 1);
+		// 		}
+		// 	}
+		// }
+
+
+		lua_getglobal(L, "DoAThing");
+		
+		if (lua_isfunction(L, -1)) {
+			
+			lua_pushnumber(L, 5.0f);
+			lua_pushnumber(L, 6.0f);
+
+			if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
+				
+				printf("[C] Called in Lua 'DoAThing(5.0f, 6.0f)', got: %f\n", (float) lua_tonumber(L, -1));
+
+			}
+		}
+	}
+
+	lua_close(L);
+}
+
+
+
 /**
  * ################################################################
  * ############################# MAIN #############################
@@ -93,6 +303,10 @@ int main(int argc, char* args[]) {
 		for (int i = 1; i < argc; i++)
 			printf("Paramers %i: %s\n", i, args[i]);
 	}
+
+
+	luaScriptingTest();
+	
 
 
 	// printf("%d\n", compare(5, -4));
@@ -240,161 +454,43 @@ int main(int argc, char* args[]) {
 
 
 	// Variable timestep game loop:
-	double previous = SDL_GetTicks();
-	double lag = 0.0f;
-	double current = 0.0f;
+	long curFrame = 0;
+	long prevFrame = 0;
 	double elapsed = 0.0f;
-	float MS_PER_UPDATE = 1000.0f / 60.0f;
-	float lastFpsTime = 0.0f;
-	float waitCounter = 0.0f;
+	
+	double timer = 0.0f;
+	
+	short int fps = 0;
+	int fpsTimer = 0;
+	short int ticks = 0;
+	int ticksTimer = 0;
+	int TICKS = 0;
+	int FPS = 0;
+
+	int destinationTicks = 30;
+	int destinationFPS = 120;
+
 
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == FALSE) {	
 
-		current = SDL_GetTicks();
-		elapsed = current - previous;
-		previous = current;
-		lag += elapsed;
-		
-		lastFpsTime += elapsed;
-		engine->fps++;
-		
-		waitCounter = (1000.0f / 60.0f) - elapsed;
-		if (waitCounter < 0) waitCounter = (1000.0f / 60.0f);
+		curFrame = SDL_GetTicks();
+		elapsed = curFrame - prevFrame;
+		prevFrame = curFrame;
 
-		if (lastFpsTime >= 1000) {
-			// printf("FPS: %0.2f, TICKS: %i, Delay: %f\n", engine->FPS, engine->TICKS, 
-			//previous - SDL_GetTicks() + (1000.0f / 60.0f));
-			// lag);
-			engine->FPS = engine->fps;
-			engine->TICKS = engine->ticks;
-			engine->fps = 0;
-			engine->ticks = 0;
-			lastFpsTime = 0;
-		}
-		if (engine->fpsCap == 1) {
-			// SDL_Delay(lag);
-		}
-		// else {
-		// 	SDL_Delay(1);
-		// }
+		timer += elapsed;
 
-		while(SDL_PollEvent(&engine->event) != 0) {
+		fpsTimer += elapsed;
+		ticksTimer += elapsed;
 
-				if (engine->event.type == SDL_QUIT) {
-					engine->quit = TRUE;
-				} else {
-					// ZOOM
-					if (engine->event.type == SDL_MOUSEWHEEL) {
-						if (engine->event.button.x == 1) {
-							if (engine->scale < engine->maxScale) engine->scale++;
-						}
-						else if (engine->event.button.x == -1) {
-							if (engine->scale > engine->minScale) engine->scale--;
-						}
-					}
-					if (engine->event.type == SDL_KEYDOWN) {
-						switch (engine->event.key.keysym.sym) {						
-							case SDLK_RETURN:
-								player->vec = setVector(0, 0);
-								break;
-							case SDLK_5:
-								player->vec = setVector(16, 16);
-								break;
-							case SDLK_RSHIFT:
-								engine->displayMode++;
-								if (engine->displayMode > 2) engine->displayMode = 0;
-								break;
-							case SDLK_ESCAPE:
-								engine->quit = 1;
-								break;
-							case SDLK_LEFT:
-							case SDLK_a:
-								player->moveVec.x = -player->speed;								
-								break;
-							case SDLK_RIGHT:
-							case SDLK_d:
-								player->moveVec.x = player->speed;
-								break;
-							case SDLK_UP:
-							case SDLK_w:
-								player->moveVec.y = -player->speed;
-								break;
-							case SDLK_DOWN:
-							case SDLK_s:
-								player->moveVec.y = player->speed;
-								break;
-							case SDLK_1:
-								if (engine->musicVolume < MIX_MAX_VOLUME) engine->musicVolume++;
-								Mix_VolumeMusic(engine->musicVolume);
-								break;
-							case SDLK_2:
-								if (engine->musicVolume > 0) engine->musicVolume--;
-								Mix_VolumeMusic(engine->musicVolume);
-								break;
-							case SDLK_SPACE:
-								if (Mix_PlayingMusic() == 0) {
-									Mix_PlayMusic(engine->music, -1);
-								} else {
-									if (Mix_PausedMusic() == 1) {
-										Mix_ResumeMusic();
-									} else {
-										Mix_PauseMusic();
-									}
-								}
-								break;
-						}
-					}
-					else if (engine->event.type == SDL_KEYUP) {
+		ticks++;
+		fps++;
 
-						switch (engine->event.key.keysym.sym) {
-							case SDLK_F5:
-								if (engine->fpsCap == 0) engine->fpsCap = 1;
-								else engine->fpsCap = 0;
-								printf("VSYNC: %s\n", engine->fpsCap == 1 ? "on" : "off");
-								engine->fps = 0;
-								engine->ticks = 0;
-								break;
-							case SDLK_ESCAPE:
-								engine->quit = 1;
-								break;
-							case SDLK_LEFT:
-							case SDLK_a:
-								if (player->moveVec.x < 0) {
-									player->moveVec.x = 0;
-								}
-								break;
-							case SDLK_RIGHT:
-							case SDLK_d:
-								if (player->moveVec.x > 0) {
-									player->moveVec.x = 0;
-								}								
-								break;
-							case SDLK_UP:
-							case SDLK_w:
-								if (player->moveVec.y < 0) {
-									player->moveVec.y = 0;
-								}
-								break;
-							case SDLK_DOWN:
-							case SDLK_s:
-								if (player->moveVec.y > 0) {
-									player->moveVec.y = 0;
-								}
-								break;
-						}
+		// ################## INPUT ##################
+		input(engine, player);
+		// ###########################################
 
-					}
-				}
-			}
-
-
-
-
-		while (lag >= MS_PER_UPDATE) {
-			
-			engine->ticks++;			
-
+		if (ticksTimer >= destinationTicks ) {
 
 			// WALKING
 			player->isMoving = 1;
@@ -428,11 +524,9 @@ int main(int argc, char* args[]) {
 			for (int i = 0; i < npcCount; i++)
 				updateCollisionsNPC(npcs[i], &cam, engine->scale);
 			
-			
-			
+						
 			// ##########################
 
-			
 
 
 			/** ------------------- COLLISSIONS -------------- */
@@ -503,23 +597,22 @@ int main(int argc, char* args[]) {
 				addVector(&player->vec, &player->moveVec);
 			}
 
-			// --------------------------------------------
-
-
-			updateCollisionsPlayer(player, &cam, engine->scale);
-			player->tileX = getTileX(player, backgroundSpriteSheet->tileWidth);
-			player->tileY = getTileY(player, backgroundSpriteSheet->tileHeight);
-			player->tileIndex = (player->tileY * level->width) + player->tileX;
-
-			// ############## UPDATE END ##############
-
-
-
-
-
-
-			lag -= MS_PER_UPDATE;
+			TICKS = ticks;
+			ticks = 0;
+			ticksTimer = 0;
 		}
+
+		// --------------------------------------------
+
+
+		updateCollisionsPlayer(player, &cam, engine->scale);
+		player->tileX = getTileX(player, backgroundSpriteSheet->tileWidth);
+		player->tileY = getTileY(player, backgroundSpriteSheet->tileHeight);
+		player->tileIndex = (player->tileY * level->width) + player->tileX;
+
+		// ############## UPDATE END ##############
+
+
 
 		// ---------------------- ENGINE UPDATE ----------------------
 		engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (backgroundSpriteSheet->tileWidth * engine->scale) / 2) + 2;
@@ -527,145 +620,166 @@ int main(int argc, char* args[]) {
 		if (Mix_PlayingMusic() == 0) {
 			Mix_PlayMusic(engine->music, -1);
 		}		
-		// --------------------------------------------
-		
-		
-		
-		
-
-		/** ---------- Render part ---------- */
-		SDL_SetRenderDrawColor(engine->renderer, 0, 0, 0, 255);
-		SDL_RenderClear(engine->renderer);
+		// -------------------------------------------
 	
 		
 
-		// ------------------ RENDER START ------------------
 
-		SDL_SetRenderDrawColor(engine->renderer, 120, 120, 120, 200);
+			/** ---------- Render part ---------- */
+			SDL_SetRenderDrawColor(engine->renderer, 0, 0, 0, 255);
+			SDL_RenderClear(engine->renderer);
+			
+
+			// ------------------ RENDER START ------------------
+			SDL_SetRenderDrawColor(engine->renderer, 120, 120, 120, 200);
 		
-		/** Tilesy */
+			/** Tilesy */
 
-		for (int i = -engine->tilesOnScreenFromCenterX; i < engine->tilesOnScreenFromCenterX; i++) {
-			for (int j = -engine->tilesOnScreenFromCenterY; j < engine->tilesOnScreenFromCenterY; j++) {
-				for (int layer = 0; layer < level->layers; layer++) {
+			for (int i = -engine->tilesOnScreenFromCenterX; i < engine->tilesOnScreenFromCenterX; i++) {
+				for (int j = -engine->tilesOnScreenFromCenterY; j < engine->tilesOnScreenFromCenterY; j++) {
+					for (int layer = 0; layer < level->layers; layer++) {
 
-				if (
-					((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) >= 0 &&
-					((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) < level->map->width &&
-					((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) >= 0 &&
-					((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) < level->map->height
-					) {
+					if (
+						((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) >= 0 &&
+						((player->vec.x + (i * backgroundSpriteSheet->tileWidth) + (player->width / 2)) / backgroundSpriteSheet->tileWidth) < level->map->width &&
+						((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) >= 0 &&
+						((player->vec.y + (j * backgroundSpriteSheet->tileHeight) + (player->height / 2)) / backgroundSpriteSheet->tileHeight) < level->map->height
+						) {
 
-					if ((player->tileY + j) * level->width + player->tileX + i >= 0)
-						if (layersRects[layer][(player->tileY + j) * level->width + player->tileX + i].w > 0)
-							renderTexture(
-								backgroundSpriteSheet,
-								engine->renderer,
-								&layersRects[layer][(player->tileY + j) * level->width + player->tileX + i],
-								((grounds[layer][player->tileIndex].vec.x  + (i*backgroundSpriteSheet->tileWidth)) * engine->scale) - cam.vec.x,
-								((grounds[layer][player->tileIndex].vec.y  + (j*backgroundSpriteSheet->tileHeight)) * engine->scale) - cam.vec.y,
-								engine->scale,
-								0,
-								NULL,
-								SDL_FLIP_NONE,
-								engine->displayMode
-							);
+						if ((player->tileY + j) * level->width + player->tileX + i >= 0)
+							if (layersRects[layer][(player->tileY + j) * level->width + player->tileX + i].w > 0)
+								renderTexture(
+									backgroundSpriteSheet,
+									engine->renderer,
+									&layersRects[layer][(player->tileY + j) * level->width + player->tileX + i],
+									((grounds[layer][player->tileIndex].vec.x  + (i*backgroundSpriteSheet->tileWidth)) * engine->scale) - cam.vec.x,
+									((grounds[layer][player->tileIndex].vec.y  + (j*backgroundSpriteSheet->tileHeight)) * engine->scale) - cam.vec.y,
+									engine->scale,
+									0,
+									NULL,
+									SDL_FLIP_NONE,
+									engine->displayMode
+								);
+						}
 					}
 				}
 			}
-		}
 
 
-		/** RENDER PLAYER */
-		
-		if (player->isMoving == 1) {
-			renderTexture(
-				playerSpriteSheet,
-				engine->renderer,
-				&playerWalkingAnimation[player->direction]->frames[nextFrame(playerWalkingAnimation[player->direction])],
-				( (player->vec.x - (player->width / 2) ) * engine->scale) - cam.vec.x,
-				( (player->vec.y - (player->height / 2) ) * engine->scale) - cam.vec.y,
-				engine->scale,
-				0,
-				NULL,
-				SDL_FLIP_NONE,
-				engine->displayMode
-			);
-		} else {
-			renderTexture(
-				playerSpriteSheet,
-				engine->renderer,
-				&playerWalkingAnimation[player->direction]->frames[playerWalkingAnimation[player->direction]->curFrame],
-				( (player->vec.x - (player->width / 2) ) * engine->scale) - cam.vec.x,
-				( (player->vec.y - (player->height / 2) ) * engine->scale) - cam.vec.y,
-				engine->scale,
-				0,
-				NULL,
-				SDL_FLIP_NONE,
-				engine->displayMode
-			);
-		}
-
-		// NPCs
-		for (int n = 0; n < npcCount; n++) {
-			Animation* curAnim = animations[n][npcs[n]->direction];
-			SDL_Rect* clip;
-			if (npcs[n]->takingAction == 1)
-				clip = &curAnim->frames[nextFrame(curAnim)];
-			else
-				clip = &curAnim->frames[curAnim->curFrame];
+			/** RENDER PLAYER */
 			
-			renderTexture(
-				curAnim->spriteSheet,
-				engine->renderer,
-				clip,
-				( (npcs[n]->vec.x - (npcs[n]->width / 2) ) * engine->scale) - cam.vec.x,
-				( (npcs[n]->vec.y - (npcs[n]->height / 2) ) * engine->scale) - cam.vec.y,
-				engine->scale,
-				0,
-				NULL,
-				SDL_FLIP_NONE,
-				engine->displayMode
-			);
+			if (player->isMoving == 1) {
+				renderTexture(
+					playerSpriteSheet,
+					engine->renderer,
+					&playerWalkingAnimation[player->direction]->frames[nextFrame(playerWalkingAnimation[player->direction])],
+					( (player->vec.x - (player->width / 2) ) * engine->scale) - cam.vec.x,
+					( (player->vec.y - (player->height / 2) ) * engine->scale) - cam.vec.y,
+					engine->scale,
+					0,
+					NULL,
+					SDL_FLIP_NONE,
+					engine->displayMode
+				);
+			} else {
+				renderTexture(
+					playerSpriteSheet,
+					engine->renderer,
+					&playerWalkingAnimation[player->direction]->frames[playerWalkingAnimation[player->direction]->curFrame],
+					( (player->vec.x - (player->width / 2) ) * engine->scale) - cam.vec.x,
+					( (player->vec.y - (player->height / 2) ) * engine->scale) - cam.vec.y,
+					engine->scale,
+					0,
+					NULL,
+					SDL_FLIP_NONE,
+					engine->displayMode
+				);
+			}
+
+			// NPCs
+			for (int n = 0; n < npcCount; n++) {
+				Animation* curAnim = animations[n][npcs[n]->direction];
+				SDL_Rect* clip;
+				if (npcs[n]->takingAction == 1)
+					clip = &curAnim->frames[nextFrame(curAnim)];
+				else
+					clip = &curAnim->frames[curAnim->curFrame];
+				
+				renderTexture(
+					curAnim->spriteSheet,
+					engine->renderer,
+					clip,
+					( (npcs[n]->vec.x - (npcs[n]->width / 2) ) * engine->scale) - cam.vec.x,
+					( (npcs[n]->vec.y - (npcs[n]->height / 2) ) * engine->scale) - cam.vec.y,
+					engine->scale,
+					0,
+					NULL,
+					SDL_FLIP_NONE,
+					engine->displayMode
+				);
+			}
+			
+
+
+			/** ---------- TEXT -----------*/
+
+			// char str_px[50];
+			// char str_py[50];
+			
+			// sprintf(str_px, "%s %.1f", "FPS:", FPS);
+			// changeText(pxText, engine->renderer, str_px);
+			// sprintf(str_py, "%s %.1f", "TICKS:", TICKS);
+			// changeText(pyText, engine->renderer, str_py);
+
+
+			// renderText(pxText, engine->renderer, 10, 10, 100, 25);
+			// renderText(pyText, engine->renderer, 10, 30, 100, 25);
+
+
+			SDL_SetRenderDrawColor(engine->renderer, 250, 220, 220, 250);
+			// Collisiond draw - test
+			for (int i = 0; i < npcCount; i++)
+				SDL_RenderDrawRect(engine->renderer, &npcs[i]->col);
+
+
+			SDL_SetRenderDrawColor(engine->renderer, 250, 20, 20, 200);		
+			SDL_RenderDrawRect(engine->renderer, &player->col);
+
+
+			// ------------------- RENDER END -------------------
+			
+			SDL_RenderPresent(engine->renderer);
+
+			FPS = fps;
+			fps = 0;
+			fpsTimer = 0;
+	
+
+		if (timer > 1000) {
+			printf("FPS: %i, TICK: %i\n", FPS, TICKS);
+			timer = 0;
 		}
-		
 
 
-		/** ---------- TEXT -----------*/
-
-		// char str_px[50];
-		// char str_py[50];
-		
-		// sprintf(str_px, "%s %.1f", "FPS:", FPS);
-		// changeText(pxText, engine->renderer, str_px);
-		// sprintf(str_py, "%s %.1f", "TICKS:", TICKS);
-		// changeText(pyText, engine->renderer, str_py);
-
-
-		// renderText(pxText, engine->renderer, 10, 10, 100, 25);
-		// renderText(pyText, engine->renderer, 10, 30, 100, 25);
-
-
-		SDL_SetRenderDrawColor(engine->renderer, 250, 220, 220, 250);
-		// Collisiond draw - test
-		for (int i = 0; i < npcCount; i++)
-			SDL_RenderDrawRect(engine->renderer, &npcs[i]->col);
-
-
-		SDL_SetRenderDrawColor(engine->renderer, 250, 20, 20, 200);		
-		SDL_RenderDrawRect(engine->renderer, &player->col);
-
-
-		// ------------------- RENDER END -------------------
-		
-		SDL_RenderPresent(engine->renderer);
-
-
-		SDL_Delay(lag);
-		
 	}
 
 	// ------------------ RELEASING ... ----------------------
+
+	SDL_DestroyTexture(backgroundSpriteSheet->mTexture);
+	backgroundSpriteSheet->mTexture = NULL;
+	free(backgroundSpriteSheet->name);
+	backgroundSpriteSheet->name = NULL;
+	free(backgroundSpriteSheet);
+	backgroundSpriteSheet = NULL;
+
+
+	SDL_DestroyTexture(playerSpriteSheet->mTexture);
+	playerSpriteSheet->mTexture = NULL;
+	free(playerSpriteSheet->name);
+	playerSpriteSheet->name = NULL;
+	free(playerSpriteSheet);
+	playerSpriteSheet = NULL;
+
 
 	for (int i = 0; i < level->layers; i++) {
 		free(layersRects[i]);

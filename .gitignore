@@ -1,5 +1,6 @@
 /obj
 /bin
+/pch
 
 # Prerequisites
 *.d

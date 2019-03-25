@@ -17,8 +17,13 @@ function GetPlayer(n)
 end
 
 
-function AnotherThingsToDo(a, b, c)
-	print("[LUA] Call AnotherThingsToDo(a, b, c) function...\n")
+function compareInts(a, b)
+	if a == b then
+		return 0
+	elseif a > b then
+		return 1
+	else return -1
+	end
 end
 
 

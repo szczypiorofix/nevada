@@ -272,17 +272,29 @@ void luaScriptingTest() {
 		// }
 
 
-		lua_getglobal(L, "DoAThing");
+		// lua_getglobal(L, "DoAThing");
+		
+		// if (lua_isfunction(L, -1)) {
+			
+		// 	lua_pushnumber(L, 5.0f);
+		// 	lua_pushnumber(L, 6.0f);
+
+		// 	if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
+				
+		// 		printf("[C] Called in Lua 'DoAThing(5.0f, 6.0f)', got: %f\n", (float) lua_tonumber(L, -1));
+
+		// 	}
+		// }
+
+
+		lua_getglobal(L, "compareInts");
 		
 		if (lua_isfunction(L, -1)) {
-			
-			lua_pushnumber(L, 5.0f);
-			lua_pushnumber(L, 6.0f);
+			lua_pushnumber(L, 2.0f);
+			lua_pushnumber(L, 2.0f);
 
 			if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
-				
-				printf("[C] Called in Lua 'DoAThing(5.0f, 6.0f)', got: %f\n", (float) lua_tonumber(L, -1));
-
+				printf("[C] Called in Lua compareInts, got: %f\n", (float) lua_tonumber(L, -1));
 			}
 		}
 	}

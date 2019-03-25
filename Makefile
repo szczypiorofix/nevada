@@ -17,7 +17,7 @@ debug: bin/debug/$(OUTPUT)
 release: bin/release/$(OUTPUT)
 
 # debug
-bin/debug/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o
+bin/debug/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/luac.o $(ODIR)/compare.o
 	$(CC) $(CWARNFLAGS) $(OPTIMIZEFLAG) $(ODIR)/*.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/debug/$(OUTPUT)
 
 
@@ -55,6 +55,10 @@ $(ODIR)/textures.o: $(SOURCE)/textures.c $(SOURCE)/textures.h
 # objects.o
 $(ODIR)/objects.o: $(SOURCE)/objects.c $(SOURCE)/objects.h
 	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/objects.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/objects.o
+
+# luac.o
+$(ODIR)/luac.o: $(SOURCE)/luac.c $(SOURCE)/luac.h
+	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/luac.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/luac.o
 
 
 # compare.o

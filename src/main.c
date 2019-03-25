@@ -287,16 +287,34 @@ void luaScriptingTest() {
 		// }
 
 
-		lua_getglobal(L, "compareInts");
+
+		/**
+		 * 
+		 * CALLING LUA FUNCTION
+		 * */
+		// lua_getglobal(L, "compareInts");
+		
+		// if (lua_isfunction(L, -1)) {
+		// 	lua_pushnumber(L, 2.0f);
+		// 	lua_pushnumber(L, 2.0f);
+
+		// 	if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
+		// 		printf("[C] Called in Lua compareInts, got: %f\n", (float) lua_tonumber(L, -1));
+		// 	}
+		// }
+
+		lua_getglobal(L, "getPlayerName");
 		
 		if (lua_isfunction(L, -1)) {
-			lua_pushnumber(L, 2.0f);
-			lua_pushnumber(L, 2.0f);
+			
+			lua_pushnumber(L, 0); // 0 - Todd, 1 - Pete
 
-			if (CheckLua(L, lua_pcall(L, 2, 1, 0))) {
-				printf("[C] Called in Lua compareInts, got: %f\n", (float) lua_tonumber(L, -1));
+			if (CheckLua(L, lua_pcall(L, 1, 1, 0))) {
+				printf("Player name is %s\n", lua_tostring(L, -1));
 			}
+			
 		}
+
 	}
 
 	lua_close(L);

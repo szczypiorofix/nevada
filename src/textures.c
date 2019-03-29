@@ -91,8 +91,8 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
 }
 
 
-SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, SpriteSheet* t) {
-    SDL_Rect* l = malloc(sizeof(SDL_Rect) * size);
+SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t) {
+    SDL_Rect* l = malloc(sizeof(SDL_Rect) * level->size);
     int col = t->width / t->tileWidth;
 
     for (unsigned int i = 0; i < level->size; i++) {

@@ -481,7 +481,7 @@ int main(int argc, char* args[]) {
 
 	SDL_Rect* layersRects[level->layers];
 	for (int i = 0; i < level->layers; i++) {
-		layersRects[i] = createRectsForSprites(level, i, level->size, backgroundSpriteSheet);
+		layersRects[i] = createRectsForSprites(level, i, backgroundSpriteSheet);
 	}
 
 	// Ground objects
@@ -511,7 +511,7 @@ int main(int argc, char* args[]) {
 	unsigned int framesPlayerLeft[]  = {16, 17, 18};
 	unsigned int framesPlayerRight[] = {28, 29, 30};
 	unsigned int framesPlayerUp[]    = {40, 41, 42};
-	unsigned int framesPlayerDown[]  = {4,  5,  6};
+	unsigned int framesPlayerDown[]  = {4,  5,  6 };
 
 	playerWalkingAnimation[WALK_UP]    = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerUp);
 	playerWalkingAnimation[WALK_RIGHT] = prepareAnimation(playerSpriteSheet, 6, player->width, player->height, 3, framesPlayerRight);

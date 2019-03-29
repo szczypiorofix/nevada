@@ -38,7 +38,7 @@ void freeTexture(SpriteSheet* t);
 
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 
-SDL_Rect* createRectsForSprites(Level* level, int layerCount, const unsigned int size, SpriteSheet* t);
+SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t);
 
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 

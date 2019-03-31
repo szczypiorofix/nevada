@@ -154,8 +154,6 @@ void input(Engine* engine, Player* player) {
 						if (engine->fpsCap == 0) engine->fpsCap = 1;
 						else engine->fpsCap = 0;
 						printf("VSYNC: %s\n", engine->fpsCap == 1 ? "on" : "off");
-						engine->fps = 0;
-						engine->ticks = 0;
 						break;
 					case SDLK_ESCAPE:
 						engine->quit = 1;
@@ -566,27 +564,27 @@ int main(int argc, char* args[]) {
 
 
 	// Variable timestep game loop:
-	long lastTime = SDL_GetTicks();
-	double delta = 0.0f;
-	long timer = SDL_GetTicks();
-	int updates = 0;
-	int frames = 0;
-	long now = 0;
-	float amountOfTicks = 60.0f;
-	int fps_count = 0;
-	int ticks_count = 0;
-	double ns = 0;
+	// long lastTime = SDL_GetTicks();
+	// double delta = 0.0f;
+	// long timer = SDL_GetTicks();
+	// int updates = 0;
+	// int frames = 0;
+	// long now = 0L;
+	// float amountOfTicks = 60.0f;
+	// int fps_count = 0;
+	// int ticks_count = 0;
+	// double ns = 0;
 
 
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == 0) {	
 
-		ns = 1000.0f / amountOfTicks;
-		now = SDL_GetTicks();
-		delta += (now - lastTime) / ns;
-		lastTime = now;
+		engine->ns = 1000.0f / engine->amountOfTicks;
+		engine->now = SDL_GetTicks();
+		engine->delta += (engine->now - engine->lastTime) / engine->ns;
+		engine->lastTime = engine->now;
 
-		while (delta >= 1) {
+		while (engine->delta >= 1) {
 			
 			input(engine, player);
 			
@@ -607,24 +605,24 @@ int main(int argc, char* args[]) {
 
 			if (engine->fpsCap) {
 				render(engine, player, level, &cam, backgroundSpriteSheet, playerSpriteSheet, layersRects, playerWalkingAnimation, grounds);
-				frames++;
+				engine->frames++;
 			}
-			updates++;
-			delta--;
+			engine->updates++;
+			engine->delta--;
 		}
 
 		if (!engine->fpsCap) {
 			render(engine, player, level, &cam, backgroundSpriteSheet, playerSpriteSheet, layersRects, playerWalkingAnimation, grounds);
-			frames++;
+			engine->frames++;
 		}
 
-		if (SDL_GetTicks() - timer > 1000) {
-			timer += 1000;
-			fps_count = frames;
-			ticks_count = updates;
-			frames = 0;
-			updates = 0;
-			printf("FPS: %i , TICKS: %i, delta: %f\n", fps_count, ticks_count, delta);
+		if (SDL_GetTicks() - engine->timer > 1000) {
+			engine->timer += 1000;
+			engine->fps_count = engine->frames;
+			engine->ticks_count = engine->updates;
+			engine->frames = 0;
+			engine->updates = 0;
+			printf("FPS: %i , TICKS: %i, delta: %f\n", engine->fps_count, engine->ticks_count, engine->delta);
 		}
 
 		if (engine->fpsCap) {

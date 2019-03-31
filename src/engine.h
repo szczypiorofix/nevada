@@ -18,25 +18,29 @@
 typedef struct Engine {
     int started;
     int quit;
-    short int scale;
-    short int minScale;
-    short int maxScale;
-    short int tilesOnScreenFromCenterX;
-    short int tilesOnScreenFromCenterY;
+    int scale;
+    int minScale;
+    int maxScale;
+    int tilesOnScreenFromCenterX;
+    int tilesOnScreenFromCenterY;
     SDL_Event event;
     SDL_Window* window;
     SDL_Renderer* renderer;
     Mix_Music *music;
 
-    unsigned short int musicVolume;
-    float fps;
-    float FPS;
-    double previous;
-    double lag;
-    unsigned int ticks;
-    unsigned int TICKS;
-    unsigned short int fpsCap;
-    unsigned int displayMode;
+    int musicVolume;
+    long lastTime;
+	double delta;
+	long timer;
+	int updates;
+	int frames;
+	long now;
+	float amountOfTicks;
+	int fps_count;
+	int ticks_count;
+	double ns;
+    short int fpsCap;
+    int displayMode;
 } Engine;
 
 

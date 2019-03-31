@@ -38,13 +38,20 @@ Engine* createEngine(void) {
     engine->maxScale = 5;
     engine->tilesOnScreenFromCenterX = 0;
     engine->tilesOnScreenFromCenterY = 0;
-    engine->fps = 0.0f;
-    engine->FPS = 0.0f;
+    
+    // GAME LOOP
     engine->fpsCap = 0;
-    engine->ticks = 0;
-    engine->TICKS = 0;
-    engine->previous = 0L;
-    engine->lag = 0L;
+    engine->lastTime = SDL_GetTicks();
+	engine->delta = 0.0f;
+	engine->timer = SDL_GetTicks();
+	engine->updates = 0;
+	engine->frames = 0;
+	engine->now = 0L;
+	engine->amountOfTicks = 60.0f;
+	engine->fps_count = 0;
+	engine->ticks_count = 0;
+	engine->ns = 0;
+
     engine->displayMode = 0;
 
     return engine;

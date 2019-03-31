@@ -225,7 +225,6 @@ void update(Engine* engine, Player* player, Level* level, Camera* cam, int npcCo
 
 	for (int i = 0; i < npcCount; i++)
 		updateCollisionsNPC(npcs[i], cam, engine->scale);
-	
 				
 	// ##########################
 
@@ -354,33 +353,46 @@ void render(Engine* engine, Player* player, Level* level, Camera* cam, SpriteShe
 
 	/** RENDER PLAYER */
 	
-	if (player->isMoving == 1) {
-		renderTexture(
-			playerSpriteSheet,
-			engine->renderer,
-			&playerWalkingAnimation[player->direction]->frames[nextFrame(playerWalkingAnimation[player->direction])],
-			( (player->vec.x - (player->width / 2) ) * engine->scale) - cam->vec.x,
-			( (player->vec.y - (player->height / 2) ) * engine->scale) - cam->vec.y,
-			engine->scale,
-			0,
-			NULL,
-			SDL_FLIP_NONE,
-			engine->displayMode
-		);
-	} else {
-		renderTexture(
-			playerSpriteSheet,
-			engine->renderer,
-			&playerWalkingAnimation[player->direction]->frames[playerWalkingAnimation[player->direction]->curFrame],
-			( (player->vec.x - (player->width / 2) ) * engine->scale) - cam->vec.x,
-			( (player->vec.y - (player->height / 2) ) * engine->scale) - cam->vec.y,
-			engine->scale,
-			0,
-			NULL,
-			SDL_FLIP_NONE,
-			engine->displayMode
-		);
-	}
+	renderTexture(
+		playerSpriteSheet,
+		engine->renderer,
+		&playerWalkingAnimation[player->direction]->frames[playerWalkingAnimation[player->direction]->curFrame],
+		( (player->vec.x - (player->width / 2) ) * engine->scale) - cam->vec.x,
+		( (player->vec.y - (player->height / 2) ) * engine->scale) - cam->vec.y,
+		engine->scale,
+		0,
+		NULL,
+		SDL_FLIP_NONE,
+		engine->displayMode
+	);
+	
+	// if (player->isMoving == 1) {
+	// 	renderTexture(
+	// 		playerSpriteSheet,
+	// 		engine->renderer,
+	// 		&playerWalkingAnimation[player->direction]->frames[nextFrame(playerWalkingAnimation[player->direction])],
+	// 		( (player->vec.x - (player->width / 2) ) * engine->scale) - cam->vec.x,
+	// 		( (player->vec.y - (player->height / 2) ) * engine->scale) - cam->vec.y,
+	// 		engine->scale,
+	// 		0,
+	// 		NULL,
+	// 		SDL_FLIP_NONE,
+	// 		engine->displayMode
+	// 	);
+	// } else {
+	// 	renderTexture(
+	// 		playerSpriteSheet,
+	// 		engine->renderer,
+	// 		&playerWalkingAnimation[player->direction]->frames[playerWalkingAnimation[player->direction]->curFrame],
+	// 		( (player->vec.x - (player->width / 2) ) * engine->scale) - cam->vec.x,
+	// 		( (player->vec.y - (player->height / 2) ) * engine->scale) - cam->vec.y,
+	// 		engine->scale,
+	// 		0,
+	// 		NULL,
+	// 		SDL_FLIP_NONE,
+	// 		engine->displayMode
+	// 	);
+	// }
 	// ------------------- RENDER END -------------------
 	
 	SDL_RenderPresent(engine->renderer);
@@ -579,7 +591,8 @@ int main(int argc, char* args[]) {
 			input(engine, player);
 			
 			update(engine, player, level, &cam, npcCount, npcs);
-			
+			if (player->isMoving) nextFrame(playerWalkingAnimation[player->direction]);
+
 			player->tileX = getTileX(player, backgroundSpriteSheet->tileWidth);
 			player->tileY = getTileY(player, backgroundSpriteSheet->tileHeight);
 			player->tileIndex = (player->tileY * level->width) + player->tileX;

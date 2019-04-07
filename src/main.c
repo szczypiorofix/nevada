@@ -415,7 +415,7 @@ int main(int argc, char* args[]) {
 	}
 
 
-	// luaScriptTest();
+	luaScriptTest();
 	
 
 

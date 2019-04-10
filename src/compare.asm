@@ -2,7 +2,7 @@
 ; Compare ( _compare ) two integers.
 ; Returns 1 if the first number is bigger.
 ; Returns 0 if numbers are equal.
-; Returns -1 if first number is lesser than the second nuber.
+; Returns -1 if the first number is lesser than the second nuber.
 ; ---------------------------------------------------
 
     global  _compare

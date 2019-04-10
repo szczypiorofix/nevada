@@ -4,11 +4,8 @@
         "defines.h": "c",
         "grassland.tsx": "xml",
         "animals1.tsx": "xml",
-        "list.h": "c",
         "engine.h": "c",
         "level.h": "c",
-        "textures.h": "c",
-        "arraylist.h": "c",
-        "registry.h": "c"
+        "textures.h": "c"
     }
 }

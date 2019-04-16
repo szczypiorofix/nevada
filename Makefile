@@ -1,66 +1,81 @@
-## My makefile
-CC=gcc
-CFLAGS=-c
-CWARNFLAGS=-Wall -Wextra -Wpedantic #-Werror
+## My super-duper makefile
+
 ODIR=obj
-SOURCE=src
-OUTPUT=nevada.exe
+SDIR=src
+CFLAGS=-c
+
+CC=gcc
+CWARNFLAGS=-Wall -Wextra -Wpedantic #-Werror
 LIBRARYPATH=-LC:\\mingw_dev_lib\\lib
 INCLUDEPATH=-IC:\\mingw_dev_lib\\include
-LINKERFLAGS=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -llibxml2 -liconv -llua -static-libgcc -static-libstdc++
-## Optimize, -mwindows -no console output
+LINKER_LIBS=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -llibxml2 -liconv -llua -static-libgcc -static-libstdc++
+# DEFINED STANDARD COMMAND LINE
+DEBUG_STM=gcc -Wall -Wextra -Wpedantic -O0 -ggdb
+# DEFINED INCLUDES & LIBRARIES
+CC_LIBS=$(LIBRARYPATH) $(INCLUDEPATH) $(LINKER_LIBS)
+
+# Optimize, -mwindows -no console output
 OPTIMIZEFLAG=-O0 -ggdb
-NOCONSOLE=-mwindows
 
-debug: bin/debug/$(OUTPUT)
 
-release: bin/release/$(OUTPUT)
+
+FILE_TO_COMPILE=$(ODIR)/main.o\
+$(ODIR)/defines.o\
+$(ODIR)/engine.o\
+$(ODIR)/level.o\
+$(ODIR)/textures.o\
+$(ODIR)/objects.o\
+$(ODIR)/luac.o\
+$(ODIR)/compare.o
+
+
+# STARTING TARGETS
+debug: bin/debug/nevada.exe
+release: bin/release/nevada.exe
+
 
 # debug
-bin/debug/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/luac.o $(ODIR)/compare.o
-	$(CC) $(CWARNFLAGS) $(OPTIMIZEFLAG) $(ODIR)/*.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/debug/$(OUTPUT)
-
+bin/debug/nevada.exe: $(FILE_TO_COMPILE)
+	$(DEBUG_STM) $^ $(CC_LIBS) -o $@
 
 # release
-bin/release/$(OUTPUT): $(ODIR)/main.o $(ODIR)/defines.o $(ODIR)/engine.o $(ODIR)/level.o $(ODIR)/textures.o $(ODIR)/objects.o $(ODIR)/compare.o
-	$(CC) $(NOCONSOLE) $(ODIR)/*.o $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o bin/release/$(OUTPUT)
+bin/release/nevada.exe: $(FILE_TO_COMPILE)
+	$(DEBUG_STM) $^ $(CC_LIBS) -o $@
 
 
+# ALL FILES BUT NO ADDITIONAL PREREQUISITES
+#$(ODIR)/%.o: $(SDIR)/%.c
+#	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
-# main.o
-$(ODIR)/main.o: $(SOURCE)/main.c $(SOURCE)/main.h $(SOURCE)/engine.c $(SOURCE)/engine.h $(SOURCE)/objects.c $(SOURCE)/objects.h $(SOURCE)/textures.c $(SOURCE)/textures.h $(SOURCE)/defines.h
-	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/main.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/main.o
 
+#main.o
+$(ODIR)/main.o: $(SDIR)/main.c $(SDIR)/main.h $(SDIR)/engine.c $(SDIR)/engine.h $(SDIR)/objects.c $(SDIR)/objects.h $(SDIR)/textures.c $(SDIR)/textures.h $(SDIR)/defines.h
+	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # defines.o
-$(ODIR)/defines.o: $(SOURCE)/defines.c $(SOURCE)/defines.h
-	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/defines.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/defines.o
-
+$(ODIR)/defines.o: $(SDIR)/defines.c $(SDIR)/defines.h
+	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # engine.o
-$(ODIR)/engine.o: $(SOURCE)/engine.c $(SOURCE)/engine.h $(SOURCE)/defines.h $(SOURCE)/textures.h
-	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/engine.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/engine.o
-
+$(ODIR)/engine.o: $(SDIR)/engine.c $(SDIR)/engine.h $(SDIR)/defines.h $(SDIR)/textures.h
+	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # level.o
-$(ODIR)/level.o: $(SOURCE)/level.c $(SOURCE)/level.h
-	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/level.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/level.o
-
+$(ODIR)/level.o: $(SDIR)/level.c $(SDIR)/level.h
+	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # textures.o
-$(ODIR)/textures.o: $(SOURCE)/textures.c $(SOURCE)/textures.h
-	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/textures.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/textures.o
-
+$(ODIR)/textures.o: $(SDIR)/textures.c $(SDIR)/textures.h
+	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # objects.o
-$(ODIR)/objects.o: $(SOURCE)/objects.c $(SOURCE)/objects.h
-	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/objects.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/objects.o
+$(ODIR)/objects.o: $(SDIR)/objects.c $(SDIR)/objects.h
+	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # luac.o
-$(ODIR)/luac.o: $(SOURCE)/luac.c $(SOURCE)/luac.h
-	$(CC) $(CFLAGS) $(OPTIMIZEFLAG) $(CWARNFLAGS) $(SOURCE)/luac.c $(LIBRARYPATH) $(INCLUDEPATH) $(LINKERFLAGS) -o $(ODIR)/luac.o
-
+$(ODIR)/luac.o: $(SDIR)/luac.c $(SDIR)/luac.h
+	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # compare.o
-$(ODIR)/compare.o: $(SOURCE)/compare.asm
-	nasm -fwin32 $(SOURCE)/compare.asm -o $(ODIR)/compare.o
+$(ODIR)/compare.o: $(SDIR)/compare.asm
+	nasm -fwin32 $< -o $@

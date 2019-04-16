@@ -118,6 +118,7 @@ SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t) {
 }
 
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames) {
+   
     Animation* anim = malloc(sizeof(Animation));
     if (anim == NULL) return NULL;
 

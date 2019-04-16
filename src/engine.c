@@ -17,7 +17,6 @@ int createRenderer(Engine* engine);
 struct Engine* engineStart();
 void engineStop(Engine** engine);
 void engineDelay(Engine* engine);
-
 int loadMusic(Engine* engine, char* musicFile);
 
 

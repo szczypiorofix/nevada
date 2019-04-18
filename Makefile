@@ -10,21 +10,14 @@ LIBRARYPATH=-LC:\\mingw_dev_lib\\lib
 INCLUDEPATH=-IC:\\mingw_dev_lib\\include
 LINKER_LIBS=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -llibxml2 -liconv -llua -static-libgcc -static-libstdc++
 # DEFINED STANDARD COMMAND LINE
-DEBUG_STM=gcc -Wall -Wextra -Wpedantic -O0 -ggdb
+DEBUG_STM=gcc -Wall -Wextra -Wpedantic -O0 -ggdb -std=c11
 # DEFINED INCLUDES & LIBRARIES
 CC_LIBS=$(LIBRARYPATH) $(INCLUDEPATH) $(LINKER_LIBS)
-
-# Optimize, -mwindows -no console output
-OPTIMIZEFLAG=-O0 -ggdb
-
 
 
 FILE_TO_COMPILE=$(ODIR)/main.o\
 $(ODIR)/defines.o\
 $(ODIR)/engine.o\
-$(ODIR)/level.o\
-$(ODIR)/textures.o\
-$(ODIR)/objects.o\
 $(ODIR)/luac.o\
 $(ODIR)/compare.o
 
@@ -49,7 +42,7 @@ bin/release/nevada.exe: $(FILE_TO_COMPILE)
 
 
 #main.o
-$(ODIR)/main.o: $(SDIR)/main.c $(SDIR)/main.h $(SDIR)/engine.c $(SDIR)/engine.h $(SDIR)/objects.c $(SDIR)/objects.h $(SDIR)/textures.c $(SDIR)/textures.h $(SDIR)/defines.h
+$(ODIR)/main.o: $(SDIR)/main.c $(SDIR)/main.h
 	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # defines.o
@@ -57,19 +50,7 @@ $(ODIR)/defines.o: $(SDIR)/defines.c $(SDIR)/defines.h
 	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # engine.o
-$(ODIR)/engine.o: $(SDIR)/engine.c $(SDIR)/engine.h $(SDIR)/defines.h $(SDIR)/textures.h
-	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
-
-# level.o
-$(ODIR)/level.o: $(SDIR)/level.c $(SDIR)/level.h
-	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
-
-# textures.o
-$(ODIR)/textures.o: $(SDIR)/textures.c $(SDIR)/textures.h
-	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
-
-# objects.o
-$(ODIR)/objects.o: $(SDIR)/objects.c $(SDIR)/objects.h
+$(ODIR)/engine.o: $(SDIR)/engine.c $(SDIR)/engine.h
 	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # luac.o

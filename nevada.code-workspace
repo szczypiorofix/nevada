@@ -14,10 +14,7 @@
 			"defines.h": "c",
 			"grassland.tsx": "xml",
 			"animals1.tsx": "xml",
-			"engine.h": "c",
-			"level.h": "c",
-			"textures.h": "c",
-			"objects.h": "c"
+			"engine.h": "c"
 		},
 		"editor.fontFamily": "Noto Mono, monospace",
 		"editor.lineHeight": 16,

@@ -5,8 +5,10 @@
 ; Returns -1 if the first number is lesser than the second nuber.
 ; ---------------------------------------------------
 
+
     global  _compare
     section .text
+
 
 
 _compare:
@@ -20,11 +22,15 @@ _compare:
     ret
 
 
+
 _greater:
     mov     eax,    1
     ret
 
 
+
 _lesser:
     mov     eax,    -1
     ret
+
+

@@ -10,18 +10,6 @@
 
 
 
-// FORWARD DECLARATION
-
-
-
-
-
-
-
-
-
-
-
 void render(Engine* engine, Player* player, Level* level, Camera* cam, SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, int npcCount, NPC** npcs) {
 	/** ---------- Render part ---------- */
 	SDL_SetRenderDrawColor(engine->renderer, 0, 0, 0, 255);
@@ -241,9 +229,7 @@ int main(int argc, char* args[]) {
 
 	const int npcCount = 30;
 	NPC* npcs[npcCount];
-	
-	// Animation* animations[npcCount][4];
-	
+		
 	for (int i = 0; i < npcCount; i++) {
 		npcs[i] = setNPC(
 			10 + (i * 17),
@@ -503,9 +489,6 @@ int main(int argc, char* args[]) {
 			// ###########################
 
 
-			// ############## UPDATE END ##############
-
-			
 			if (player->isMoving) nextFrame( &((player)->walkingAnimation[player->direction]) );
 
 			player->tileX = getTileX(player, spriteSheetAssets[SS_BACKGROUND]->tileWidth);
@@ -519,6 +502,10 @@ int main(int argc, char* args[]) {
 				Mix_PlayMusic(engine->music, -1);
 			}		
 			// -------------------------------------------
+
+
+			// ############## UPDATE END ##############
+
 
 			if (engine->fpsCap) {
 				render(engine, player, level, engine->camera, spriteSheetAssets, layersRects, grounds, npcCount, npcs);

@@ -292,9 +292,9 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
 
 
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t) {
-    SDL_Rect* l = malloc(sizeof(SDL_Rect) * level->size);
+    SDL_Rect* rects = malloc(sizeof(SDL_Rect) * level->size);
     int col = t->width / t->tileWidth;
-
+    // printf("COL: %i\n", col);
     for (unsigned int i = 0; i < level->size; i++) {
 
         SDL_Rect r = {
@@ -310,11 +310,11 @@ SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t) {
             r.w = -1;
             r.h = -1;
         }
-        l[i] = r;
+        rects[i] = r;
 
     }
 
-    return l;
+    return rects;
 }
 
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames) {
@@ -889,17 +889,14 @@ TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
 			txCurNode = txCurNode->xmlChildrenNode;
 			while (txCurNode != NULL) {
 				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"tileset"))) {
-					// tilesets
 					objects[i].source = (char *)xmlGetProp(txCurNode, (const xmlChar *) "source");
 					objects[i].firstGid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "firstgid"));
 				}
 				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"object"))) {
-					// objects
 					objects[i].gid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "gid"));
 					objects[i].width = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "width"));
 					objects[i].height = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "height"));
 				}
-				
 				txCurNode = txCurNode->next;
 			}
 			xmlFreeDoc(txDoc);
@@ -1029,4 +1026,3 @@ TextFont* loadFromRenderedText(const char* textureText, SDL_Renderer* renderer) 
     }
     return tf;
 }
-

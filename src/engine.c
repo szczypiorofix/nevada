@@ -171,7 +171,9 @@ Engine* engineStart(void) {
 
 
 void engineStop(Engine** engine) {
-    // clearAssetsList( &(*engine)->assets );
+
+    free( (*engine)->camera );
+    (*engine)->camera = NULL;
 
     (*engine)->started = 0;
 
@@ -240,10 +242,10 @@ void freeTexture(SpriteSheet* t) {
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode) { 
     if (t == NULL || clip == NULL) return;
     SDL_Rect renderQuad = {x, y, t->tileWidth * scale, t->tileHeight * scale};
-    // if (clip != NULL) {
-    //     renderQuad.w = clip->w;
-	// 	renderQuad.h = clip->h;
-    // }
+    if (clip != NULL) {
+        renderQuad.w = clip->w * scale;
+		renderQuad.h = clip->h * scale;
+    }
     
     if (mode == 1) {
         SDL_RenderCopyEx(renderer, t->mTexture, clip, &renderQuad, angle, center, flip);

@@ -148,6 +148,7 @@ int main(int argc, char* args[]) {
 
 	for (int i = 0; i < level->map->objectGroupCount; i++) {
 		for (int j = 0; j < level->map->ObjectGroup[i].objectsCount; j++) {
+			
 			printf("ObjectGroup: %i, object: %i %s %s %s %i %i\n", 
 				i, 
 				j,
@@ -213,13 +214,12 @@ int main(int argc, char* args[]) {
 	}
 
 
-	// Animation* playerWalkingAnimation[4];
 	player->walkingAnimation = malloc(sizeof(Animation) * 4);
 
 	unsigned int framesPlayerLeft[]  = {16, 17, 18};
 	unsigned int framesPlayerRight[] = {28, 29, 30};
 	unsigned int framesPlayerUp[]    = {40, 41, 42};
-	unsigned int framesPlayerDown[]  = {4,  5,  6 };
+	unsigned int framesPlayerDown[]  = {4 , 5 , 6 };
 
 	player->walkingAnimation[WALK_UP]    = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerUp);
 	player->walkingAnimation[WALK_RIGHT] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerRight);
@@ -271,112 +271,111 @@ int main(int argc, char* args[]) {
 
 		while (engine->delta >= 1) {
 			
-				while(SDL_PollEvent(&engine->event) != 0) {
+			while(SDL_PollEvent(&engine->event) != 0) {
 
-					if (engine->event.type == SDL_QUIT) {
-						engine->quit = 1;
-					} else {
-						// ZOOM
-						if (engine->event.type == SDL_MOUSEWHEEL) {
-							if (engine->event.button.x == 1) {
-								if (engine->scale < engine->maxScale) engine->scale++;
-							}
-							else if (engine->event.button.x == -1) {
-								if (engine->scale > engine->minScale) engine->scale--;
-							}
+				if (engine->event.type == SDL_QUIT) {
+					engine->quit = 1;
+				} else {
+					// ZOOM
+					if (engine->event.type == SDL_MOUSEWHEEL) {
+						if (engine->event.button.x == 1) {
+							if (engine->scale < engine->maxScale) engine->scale++;
 						}
-						if (engine->event.type == SDL_KEYDOWN) {
-							switch (engine->event.key.keysym.sym) {
-								case SDLK_RETURN:
-									player->vec = setVector(0, 0);
-									break;
-								case SDLK_5:
-									player->vec = setVector(16, 16);
-									break;
-								case SDLK_RSHIFT:
-									engine->displayMode++;
-									if (engine->displayMode > 2) engine->displayMode = 0;
-									break;
-								case SDLK_ESCAPE:
-									engine->quit = 1;
-									break;
-								case SDLK_LEFT:
-								case SDLK_a:
-									player->moveVec.x = -player->speed;								
-									break;
-								case SDLK_RIGHT:
-								case SDLK_d:
-									player->moveVec.x = player->speed;
-									break;
-								case SDLK_UP:
-								case SDLK_w:
-									player->moveVec.y = -player->speed;
-									break;
-								case SDLK_DOWN:
-								case SDLK_s:
-									player->moveVec.y = player->speed;
-									break;
-								case SDLK_1:
-									if (engine->musicVolume < MIX_MAX_VOLUME) engine->musicVolume++;
-									Mix_VolumeMusic(engine->musicVolume);
-									break;
-								case SDLK_2:
-									if (engine->musicVolume > 0) engine->musicVolume--;
-									Mix_VolumeMusic(engine->musicVolume);
-									break;
-								case SDLK_SPACE:
-									if (Mix_PlayingMusic() == 0) {
-										Mix_PlayMusic(engine->music, -1);
+						else if (engine->event.button.x == -1) {
+							if (engine->scale > engine->minScale) engine->scale--;
+						}
+					}
+					if (engine->event.type == SDL_KEYDOWN) {
+						switch (engine->event.key.keysym.sym) {
+							case SDLK_RETURN:
+								player->vec = setVector(0, 0);
+								break;
+							case SDLK_5:
+								// player->vec = setVector(16, 16);
+								break;
+							case SDLK_RSHIFT:
+								engine->displayMode++;
+								if (engine->displayMode > 2) engine->displayMode = 0;
+								break;
+							case SDLK_ESCAPE:
+								engine->quit = 1;
+								break;
+							case SDLK_LEFT:
+							case SDLK_a:
+								player->moveVec.x = -player->speed;								
+								break;
+							case SDLK_RIGHT:
+							case SDLK_d:
+								player->moveVec.x = player->speed;
+								break;
+							case SDLK_UP:
+							case SDLK_w:
+								player->moveVec.y = -player->speed;
+								break;
+							case SDLK_DOWN:
+							case SDLK_s:
+								player->moveVec.y = player->speed;
+								break;
+							case SDLK_1:
+								if (engine->musicVolume < MIX_MAX_VOLUME) engine->musicVolume++;
+								Mix_VolumeMusic(engine->musicVolume);
+								break;
+							case SDLK_2:
+								if (engine->musicVolume > 0) engine->musicVolume--;
+								Mix_VolumeMusic(engine->musicVolume);
+								break;
+							case SDLK_SPACE:
+								if (Mix_PlayingMusic() == 0) {
+									Mix_PlayMusic(engine->music, -1);
+								} else {
+									if (Mix_PausedMusic() == 1) {
+										Mix_ResumeMusic();
 									} else {
-										if (Mix_PausedMusic() == 1) {
-											Mix_ResumeMusic();
-										} else {
-											Mix_PauseMusic();
-										}
+										Mix_PauseMusic();
 									}
-									break;
-							}
+								}
+								break;
 						}
-						else if (engine->event.type == SDL_KEYUP) {
+					}
+					else if (engine->event.type == SDL_KEYUP) {
 
-							switch (engine->event.key.keysym.sym) {
-								case SDLK_F5:
-									if (engine->fpsCap == 0) engine->fpsCap = 1;
-									else engine->fpsCap = 0;
-									printf("VSYNC: %s\n", engine->fpsCap == 1 ? "on" : "off");
-									break;
-								case SDLK_ESCAPE:
-									engine->quit = 1;
-									break;
-								case SDLK_LEFT:
-								case SDLK_a:
-									if (player->moveVec.x < 0) {
-										player->moveVec.x = 0;
-									}
-									break;
-								case SDLK_RIGHT:
-								case SDLK_d:
-									if (player->moveVec.x > 0) {
-										player->moveVec.x = 0;
-									}								
-									break;
-								case SDLK_UP:
-								case SDLK_w:
-									if (player->moveVec.y < 0) {
-										player->moveVec.y = 0;
-									}
-									break;
-								case SDLK_DOWN:
-								case SDLK_s:
-									if (player->moveVec.y > 0) {
-										player->moveVec.y = 0;
-									}
-									break;
-							}
-
+						switch (engine->event.key.keysym.sym) {
+							case SDLK_F5:
+								if (engine->fpsCap == 0) engine->fpsCap = 1;
+								else engine->fpsCap = 0;
+								printf("VSYNC: %s\n", engine->fpsCap == 1 ? "on" : "off");
+								break;
+							case SDLK_ESCAPE:
+								engine->quit = 1;
+								break;
+							case SDLK_LEFT:
+							case SDLK_a:
+								if (player->moveVec.x < 0) {
+									player->moveVec.x = 0;
+								}
+								break;
+							case SDLK_RIGHT:
+							case SDLK_d:
+								if (player->moveVec.x > 0) {
+									player->moveVec.x = 0;
+								}								
+								break;
+							case SDLK_UP:
+							case SDLK_w:
+								if (player->moveVec.y < 0) {
+									player->moveVec.y = 0;
+								}
+								break;
+							case SDLK_DOWN:
+							case SDLK_s:
+								if (player->moveVec.y > 0) {
+									player->moveVec.y = 0;
+								}
+								break;
 						}
 					}
 				}
+			}
 			
 			
 			// WALKING
@@ -586,10 +585,29 @@ int main(int argc, char* args[]) {
 	free(level->content);
 	level->content = NULL;
 
-	// free(level);
-	// level = NULL;
+
+	// FREE NPCs
+	for (int i = 0; i < npcCount; i++) {
+		free(npcs[i]->walkingAnimation);
+		npcs[i]->walkingAnimation = NULL;
+		free(npcs[i]->name);
+		npcs[i]->name = NULL;
+		free(npcs[i]);
+		npcs[i] = NULL;
+	}
+	free(npcs);
+
+	// FREE PLAYER
+	free(player->walkingAnimation);
+	player->walkingAnimation = NULL;
+	free(player->name);
+	player->name = NULL;
+
 	
 	engineStop(&engine);
 
+	printf("Game engine has stopped.\n");
+	getchar();
+	
 	return 0;
 }

@@ -244,7 +244,7 @@ void renderText(TextFont* t, SDL_Renderer* renderer, int x, int y, int w, int h)
 void changeText(TextFont* t, SDL_Renderer* renderer, char* text);
 
 
-
-
+extern const short int VSYNC_ON;
+extern const short int VSYNC_OFF;
 
 #endif

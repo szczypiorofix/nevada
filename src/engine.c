@@ -10,7 +10,8 @@
 
 const int TARGET_FPS = 60;
 const long OPTIMAL_TIME = 1000 / TARGET_FPS;
-
+const short int VSYNC_ON = 1;
+const short int VSYNC_OFF = 0;
 
 // ------------------ FORWARD DECLARATION ------------------
 Engine* createEngine(void);
@@ -82,7 +83,7 @@ Engine* createEngine(void) {
     engine->tilesOnScreenFromCenterY = 0;
     
     // GAME LOOP
-    engine->fpsCap = 0;
+    engine->fpsCap = VSYNC_ON;
     engine->lastTime = SDL_GetTicks();
 	engine->delta = 0.0f;
 	engine->timer = SDL_GetTicks();
@@ -100,8 +101,8 @@ Engine* createEngine(void) {
 }
 
 int initSDL(Engine* engine) {
-    engine->started = (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0);
-    if (!engine->started) printf( "SDL_Init() Error: %s\n", SDL_GetError());
+    engine->started = ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0 );
+    if (!engine->started) printf( "SDL_Init() Error: %s\n", SDL_GetError() );
     atexit(SDL_Quit);
     return engine->started;
 }

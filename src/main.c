@@ -127,6 +127,8 @@ int main(int argc, char* args[]) {
     // printf("%d\n", compare(3, 2));
     // printf("%d\n", compare(6, 6));
 	
+	printf("Nevada is starting... Press F5 for toggle VSYNC, mouse roll - zoom-in & zoom-out.\n");
+	printf("SPACE - pause music, 1 - increase music volume, 2 - decrease musci volume.\n");
 
 	Engine* engine = engineStart();
 
@@ -327,9 +329,11 @@ int main(int argc, char* args[]) {
 									Mix_PlayMusic(engine->music, -1);
 								} else {
 									if (Mix_PausedMusic() == 1) {
+										printf("Music resumed.\n");
 										Mix_ResumeMusic();
 									} else {
 										Mix_PauseMusic();
+										printf("Music paused.\n");
 									}
 								}
 								break;
@@ -339,9 +343,9 @@ int main(int argc, char* args[]) {
 
 						switch (engine->event.key.keysym.sym) {
 							case SDLK_F5:
-								if (engine->fpsCap == 0) engine->fpsCap = 1;
-								else engine->fpsCap = 0;
-								printf("VSYNC: %s\n", engine->fpsCap == 1 ? "on" : "off");
+								if (engine->fpsCap == VSYNC_OFF) engine->fpsCap = VSYNC_ON;
+								else engine->fpsCap = VSYNC_OFF;
+								printf("VSYNC: %s\n", engine->fpsCap == VSYNC_ON ? "on" : "off");
 								break;
 							case SDLK_ESCAPE:
 								engine->quit = 1;

@@ -33,9 +33,9 @@ int getTileY(Player* p, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
 int random(int min, int max);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
-void updateCollisionsNPC(NPC* npc, const Camera* cam, const int scale);
+void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale);
 Ground* setGround(float x, float y, short int width, short int height);
-void updateCollisionsPlayer(Player* p, const Camera* cam, const int scale);
+void updateCollisionsPlayer(Player* p, const Camera* cam, const float scale);
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
 Level* getLevel();
 int xmlCharToInt(const xmlChar a[]);
@@ -76,7 +76,7 @@ Engine* createEngine(void) {
     engine->music = NULL;
     engine->camera = NULL;
     engine->musicVolume = 20;
-    engine->scale = 2;
+    engine->scale = 2.0f;
     engine->minScale = 2.0f;
     engine->maxScale = 5.0f;
     engine->tilesOnScreenFromCenterX = 0;
@@ -411,7 +411,7 @@ int getTileY(Player* p, unsigned int tileHeight) {
 }
 
 
-void updateCollisionsNPC(NPC* npc, const Camera* cam, const int scale) {
+void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale) {
     npc->col.x = ( (npc->vec.x - (npc->width / 2)) * scale) - cam->vec.x;
     npc->col.y = ( (npc->vec.y - (npc->height / 2)) * scale) - cam->vec.y;
     npc->col.w = npc->width * scale;
@@ -419,7 +419,7 @@ void updateCollisionsNPC(NPC* npc, const Camera* cam, const int scale) {
 }
 
 
-void updateCollisionsPlayer(Player* p, const Camera* cam, const int scale) {
+void updateCollisionsPlayer(Player* p, const Camera* cam, const float scale) {
     p->col.x = ( (p->vec.x - (p->width / 2)) * scale) - cam->vec.x;
     p->col.y = ( (p->vec.y - (p->height / 2)) * scale) - cam->vec.y;
     p->col.w = p->width * scale;

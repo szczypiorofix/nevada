@@ -6,6 +6,7 @@
         "animals1.tsx": "xml",
         "engine.h": "c",
         "level.h": "c",
-        "textures.h": "c"
+        "textures.h": "c",
+        "luac.h": "c"
     }
 }

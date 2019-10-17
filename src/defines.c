@@ -85,5 +85,3 @@ char* copyStringFromPointer(const char* s) {
 	else fprintf(stderr, " malloc failure!");
 	return stringcopy;
 }
-
-

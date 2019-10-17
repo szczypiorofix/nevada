@@ -116,8 +116,6 @@ int main(int argc, char* args[]) {
 
 	luaScriptTest();
 	
-
-
 	// ASM test
 	// printf("%d\n", compare(5, -4));
     // printf("%d\n", compare(2, -6));
@@ -279,10 +277,10 @@ int main(int argc, char* args[]) {
 					// ZOOM
 					if (engine->event.type == SDL_MOUSEWHEEL) {
 						if (engine->event.button.x == 1) {
-							if (engine->scale < engine->maxScale) engine->scale++;
+							if (engine->scale < engine->maxScale) engine->scale += 0.25f;
 						}
 						else if (engine->event.button.x == -1) {
-							if (engine->scale > engine->minScale) engine->scale--;
+							if (engine->scale > engine->minScale) engine->scale -= 0.25f;
 						}
 					}
 					if (engine->event.type == SDL_KEYDOWN) {
@@ -536,6 +534,9 @@ int main(int argc, char* args[]) {
 
 	// ------------------ RELEASING ... ----------------------
 
+	releaseAnimation( &((*player).walkingAnimation) );
+
+
 	SDL_DestroyTexture(spriteSheetAssets[SS_BACKGROUND]->mTexture);
 	spriteSheetAssets[SS_BACKGROUND]->mTexture = NULL;
 	free(spriteSheetAssets[SS_BACKGROUND]->name);
@@ -598,6 +599,7 @@ int main(int argc, char* args[]) {
 	free(npcs);
 
 	// FREE PLAYER
+	
 	free(player->walkingAnimation);
 	player->walkingAnimation = NULL;
 	free(player->name);

@@ -97,9 +97,9 @@ typedef struct Camera {
 typedef struct Engine {
     int started;
     int quit;
-    int scale;
-    int minScale;
-    int maxScale;
+    float scale;
+    float minScale;
+    float maxScale;
     int tilesOnScreenFromCenterX;
     int tilesOnScreenFromCenterY;
     SDL_Event event;
@@ -222,7 +222,7 @@ int loadMusic(Engine* engine, char* musicFile);
 void updateCamera(Engine* engine, const Player* player, const Level* level);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t);
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
 int nextFrame(Animation* an);

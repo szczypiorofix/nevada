@@ -23,7 +23,7 @@ int loadMusic(Engine* engine, char* musicFile);
 void updateCamera(Engine* engine, const Player* player, const Level* level);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 int releaseAnimation(Animation** an);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
@@ -76,7 +76,7 @@ Engine* createEngine(void) {
     engine->camera = NULL;
     engine->musicVolume = 20;
     engine->scale = 2;
-    engine->minScale = 1;
+    engine->minScale = 2;
     engine->maxScale = 5;
     engine->tilesOnScreenFromCenterX = 0;
     engine->tilesOnScreenFromCenterY = 0;
@@ -221,9 +221,12 @@ void updateCamera(Engine* engine, const Player* player, const Level* level) {
 
 
 int releaseAnimation(Animation** an) {
-    // for (int i = 0; i < (*an)->size; i++) {
-    //     free( (*an)->frames[i] );
-    // }
+    printf("Animation size: %i\n", (*an)->size);
+    for (int i = 0; i < (*an)->size; i++) {
+        printf("Releasing animation on address: %p\n", &(*an)->frames[i] );
+        free( &((*an)->frames[i]) );
+    }
+
     free( (*an)->frames );
     (*an)->frames = NULL;
     return 1;
@@ -239,14 +242,13 @@ void freeTexture(SpriteSheet* t) {
 }
 
 
-void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, int scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode) { 
+void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode) { 
     if (t == NULL || clip == NULL) return;
     SDL_Rect renderQuad = {x, y, t->tileWidth * scale, t->tileHeight * scale};
     if (clip != NULL) {
         renderQuad.w = clip->w * scale;
 		renderQuad.h = clip->h * scale;
     }
-    
     if (mode == 1) {
         SDL_RenderCopyEx(renderer, t->mTexture, clip, &renderQuad, angle, center, flip);
         SDL_RenderDrawRect(renderer, &renderQuad);

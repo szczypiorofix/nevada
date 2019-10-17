@@ -76,8 +76,8 @@ Engine* createEngine(void) {
     engine->camera = NULL;
     engine->musicVolume = 20;
     engine->scale = 2;
-    engine->minScale = 2;
-    engine->maxScale = 5;
+    engine->minScale = 2.0f;
+    engine->maxScale = 5.0f;
     engine->tilesOnScreenFromCenterX = 0;
     engine->tilesOnScreenFromCenterY = 0;
     

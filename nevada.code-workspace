@@ -10,12 +10,16 @@
             "C:\\mingw_dev_lib\\include"
 		],
 		"files.associations": {
+			"*.db": "sql",
+			"*.mdx": "markdown",
 			"main.h": "c",
 			"defines.h": "c",
 			"grassland.tsx": "xml",
 			"animals1.tsx": "xml",
 			"engine.h": "c",
-			"luac.h": "c"
+			"luac.h": "c",
+			"font.h": "c",
+			"stdio.h": "c"
 		},
 		"editor.fontFamily": "Noto Mono, monospace",
 		"editor.lineHeight": 16,

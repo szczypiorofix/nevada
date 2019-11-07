@@ -5,7 +5,7 @@ SDIR=src
 CFLAGS=-c
 
 CC=gcc
-CWARNFLAGS=-Wall -Wextra -Wpedantic #-Werror
+CWARNFLAGS=-Wall -Wextra -Wpedantic #-Werror #Treat all warnings as errors
 LIBRARYPATH=-LC:\\mingw_dev_lib\\lib
 INCLUDEPATH=-IC:\\mingw_dev_lib\\include
 LINKER_LIBS=-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -llibxml2 -liconv -llua -static-libgcc -static-libstdc++
@@ -19,6 +19,7 @@ FILE_TO_COMPILE=$(ODIR)/main.o\
 $(ODIR)/defines.o\
 $(ODIR)/engine.o\
 $(ODIR)/luac.o\
+$(ODIR)/font.o\
 $(ODIR)/compare.o
 
 
@@ -55,6 +56,10 @@ $(ODIR)/engine.o: $(SDIR)/engine.c $(SDIR)/engine.h
 
 # luac.o
 $(ODIR)/luac.o: $(SDIR)/luac.c $(SDIR)/luac.h
+	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
+
+# font.o
+$(ODIR)/font.o: $(SDIR)/font.c $(SDIR)/font.h
 	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
 
 # compare.o

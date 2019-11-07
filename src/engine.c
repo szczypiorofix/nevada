@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libxml/parser.h>
 #include <libxml/xmlIO.h>
 #include <libxml/xinclude.h>
 #include <libxml/tree.h>
+
 #include "engine.h"
 
+// ------------------ CONSTANTS ------------------
 
-const int TARGET_FPS = 60;
-const long OPTIMAL_TIME = 1000 / TARGET_FPS;
-const short int VSYNC_ON = 1;
-const short int VSYNC_OFF = 0;
+
+
 
 // ------------------ FORWARD DECLARATION ------------------
 Engine* createEngine(void);
@@ -20,12 +19,12 @@ int createWindow(Engine* engine);
 int createRenderer(Engine* engine);
 struct Engine* engineStart();
 void engineStop(Engine** engine);
-int loadMusic(Engine* engine, char* musicFile);
-void updateCamera(Engine* engine, const Player* player, const Level* level);
+int loadMusic(char* musicFile);
+void updateCamera(const Player* player, const Level* level);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
-int releaseAnimation(Animation** an);
+int releaseAnimation(Animation** a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
 int getTileX(Player* p, unsigned int tileWith);
@@ -37,7 +36,7 @@ void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale);
 Ground* setGround(float x, float y, short int width, short int height);
 void updateCollisionsPlayer(Player* p, const Camera* cam, const float scale);
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
-Level* getLevel();
+Level* getLevel(char* fileName);
 int xmlCharToInt(const xmlChar a[]);
 int* parseData(xmlDocPtr doc, xmlNodePtr cur);
 TiledMap* parseMap(const char* fileName);
@@ -81,6 +80,9 @@ Engine* createEngine(void) {
     engine->maxScale = 5.0f;
     engine->tilesOnScreenFromCenterX = 0;
     engine->tilesOnScreenFromCenterY = 0;
+    engine->mouseX = 0;
+    engine->mouseY = 0;
+    engine->coordinatesText[0] = ' ';
     
     // GAME LOOP
     engine->fpsCap = VSYNC_ON;
@@ -156,6 +158,7 @@ int initializeTTFFonts(Engine* engine) {
 
 Engine* engineStart(void) {
     Engine* engine = createEngine();
+    if (engine == NULL) return NULL;
     initSDL(engine);
     createWindow(engine);
     createRenderer(engine);
@@ -163,6 +166,8 @@ Engine* engineStart(void) {
     initializeAudioSystem(engine);
     initializeTTFFonts(engine);
 
+    engine->coordinates = loadFromRenderedText(engine->coordinatesText, engine->renderer);
+    
     // engine->assets = createAssets();
     
     if (engine->started == 0) return NULL;
@@ -196,7 +201,7 @@ void engineStop(Engine** engine) {
 }
 
 
-int loadMusic(Engine* engine, char* musicFile) {
+int loadMusic(char* musicFile) {
     engine->music = Mix_LoadMUS(musicFile);
     if (engine->music == NULL) {
         printf( "Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError() );
@@ -207,29 +212,30 @@ int loadMusic(Engine* engine, char* musicFile) {
 }
 
 
-void updateCamera(Engine* engine, const Player* player, const Level* level) {
-
-    // if ( (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2)  > 0 
-    //     && (player->vec.x * engine->scale) < (level->width * 16 * engine->scale)
-    // )   
+void updateCamera(const Player* player, const Level* level) {
+    if ( (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2)  > 0 
+        && (player->vec.x * engine->scale) < (level->width * level->map->tileWidth * engine->scale) - (SCREEN_WIDTH / 2)
+    ) {
         engine->camera->vec.x = (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2);
+    }
     
-    // if ( (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2) > 0 
-    //     && (player->vec.y * engine->scale) < (level->height * 16 * engine->scale)
-    // )    
+    if ( (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2) > 0 
+        && (player->vec.y * engine->scale) < (level->height * level->map->tileHeight * engine->scale) - (SCREEN_HEIGHT / 2)
+    ) {
         engine->camera->vec.y = (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2);
+    }
 }
 
 
-int releaseAnimation(Animation** an) {
-    printf("Animation size: %i\n", (*an)->size);
-    for (int i = 0; i < (*an)->size; i++) {
-        printf("Releasing animation on address: %p\n", &(*an)->frames[i] );
-        free( &((*an)->frames[i]) );
+int releaseAnimation(Animation** a) {
+    // printf("Animation size: %hi\n", (*an)->size);
+    for (int i = 0; i < (*a)->size; i++) {
+        printf("Releasing animation on address: %p\n", &(*a)->frames[i] );
+        // free( &((*an)->frames[i]) );
     }
 
-    free( (*an)->frames );
-    (*an)->frames = NULL;
+    free( (*a)->frames );
+    (*a)->frames = NULL;
     return 1;
 }
 
@@ -296,10 +302,9 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
 }
 
 
-SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t) {
+SDL_Rect* createRectsForSprites(Level* level, unsigned short layerCount, SpriteSheet* t) {
     SDL_Rect* rects = malloc(sizeof(SDL_Rect) * level->size);
-    int col = t->width / t->tileWidth;
-    // printf("COL: %i\n", col);
+    unsigned int col = t->width / t->tileWidth;
     for (unsigned int i = 0; i < level->size; i++) {
 
         SDL_Rect r = {
@@ -316,14 +321,12 @@ SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t) {
             r.h = -1;
         }
         rects[i] = r;
-
     }
-
     return rects;
 }
 
-Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames) {
-   
+Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, unsigned int* frames)
+{
     Animation* anim = malloc(sizeof(Animation));
     if (anim == NULL) return NULL;
 
@@ -396,8 +399,6 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
     p->col = c;
     return p;
 }
-
-
 
 
 
@@ -548,7 +549,7 @@ NPC* setNPC(int x, int y, int width, int height, Direction direction) {
 }
 
 
-Ground* setGround(float x, float y, short int width, short int height) {
+Ground* setGround(float x, float y, short width, short height) {
     Ground* g = malloc(sizeof(Ground));
 	if (g == NULL) {
         fprintf(stderr, "Malloc error while creating Ground!!!\n");
@@ -591,10 +592,10 @@ void freeTiledMap(TiledMap* tiledMap) {
 	}
 }
 
-Level* getLevel() {
+Level* getLevel(char* fileName) {
 	// char tmp[50] = DIR_RES_IMAGES;
 	// strcat(tmp, "map.tmx");
-    TiledMap* tiledMap = parseMap("res/images/worldmap.tmx");
+    TiledMap* tiledMap = parseMap(fileName);
     // printf("TiledMap width: %i x height:%i, tileWidth:%i, tileHeight:%i\n", tiledMap->width, tiledMap->height, tiledMap->tileWidth, tiledMap->tileHeight);
 
     int differentSizeOfLayers = 0;
@@ -987,6 +988,7 @@ void renderText(TextFont* t, SDL_Renderer* renderer, int x, int y, int w, int h)
 
 
 void changeText(TextFont* t, SDL_Renderer* renderer, char* text) {
+    SDL_DestroyTexture(t->texture->mTexture);
 	SDL_Surface* textSurface = TTF_RenderText_Solid(t->font, text, t->textColor);
     if (textSurface == NULL) {
         printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());

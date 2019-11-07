@@ -1,0 +1,10 @@
+DATA STRUCTURE:
+0: 'q' starting character (char)
+1 - 2: number of layers (unsigned short)
+3 - 6: level size(unsigned int)
+7 - 8: number of columns (unsigned short)
+9 - 10: map width (unsigned short)
+11 - 12: map height (unsigned short)
+13 - 14: texture name count (unsigned short)
+15 - 16: texture name length (unsigned short)
+17 - ... : texture name count * texture name length = all texture names are here, one after another

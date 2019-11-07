@@ -1,23 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <math.h>
 
 #include "main.h"
-#include "engine.h"
 #include "luac.h"
+#include "font.h"
 
 
-
-
-void render(Engine* engine, Player* player, Level* level, Camera* cam, SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, int npcCount, NPC** npcs) {
+void render(SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, NPC** npcs) {
 	/** ---------- Render part ---------- */
-	SDL_SetRenderDrawColor(engine->renderer, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(engine->renderer, 0x0, 0x0, 0x0, 0xFF);
 	SDL_RenderClear(engine->renderer);
 	
 
 	// ------------------ RENDER START ------------------
-	SDL_SetRenderDrawColor(engine->renderer, 120, 120, 120, 200);
+	SDL_SetRenderDrawColor(engine->renderer, 0x7F, 0x6F, 0x7F, 0xFF);
 
 	/** Tilesy */
 
@@ -25,27 +24,31 @@ void render(Engine* engine, Player* player, Level* level, Camera* cam, SpriteShe
 		for (int j = -engine->tilesOnScreenFromCenterY; j < engine->tilesOnScreenFromCenterY; j++) {
 			for (int layer = 0; layer < level->layers; layer++) {
 
-			if (
-				((player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) >= 0 &&
-				((player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) < level->map->width &&
-				((player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) >= 0 &&
-				((player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) < level->map->height
-				) {
+				if (
+					((player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) >= 0 &&
+					((player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) < level->map->width &&
+					((player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) >= 0 &&
+					((player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) < level->map->height
+					) {
 
-				if ((player->tileY + j) * level->width + player->tileX + i >= 0)
-					if (layersRects[layer][(player->tileY + j) * level->width + player->tileX + i].w > 0)
-						renderTexture(
-							ss[SS_BACKGROUND],
-							engine->renderer,
-							&layersRects[layer][(player->tileY + j) * level->width + player->tileX + i],
-							((grounds[layer][player->tileIndex].vec.x  + (i*ss[SS_BACKGROUND]->tileWidth)) * engine->scale) - cam->vec.x,
-							((grounds[layer][player->tileIndex].vec.y  + (j*ss[SS_BACKGROUND]->tileHeight)) * engine->scale) - cam->vec.y,
-							engine->scale,
-							0,
-							NULL,
-							SDL_FLIP_NONE,
-							engine->displayMode
-						);
+					if ((player->tileY + j) * level->width + player->tileX + i >= 0) {
+						if (layersRects[layer][(player->tileY + j) * level->width + player->tileX + i].w > 0) {
+
+							renderTexture(
+								ss[SS_BACKGROUND],
+								engine->renderer,
+								&layersRects[layer][(player->tileY + j) * level->width + player->tileX + i],
+								( (( ( grounds[layer][player->tileIndex].vec.x )  + (i*ss[SS_BACKGROUND]->tileWidth  )) * engine->scale) - engine->camera->vec.x),
+								( (( ( grounds[layer][player->tileIndex].vec.y )  + (j*ss[SS_BACKGROUND]->tileHeight )) * engine->scale) - engine->camera->vec.y),
+								engine->scale,
+								0,
+								NULL,
+								SDL_FLIP_NONE,
+								engine->displayMode
+							);
+
+						}
+					}
 				}
 			}
 		}
@@ -53,20 +56,19 @@ void render(Engine* engine, Player* player, Level* level, Camera* cam, SpriteShe
 
 
 	// NPCs
-	for (int n = 0; n < npcCount; n++) {
+	for (int n = 0; n < NPC_COUNT; n++) {
 		Animation* curAnim = npcs[n]->walkingAnimation;
 		SDL_Rect* clip;
 		if (npcs[n]->takingAction == 1)
 			clip = &curAnim->frames[nextFrame(curAnim)];
 		else
 			clip = &curAnim->frames[curAnim->curFrame];
-		
 		renderTexture(
 			curAnim->spriteSheet,
 			engine->renderer,
 			clip,
-			( (npcs[n]->vec.x - (npcs[n]->width / 2) ) * engine->scale) - cam->vec.x,
-			( (npcs[n]->vec.y - (npcs[n]->height / 2) ) * engine->scale) - cam->vec.y,
+			( (npcs[n]->vec.x - (npcs[n]->width / 2) ) * engine->scale) - engine->camera->vec.x,
+			( (npcs[n]->vec.y - (npcs[n]->height / 2) ) * engine->scale) - engine->camera->vec.y,
 			engine->scale,
 			0,
 			NULL,
@@ -77,74 +79,176 @@ void render(Engine* engine, Player* player, Level* level, Camera* cam, SpriteShe
 
 
 	/** RENDER PLAYER */
-	Animation * curAnim = &player->walkingAnimation[player->direction];
-	
+	Animation* curAnim = &player->walkingAnimation[player->direction];
 	renderTexture(
 		ss[SS_PLAYER],
 		engine->renderer,
 		&curAnim->frames[curAnim->curFrame],
-		( (player->vec.x - (player->width / 2) ) * engine->scale) - cam->vec.x,
-		( (player->vec.y - (player->height / 2) ) * engine->scale) - cam->vec.y,
+		( (player->vec.x - (player->width / 2) ) * engine->scale) - engine->camera->vec.x,
+		( (player->vec.y - (player->height / 2) ) * engine->scale) - engine->camera->vec.y,
 		engine->scale,
 		0,
 		NULL,
 		SDL_FLIP_NONE,
 		engine->displayMode
 	);
-	
+
+	renderText(engine->coordinates, engine->renderer, 10, 10, 240, 30);
+
 	// ------------------- RENDER END -------------------
 	
 	SDL_RenderPresent(engine->renderer);
 }
 
 
+char* strdup(const char* p) {
+    char* np = (char*)malloc(strlen(p)+1);
+    return np ? strcpy(np, p) : np;
+}
+
 
 
 
 /**
- * ################################################################
- * ############################# MAIN #############################
- * ################################################################
+ * ================================================================
+ * ............................. MAIN .............................
+ * ================================================================
  */
 int main(int argc, char* args[]) {
 
 	if (argc > 1) {
-		for (int i = 1; i < argc; i++)
-			printf("Paramers %i: %s\n", i, args[i]);
+		printf("Parameters: (%i)\n", argc);
+		for (int i = 1; i < argc; i++) {
+			printf("%i: %s\n", i, args[i]);
+		}
 	}
 
 
-	luaScriptTest();
+	// luaScriptTest();
 	
 	// ASM test
-	// printf("%d\n", compare(5, -4));
-    // printf("%d\n", compare(2, -6));
-    // printf("%d\n", compare(5, 3));
-    // printf("%d\n", compare(-2, 4));
-    // printf("%d\n", compare(0, 0));
-    // printf("%d\n", compare(7, -6));
-    // printf("%d\n", compare(2, 4));
-    // printf("%d\n", compare(3, 2));
-    // printf("%d\n", compare(6, 6));
+    // printf("%i\n", compare(2, 4));
+
 	
 	printf("Nevada is starting... Press F5 for toggle VSYNC, mouse roll - zoom-in & zoom-out.\n");
-	printf("SPACE - pause music, 1 - increase music volume, 2 - decrease musci volume.\n");
+	printf("SPACE - pause music, 1 - increase music volume, 2 - decrease music volume.\n");
+	printf("RSHIFT - change display mode\n");
 
-	Engine* engine = engineStart();
-
-	SpriteSheet* spriteSheetAssets[2];
+	engine = engineStart();
+	if (engine == NULL) {
+		fprintf(stderr, "Engine internal error! Stop.");
+		exit(1);
+	}
 
 	spriteSheetAssets[SS_PLAYER] = loadSpriteSheet("characters.png", engine->renderer, 16, 16);
+	if (spriteSheetAssets[SS_PLAYER] == NULL) {
+		fprintf(stderr, "SpriteSheet cannot be null. Stop.");
+		exit(1);
+	}
 
-	loadMusic(engine, "res/a_funny_moment.mod");
+	loadMusic("res/a_funny_moment.mod");
 
-	Player* player = NULL;
+	// ------------------- BITMAP FONT -------------------
+
+	BitmapFont* bitmapFont = parseBitmapFile("vingue.png", "res/images/vingue.xml", engine->renderer);
+	printf("Bitmap font: %i\n", bitmapFont->bitmapFontChar[0].ascii);
+
+
+	// FILE *binfile;
+
+	// binfile = fopen("font.dat", "wb");
+	// fwrite(&bitmapFont->bitmapFontChar[0], sizeof(BitmapFontChar), 1, binfile);
+	// fclose(binfile);
+
+	
+	// BitmapFontChar fontChars[1];
+
+	// binfile = fopen("font.dat", "rb");
+	// fread(&fontChars, sizeof(BitmapFontChar), 1, binfile);
+	// fclose(binfile);
+
+	// printf("Width: %i\n" ,fontChars[0].width);
+
+	// ---------------------------------------------------
+
+	player = NULL;
 
 	engine->camera = malloc(sizeof(Camera));
 	engine->camera->vec = setVector(0, 0);
 
 
-	Level* level = getLevel();
+	level = getLevel("res/images/worldmap.tmx");
+
+	
+	// for (int i = 0; i < level->layers; i++) {
+	// 	printf("Level: %i = %s\n", i, level->textureName[0]);
+	// }
+
+	// printf("Content data: %s\n", level->textureName[0] );
+
+	// FILE *binfile;
+
+	// binfile = fopen("worldmap.dat", "wb");
+
+	// const unsigned char firstCharacter = 'q';
+	// fwrite(&firstCharacter, sizeof(unsigned char), 1, binfile);
+	// fwrite(&level->layers, sizeof(unsigned short), 1, binfile);
+	// fwrite(&level->size, sizeof(unsigned int), 1, binfile);
+	// fwrite(&level->columns, sizeof(unsigned short), 1, binfile);
+	// fwrite(&level->width, sizeof(unsigned short), 1, binfile);
+	// fwrite(&level->height, sizeof(unsigned short), 1, binfile);
+	// fwrite(&level->textureNameCount, sizeof(unsigned short), 1, binfile);
+	// unsigned short textureNameLength = 0;
+
+	// for (int i = 0; i < level->textureNameCount; i++) {
+	// 	if (strlen(level->textureName[i]) > textureNameLength) 
+	// 		textureNameLength = strlen(level->textureName[i]);
+	// }
+
+	// fwrite(&textureNameLength, sizeof(unsigned short), 1, binfile);
+	// for (int i = 0; i < level->textureNameCount; i++) {
+	// 	fwrite(&level->textureName[i], textureNameLength, 1, binfile);
+	// }
+	
+	// fclose(binfile);
+
+
+	// binfile = fopen("worldmap.dat", "rb");
+	
+	// unsigned char* testChar;
+	// fread(&testChar, sizeof(unsigned char), 1, binfile);
+	// printf("Test character: %c\n", testChar);
+	// unsigned short* layers;
+	// fread(&layers, sizeof(unsigned short), 1, binfile);
+	// printf("Layers: %i\n", layers);
+	// unsigned int* size;
+	// fread(&size, sizeof(unsigned int), 1, binfile);
+	// printf("Size: %i\n", size);
+	// unsigned short columns;
+	// fread(&columns, sizeof(unsigned short), 1, binfile);
+	// printf("Columns: %i\n", columns);
+	// unsigned short* width = 0;
+	// fread(&width, sizeof(unsigned short), 1, binfile);
+	// printf("Width: %i\n", width);
+	// unsigned short* height = 0;
+	// fread(&height, sizeof(unsigned short), 1, binfile);
+	// printf("Height: %i\n", height);
+	// unsigned short textureNameCount;
+	// fread(&textureNameCount, sizeof(unsigned short), 1, binfile);
+	// printf("textureNameCount: %i\n", textureNameCount);
+	// // unsigned short textureNameLength;
+	// fread(&textureNameLength, sizeof(unsigned short), 1, binfile);
+	// printf("textureNameLength: %i\n", textureNameLength);
+	// for (int i = 0; i < textureNameCount; i++) {
+	// 	unsigned char* textureName;
+	// 	fread(&textureName, textureNameLength, 1, binfile);
+	// 	printf("textureName [%i]:  %s\n", i, textureName);
+	// }
+
+	// fclose(binfile);
+	// exit(0);
+
+	// ===================================================== //
 
 	for (int i = 0; i < level->map->objectGroupCount; i++) {
 		for (int j = 0; j < level->map->ObjectGroup[i].objectsCount; j++) {
@@ -216,33 +320,27 @@ int main(int argc, char* args[]) {
 
 	player->walkingAnimation = malloc(sizeof(Animation) * 4);
 
-	unsigned int framesPlayerLeft[]  = {16, 17, 18};
-	unsigned int framesPlayerRight[] = {28, 29, 30};
-	unsigned int framesPlayerUp[]    = {40, 41, 42};
-	unsigned int framesPlayerDown[]  = {4 , 5 , 6 };
-
 	player->walkingAnimation[WALK_UP]    = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerUp);
 	player->walkingAnimation[WALK_RIGHT] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerRight);
 	player->walkingAnimation[WALK_DOWN]  = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerDown);
 	player->walkingAnimation[WALK_LEFT]  = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerLeft);		
 
+	// const int npcCount = 1; // 30
+	// NPC* npcs[NPC_COUNT];
 
-	const int npcCount = 30;
-	NPC* npcs[npcCount];
-		
-	for (int i = 0; i < npcCount; i++) {
+	for (int i = 0; i < NPC_COUNT; i++) {
 		npcs[i] = setNPC(
 			10 + (i * 17),
 			10 + (i * 17),
 			spriteSheetAssets[SS_PLAYER]->tileWidth,
 			spriteSheetAssets[SS_PLAYER]->tileHeight,
-			DIR_RIGHT);
+			DIR_DOWN);
 		
 		unsigned int framesNPC1Left[]  = {13, 14, 15};
 		unsigned int framesNPC1Right[] = {25, 26, 27};
 		unsigned int framesNPC1Up[]    = {37, 38, 39};
 		unsigned int framesNPC1Down[]  = {1,  2,  3};
-		
+
 		npcs[i]->walkingAnimation = malloc(sizeof(Animation) * 4);
 		npcs[i]->walkingAnimation[WALK_UP] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Up);
 		npcs[i]->walkingAnimation[WALK_RIGHT] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Right);
@@ -260,7 +358,6 @@ int main(int argc, char* args[]) {
 	engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2) + 2;
 	engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) + 2;
 
-
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == 0) {	
 
@@ -276,6 +373,10 @@ int main(int argc, char* args[]) {
 				if (engine->event.type == SDL_QUIT) {
 					engine->quit = 1;
 				} else {
+					if (engine->event.type == SDL_MOUSEMOTION ) {
+						engine->mouseX = engine->event.motion.x;
+						engine->mouseY = engine->event.motion.y;
+					}
 					// ZOOM
 					if (engine->event.type == SDL_MOUSEWHEEL) {
 						if (engine->event.button.x == 1) {
@@ -287,12 +388,6 @@ int main(int argc, char* args[]) {
 					}
 					if (engine->event.type == SDL_KEYDOWN) {
 						switch (engine->event.key.keysym.sym) {
-							case SDLK_RETURN:
-								player->vec = setVector(0, 0);
-								break;
-							case SDLK_5:
-								// player->vec = setVector(16, 16);
-								break;
 							case SDLK_RSHIFT:
 								engine->displayMode++;
 								if (engine->displayMode > 2) engine->displayMode = 0;
@@ -302,7 +397,7 @@ int main(int argc, char* args[]) {
 								break;
 							case SDLK_LEFT:
 							case SDLK_a:
-								player->moveVec.x = -player->speed;								
+								player->moveVec.x = -player->speed;
 								break;
 							case SDLK_RIGHT:
 							case SDLK_d:
@@ -360,7 +455,7 @@ int main(int argc, char* args[]) {
 							case SDLK_d:
 								if (player->moveVec.x > 0) {
 									player->moveVec.x = 0;
-								}								
+								}
 								break;
 							case SDLK_UP:
 							case SDLK_w:
@@ -378,7 +473,6 @@ int main(int argc, char* args[]) {
 					}
 				}
 			}
-			
 			
 			// WALKING
 			player->isMoving = 1;
@@ -401,26 +495,25 @@ int main(int argc, char* args[]) {
 			if (player->vec.y > (level->height * level->map->tileHeight) - player->height)
 				player->vec.y = (level->height * level->map->tileHeight) - player->height;
 
-
 			// ###### PLAYER ######
 
-			for (int i = 0; i < npcCount; i++)
+			for (int i = 0; i < NPC_COUNT; i++)
 				updateCollisionsNPC(npcs[i], engine->camera, engine->scale);
 						
 			// // ##########################
 
 
 			// /** ------------------- COLLISSIONS -------------- */
-			for (int i = 0; i < npcCount; i++)
+			for (int i = 0; i < NPC_COUNT; i++)
 				updateCollisionsNPC(npcs[i], engine->camera, engine->scale);
 
 			
 			// // ###### NPCs UPDATE #######
-			for (int i = 0; i < npcCount; i++) {
+			for (int i = 0; i < NPC_COUNT; i++) {
 			
 				updateNPC(npcs[i], level);
 
-				for (int n = i + 1; n < npcCount; n++) {
+				for (int n = i + 1; n < NPC_COUNT; n++) {
 					SDL_Rect npc1TempRect = {
 						( (npcs[i]->vec.x + npcs[i]->moveVec.x ) * engine->scale) - engine->camera->vec.x,
 						( (npcs[i]->vec.y + npcs[i]->moveVec.y ) * engine->scale) - engine->camera->vec.y,
@@ -469,7 +562,7 @@ int main(int argc, char* args[]) {
 			
 			int collisionsPlayerAndNPC = 0;
 
-			for (int i = 0; i < npcCount; i++) {
+			for (int i = 0; i < NPC_COUNT; i++) {
 				if (checkCollision(pTempCol, (npcs[i])->col) != 0)
 					collisionsPlayerAndNPC = 1;
 			}
@@ -486,7 +579,7 @@ int main(int argc, char* args[]) {
 			
 
 			// ###### CAMERA UPDATE ######
-			updateCamera(engine, player, level);
+			updateCamera(player, level);
 			// ###########################
 
 
@@ -497,19 +590,23 @@ int main(int argc, char* args[]) {
 			player->tileIndex = (player->tileY * level->width) + player->tileX;
 
 			// ---------------------- ENGINE UPDATE ----------------------
-			engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2) + 2;
-			engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) + 2;
+			engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2) + 2 - 5;
+			engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) + 2 - 4;
 			if (Mix_PlayingMusic() == 0) {
 				Mix_PlayMusic(engine->music, -1);
 			}		
 			// -------------------------------------------
 
 
+			// ---------------------------- TEXT UPDATE ------------------------
+			sprintf(engine->coordinatesText, "FPS: %d, MOUSE: %d : %d", engine->fps_count, engine->mouseX, engine->mouseY);
+			changeText(engine->coordinates, engine->renderer, engine->coordinatesText);
+			// -----------------------------------------------------------------
+
+
 			// ############## UPDATE END ##############
-
-
 			if (engine->fpsCap) {
-				render(engine, player, level, engine->camera, spriteSheetAssets, layersRects, grounds, npcCount, npcs);
+				render(spriteSheetAssets, layersRects, grounds, npcs);
 				engine->frames++;
 			}
 			engine->updates++;
@@ -517,7 +614,7 @@ int main(int argc, char* args[]) {
 		}
 
 		if (!engine->fpsCap) {
-			render(engine, player, level, engine->camera, spriteSheetAssets, layersRects, grounds, npcCount, npcs);
+			render(spriteSheetAssets, layersRects, grounds, npcs);
 			engine->frames++;
 		}
 
@@ -538,9 +635,6 @@ int main(int argc, char* args[]) {
 
 	// ------------------ RELEASING ... ----------------------
 
-	releaseAnimation( &((*player).walkingAnimation) );
-
-
 	SDL_DestroyTexture(spriteSheetAssets[SS_BACKGROUND]->mTexture);
 	spriteSheetAssets[SS_BACKGROUND]->mTexture = NULL;
 	free(spriteSheetAssets[SS_BACKGROUND]->name);
@@ -556,6 +650,7 @@ int main(int argc, char* args[]) {
 	free(spriteSheetAssets[SS_PLAYER]);
 	spriteSheetAssets[SS_PLAYER] = NULL;
 
+	releaseAnimation( &((*player).walkingAnimation) );
 
 	for (int i = 0; i < level->layers; i++) {
 		free(layersRects[i]);
@@ -592,7 +687,7 @@ int main(int argc, char* args[]) {
 
 
 	// FREE NPCs
-	for (int i = 0; i < npcCount; i++) {
+	for (int i = 0; i < NPC_COUNT; i++) {
 		free(npcs[i]->walkingAnimation);
 		npcs[i]->walkingAnimation = NULL;
 		free(npcs[i]->name);
@@ -600,7 +695,7 @@ int main(int argc, char* args[]) {
 		free(npcs[i]);
 		npcs[i] = NULL;
 	}
-	free(npcs);
+	// free(npcs);
 
 	// FREE PLAYER
 	
@@ -613,7 +708,7 @@ int main(int argc, char* args[]) {
 	engineStop(&engine);
 
 	printf("Game engine has stopped.\n");
-	getchar();
+	// getchar();
 	
 	return 0;
 }

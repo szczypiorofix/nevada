@@ -2,16 +2,22 @@
 #define _ENGINE_H_
 #pragma once
 
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
+#include <libxml/parser.h>
 
 #include "defines.h"
 
 
-// ------------------ STRUCTS ------------------
+#define VSYNC_ON  1
+#define VSYNC_OFF 0
+#define TARGET_FPS = 60.0f;
+#define OPTIMAL_TIME = 1000.0f / TARGET_FPS;
+
+
+// ------------------- ENUMS -------------------
 
 typedef enum {
     DIR_UP,
@@ -30,6 +36,7 @@ typedef enum {
 } SpriteSheets;
 
 
+// ------------------ STRUCTS ------------------
 
 
 typedef struct SpriteSheet {
@@ -42,9 +49,9 @@ typedef struct SpriteSheet {
 } SpriteSheet;
 
 typedef struct Animation {
-    int size;
+    unsigned short size;
     SDL_Rect* frames;
-    int speed;
+    short speed;
     int curFrame;
     int counter;
     SpriteSheet* spriteSheet;
@@ -82,6 +89,7 @@ typedef struct NPC {
     Animation* walkingAnimation;
 } NPC;
 
+
 typedef struct Ground {
     Vector2 vec;
     short int width;
@@ -93,6 +101,15 @@ typedef struct Ground {
 typedef struct Camera {
     Vector2 vec;
 } Camera;
+
+
+typedef struct TextFont {
+	char* text;
+	SDL_Color textColor;
+	TTF_Font* font;
+	SpriteSheet* texture;
+} TextFont;
+
 
 typedef struct Engine {
     int started;
@@ -121,6 +138,10 @@ typedef struct Engine {
 	double ns;
     short int fpsCap;
     int displayMode;
+    short mouseX;
+    short mouseY;
+    TextFont* coordinates;
+    char coordinatesText[35];
 } Engine;
 
 
@@ -149,7 +170,7 @@ typedef struct Layer {
     int width;
     int height;
     char* encoding;
-    int* data;
+    int (*data);
 } Layer;
 
 typedef struct TiledObject {
@@ -191,60 +212,50 @@ typedef struct TiledMap {
 
 typedef struct Level {
     Layer* content;
-    int layers;
+    unsigned short layers;
     unsigned short width;
     unsigned short height;
     unsigned int size;
     TiledMap* map;
-    int textureNameCount;
-    int columns;
+    unsigned short textureNameCount;
+    unsigned short columns;
     char* textureName[];
 } Level;
 
 
-typedef struct TextFont {
-	char* text;
-	SDL_Color textColor;
-	TTF_Font* font;
-	SpriteSheet* texture;
-} TextFont;
-
-
-
+// ------------------ BASIC STRUCTURES ------------------
+Engine* engine;
 
 
 // ------------------ PUBLIC FUNCTIONS ------------------
 
 Engine* engineStart(void);
 void engineStop(Engine** engine);
-void updateDeltaTime(Engine* engine);
-int loadMusic(Engine* engine, char* musicFile);
-void updateCamera(Engine* engine, const Player* player, const Level* level);
+int loadMusic(char* musicFile);
+void updateCamera(const Player* player, const Level* level);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
-SDL_Rect* createRectsForSprites(Level* level, int layerCount, SpriteSheet* t);
-Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned int size, unsigned int* frames);
-int nextFrame(Animation* an);
-int releaseAnimation(Animation** an);
+SDL_Rect* createRectsForSprites(Level* level, unsigned short layerCount, SpriteSheet* t);
+Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, unsigned int* frames);
+int nextFrame(Animation* a);
+int releaseAnimation(Animation** a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
-Player* resetPlayer(char* name, float x, float y, short int width, short int height);
+Player* resetPlayer(char* name, float x, float y, short width, short height);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
-Ground* setGround(float x, float y, short int width, short int height);
+Ground* setGround(float x, float y, short width, short height);
 int getTileX(Player* p, unsigned int tileWidth);
 int getTileY(Player* p, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
 void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale);
 void updateCollisionsPlayer(Player* p, const Camera* cam, const float scale);
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
-Level* getLevel();
+Level* getLevel(char* fileName);
 void freeTiledMap(TiledMap* tiledMap);
 TextFont* loadFromRenderedText(const char* textureText, SDL_Renderer* renderer);
 void renderText(TextFont* t, SDL_Renderer* renderer, int x, int y, int w, int h);
 void changeText(TextFont* t, SDL_Renderer* renderer, char* text);
+int xmlCharToInt(const xmlChar a[]);
 
-
-extern const short int VSYNC_ON;
-extern const short int VSYNC_OFF;
 
 #endif

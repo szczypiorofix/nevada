@@ -237,7 +237,7 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 SDL_Rect* createRectsForSprites(Level* level, unsigned short layerCount, SpriteSheet* t);
-Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, unsigned int* frames);
+Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames);
 int nextFrame(Animation* a);
 int releaseAnimation(Animation** a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
@@ -256,6 +256,6 @@ TextFont* loadFromRenderedText(const char* textureText, SDL_Renderer* renderer);
 void renderText(TextFont* t, SDL_Renderer* renderer, int x, int y, int w, int h);
 void changeText(TextFont* t, SDL_Renderer* renderer, char* text);
 int xmlCharToInt(const xmlChar a[]);
-
+int stringToInt(const char a[]);
 
 #endif

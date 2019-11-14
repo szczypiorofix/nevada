@@ -24,32 +24,18 @@ void normalizeVetor(Vector2* v);
 
 // ------------------ VECTOR2 FUNCTIONS ------------------
 
-// Vector2* createVector(float x, float y) {
-// 	Vector2* v = malloc(sizeof(Vector2));
-// 	if (v == NULL) {
-// 		fprintf(stderr, "Error while allocating memory for Vector2 !!!\n");
-// 		return NULL;
-// 	}
-// 	v->x = x;
-// 	v->y = y;
-// 	return v;
-// }
 
 Vector2 setVector(float x, float y) {
 	Vector2 v = {x, y};
 	return v;
 }
 
-void rotateVector(Vector2* vector, float angle) {
-	float radAngle = (float)(angle * DEG_TO_RAD);
-	vector->x = (float)(vector->x * cos(radAngle) - vector->y * sin(radAngle));
-	vector->y = (float)(vector->x * sin(radAngle) + vector->y * cos(radAngle));
-}
 
 void addVector(Vector2* v1, const Vector2* v2) {
 	v1->x += v2->x;
 	v1->y += v2->y;
 }
+
 
 void subVector(Vector2* v1, const Vector2* v2) {
 	v1->x -= v2->x;
@@ -61,10 +47,12 @@ void mulVector(Vector2* v1, const Vector2* v2) {
 	v1->y *= v2->y;
 }
 
+
 void divVector(Vector2* v1, const Vector2* v2) {
 	v1->x /= v2->x;
 	v1->y /= v2->y;
 }
+
 
 void normalizeVetor(Vector2* v) {
 	float mag = (float) sqrt(v->x * v->x + v->y * v->y);
@@ -72,11 +60,13 @@ void normalizeVetor(Vector2* v) {
 	v->y = (float) (v->y / mag);
 }
 
+
 // ------------------ COMMON FUNCTIONS ------------------
 
 int fromBinary(const char *s) {
   return (int) strtol(s, NULL, 2);
 }
+
 
 char* copyStringFromPointer(const char* s) {
 	int sl = strlen(s) + 1;

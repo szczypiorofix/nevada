@@ -21,29 +21,6 @@
 #define DIR_RES "res/"
 
 
-#define PI 3.14159265
-#define DEG_TO_RAD PI / 180.0f
-
-
-// ------------------ TYPEDEFS ------------------
-
-// BYTE
-typedef char byte;
-typedef unsigned char ubyte;
-
-// INT16
-typedef signed short int int16;
-typedef unsigned short int uint16;
-
-// INT32
-typedef signed int int32;
-typedef unsigned int uint32;
-
-// INT64
-typedef signed long int int64;
-typedef unsigned long int uint64;
-
-
 
 // ------------------ VECTOR2 ------------------
 typedef struct Vector2 {
@@ -58,12 +35,6 @@ void subVector(Vector2* v1, const Vector2* v2);
 void mulVector(Vector2* v1, const Vector2* v2);
 void divVector(Vector2* v1, const Vector2* v2);
 void normalizeVetor(Vector2* v);
-
-
-// ------------------ ENUMS ------------------
-
-
-
 
 
 // ------------------ COMMON FUNCTIONS ------------------

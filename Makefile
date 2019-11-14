@@ -20,8 +20,8 @@ $(ODIR)/defines.o\
 $(ODIR)/engine.o\
 $(ODIR)/luac.o\
 $(ODIR)/font.o\
-$(ODIR)/compare.o
-
+$(ODIR)/compare.o\
+$(ODIR)/res.o\
 
 # STARTING TARGETS
 debug: bin/debug/nevada.exe
@@ -33,7 +33,7 @@ bin/debug/nevada.exe: $(FILE_TO_COMPILE)
 	$(DEBUG_STM) $^ $(CC_LIBS) -o $@
 
 # release
-bin/release/nevada.exe: $(FILE_TO_COMPILE)
+ bin/release/nevada.exe: $(FILE_TO_COMPILE)
 	$(DEBUG_STM) $^ $(CC_LIBS) -o $@
 
 
@@ -65,3 +65,7 @@ $(ODIR)/font.o: $(SDIR)/font.c $(SDIR)/font.h
 # compare.o
 $(ODIR)/compare.o: $(SDIR)/compare.asm
 	nasm -fwin32 $< -o $@
+
+# res.o
+$(ODIR)/res.o: nevada.rc
+	windres nevada.rc -o $(ODIR)/res.o

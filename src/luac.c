@@ -4,10 +4,17 @@
 
 #include "luac.h"
 
+// ------------------ FORWARD DECLARATION ------------------
+static int CheckLua(lua_State *L, int r);
+static int lua_HostFunction(lua_State* L);
+
+void luaScriptTest();
+
+
 
 
 // Little error checking utility function
-int CheckLua(lua_State *L, int r) {
+static int CheckLua(lua_State *L, int r) {
 	if (r != LUA_OK) {
 		printf("ERROR: %s\n", lua_tostring(L, -1));
 		return 0;
@@ -16,7 +23,7 @@ int CheckLua(lua_State *L, int r) {
 }
 
 
-int lua_HostFunction(lua_State* L) {
+static int lua_HostFunction(lua_State* L) {
 	float a = (float) lua_tonumber(L, 1);
 	float b = (float) lua_tonumber(L, 2);
 

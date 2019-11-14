@@ -52,6 +52,7 @@ REM Rebuild
 :reb
 ECHO Rebuilding whole project
 mingw32-make -B debug
+mingw32-make release
 GOTO eof
 
 

@@ -2,11 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <math.h>
+#include <windows.h>
 
 #include "main.h"
 #include "luac.h"
 #include "font.h"
+#include "resources.h"
+
+// EXEC's ICON
+#define NEVADA 101
+#define NEVADA_VERSION "0.5.3"
+
 
 
 void render(SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, NPC** npcs) {
@@ -129,22 +135,26 @@ int main(int argc, char* args[]) {
 	// ASM test
     // printf("%i\n", compare(2, 4));
 
-	
+
+
+
+
+
+	char buffor[10];
+	LoadString(GetModuleHandleA(NULL), 5001, buffor, 10);
+	printf("Buforek: ");
+	printf(buffor);
+	printf("\n");	
+
+
+
+
+
 	printf("Nevada is starting... Press F5 for toggle VSYNC, mouse roll - zoom-in & zoom-out.\n");
 	printf("SPACE - pause music, 1 - increase music volume, 2 - decrease music volume.\n");
 	printf("RSHIFT - change display mode\n");
 
 	engine = engineStart();
-	if (engine == NULL) {
-		fprintf(stderr, "Engine internal error! Stop.");
-		exit(1);
-	}
-
-	spriteSheetAssets[SS_PLAYER] = loadSpriteSheet("characters.png", engine->renderer, 16, 16);
-	if (spriteSheetAssets[SS_PLAYER] == NULL) {
-		fprintf(stderr, "SpriteSheet cannot be null. Stop.");
-		exit(1);
-	}
 
 	loadMusic("res/a_funny_moment.mod");
 
@@ -179,6 +189,11 @@ int main(int argc, char* args[]) {
 
 	level = getLevel("res/images/worldmap.tmx");
 
+	spriteSheetAssets[SS_PLAYER] = loadSpriteSheet("characters.png", engine->renderer, 16, 16);
+	if (spriteSheetAssets[SS_PLAYER] == NULL) {
+		fprintf(stderr, "SpriteSheet cannot be null. Stop.");
+		exit(1);
+	}
 	
 	// for (int i = 0; i < level->layers; i++) {
 	// 	printf("Level: %i = %s\n", i, level->textureName[0]);

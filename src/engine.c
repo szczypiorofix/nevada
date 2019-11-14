@@ -7,16 +7,29 @@
 
 #include "engine.h"
 
-// ------------------ CONSTANTS ------------------
-
-
-
 
 // ------------------ FORWARD DECLARATION ------------------
+
+// --- STATIC ---
+static int random(int min, int max);
+static int initSDL(Engine* engine);
+static int createWindow(Engine* engine);
+static int createRenderer(Engine* engine);
+static int initializePngImages(Engine* engine);
+static int initializeAudioSystem(Engine* engine);
+static int initializeTTFFonts(Engine* engine);
+static int randomNPCActivity_move();
+static int randomNPCActivity_wait();
+static TiledMap* parseMap(const char* fileName);
+static int* convertDataStringToArray(const xmlChar* s);
+static int countTiledObjects(xmlNodePtr cur);
+static TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter);
+static int* parseData(xmlDocPtr doc, xmlNodePtr cur);
+static TileSetSource* getTileSetSource(const char* tsxFileName);
+
+
+// --- PUBLIC ---
 Engine* createEngine(void);
-int initSDL(Engine* engine);
-int createWindow(Engine* engine);
-int createRenderer(Engine* engine);
 struct Engine* engineStart();
 void engineStop(Engine** engine);
 int loadMusic(char* musicFile);
@@ -24,13 +37,13 @@ void updateCamera(const Player* player, const Level* level);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
+Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames);
 int releaseAnimation(Animation** a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
 int getTileX(Player* p, unsigned int tileWith);
 int getTileY(Player* p, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
-int random(int min, int max);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale);
 Ground* setGround(float x, float y, short int width, short int height);
@@ -39,7 +52,8 @@ void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
 Level* getLevel(char* fileName);
 int xmlCharToInt(const xmlChar a[]);
 int* parseData(xmlDocPtr doc, xmlNodePtr cur);
-TiledMap* parseMap(const char* fileName);
+int xmlCharToInt(const xmlChar a[]);
+int stringToInt(const char a[]);
 void freeTiledMap(TiledMap* tiledMap);
 TileSetSource* getTileSetSource(const char* tsxFileName);
 TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter);
@@ -50,8 +64,9 @@ void changeText(TextFont* t, SDL_Renderer* renderer, char* text);
 
 
 
+// ------------------------ "PRIVATE" FUNCTIONS ------------------------
 
-int random(int min, int max) {
+static int random(int min, int max) {
     int tmp;
     if (max>=min)
         max-= min;
@@ -63,10 +78,381 @@ int random(int min, int max) {
     return max ? (rand() % max + min) : min;
 }
 
+static int initSDL(Engine* engine) {
+    engine->started = ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0 );
+    if (!engine->started) printf( "SDL_Init() Error: %s\n", SDL_GetError() );
+    atexit(SDL_Quit);
+    return engine->started;
+}
+
+static int createWindow(Engine* engine) {
+    engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (engine->window == NULL) {
+        printf( "SDL_CreateWindow() Error: %s\n", SDL_GetError());
+        engine->started = 0;
+    }
+    return (engine->window == NULL);
+}
+
+
+static int createRenderer(Engine* engine) {
+    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED );// | SDL_RENDERER_PRESENTVSYNC);
+    if (engine->renderer == NULL) {
+        printf("SDL_CreateRenderer() Error: %s\n", SDL_GetError());
+        engine->started = 0;
+    } else {
+        SDL_SetRenderDrawColor(engine->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    }
+    return (engine->renderer == NULL);
+}
+
+static int initializePngImages(Engine* engine) {
+    int imgFlags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags)) {
+        printf( "IMG_Init() Error: %s\n", IMG_GetError());
+        engine->started = 0;
+    }
+    return engine->started;
+}
+
+static int initializeAudioSystem(Engine* engine) {
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        printf("SDL_mixer Mix_OpenAudio() Error: %s\n", Mix_GetError());
+        engine->started = 0;
+    }
+    return engine->started;
+}
+
+static int initializeTTFFonts(Engine* engine) {
+    if(TTF_Init() == -1) {
+        printf( "SDL_ttf TTF_Init() Error: %s\n", TTF_GetError() );
+        engine->started = 0;
+    }
+    return engine->started;
+}
+
+static int randomNPCActivity_move() {
+    return random(60, 160);
+}
+
+
+static int randomNPCActivity_wait() {
+    return random(20, 150);
+}
+
+
+static TiledMap* parseMap(const char* fileName) {
+	
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+
+	doc = xmlParseFile(fileName);
+    if (doc == NULL) {
+		fprintf(stderr,"Document not parsed successfully.\n");
+        exit(0);
+    }
+
+    cur = xmlDocGetRootElement(doc);
+    
+    if (cur == NULL) {
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(doc);
+		exit(0);
+	}
+
+    if (xmlStrcmp(cur->name, (const xmlChar *) "map")) {
+		fprintf(stderr,"Document of the wrong type, root node != map !!! \n");
+		xmlFreeDoc(doc);
+		exit(0);
+	}
+
+	TiledMap* tiledMap = malloc(sizeof (TiledMap));
+	if (tiledMap == NULL) {
+		printf("Malloc (creating TiledMap) error !!!\n");
+		exit(1);
+	}
+	tiledMap->width = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "width"));
+	tiledMap->height = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "height"));
+	tiledMap->tileWidth = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tilewidth"));
+	tiledMap->tileHeight = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tileheight"));
+
+    cur = cur->xmlChildrenNode;
+
+	int layersCount = 0;
+	int tileSetCount = 0;
+	int objectGroupCount = 0;
+
+	xmlNodePtr firstForCounter = cur;
+	
+	// Counting layers and tilesets
+	while(firstForCounter != NULL) {
+		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"tileset"))) {
+			tileSetCount++;
+		}
+		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"layer"))) {
+			layersCount++;
+		}
+		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"objectgroup"))) {
+			objectGroupCount++;
+		}
+		firstForCounter = firstForCounter->next;
+	}
+	
+	int lc = 0, tc = 0, ogc = 0;
+
+	TileSet* tileSet = malloc(sizeof(TileSet) * tileSetCount);
+	if (tileSet == NULL) {
+		printf("Malloc (creating TileSet) error !!!\n");
+		exit(1);
+	}
+
+	Layer* layers = malloc(sizeof(Layer) * layersCount);
+	if (layers == NULL) {
+		printf("Malloc (creating Layer) error !!!\n");
+		exit(1);
+	}
+
+	ObjectGroup* objectGroups = malloc(sizeof(ObjectGroup) * objectGroupCount);
+	if (layers == NULL) {
+		printf("Malloc (creating ObjectGroup) error !!!\n");
+		exit(1);
+	}
+
+
+    while (cur != NULL) {
+		if ((!xmlStrcmp(cur->name, (const xmlChar *)"tileset"))) {
+			tileSet[tc].firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
+			tileSet[tc].source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
+			TileSetSource* tss = getTileSetSource(tileSet[tc].source);
+			tileSet[tc].tileSetSource = tss;
+			tc++;
+		}
+		if ((!xmlStrcmp(cur->name, (const xmlChar *)"layer"))) {
+			layers[lc].id = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "id"));
+			layers[lc].name = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
+			layers[lc].width = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "width"));
+			layers[lc].height = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "height"));
+			layers[lc].data = parseData(doc, cur);
+			lc++;
+		}
+		if ((!xmlStrcmp(cur->name, (const xmlChar *)"objectgroup"))) {
+			objectGroups[ogc].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
+			objectGroups[ogc].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
+			objectGroups[ogc].objectsCount = countTiledObjects(cur);
+			objectGroups[ogc].objects = getTiledObjects(cur, objectGroups[ogc].objectsCount);
+			ogc++;
+		}
+	    cur = cur->next;
+	}
+	tiledMap->tileSet = tileSet;
+	tiledMap->layer = layers;
+	tiledMap->ObjectGroup = objectGroups;
+	tiledMap->layersCount = lc;
+	tiledMap->tileSetCount = tc;
+	tiledMap->objectGroupCount = ogc;
+
+	xmlFreeDoc(doc);
+	xmlCleanupMemory();
+	xmlCleanupParser();
+	
+	return tiledMap;
+} 
+
+
+static int* convertDataStringToArray(const xmlChar* s) {
+	unsigned int numbers = 0;
+	unsigned int c = 0;
+	int cleanCharsNumber = 0;
+	// Counting comas
+	while(s[c] != '\0') {
+		if (s[c] == ',') numbers++;
+		// CHECK CR/LF
+		if (s[c] != 13 && s[c] != 32 && s[c] != 10) cleanCharsNumber++;
+		c++;
+	}
+	// How many numbers = comas + 1
+	numbers++;
+	c = 0;
+	char cleanCharsArray[cleanCharsNumber];
+	cleanCharsNumber = 0;
+	while(s[c] != '\0') {
+		// CHECK CR/LF AND SPACES
+		if (s[c] != 13 && s[c] != 32 && s[c] != 10) {
+			cleanCharsArray[cleanCharsNumber] = s[c];
+			cleanCharsNumber++;
+		}
+		c++;
+	}
+
+	c = 0;
+	char delim[] = ",";
+	char *ptr = strtok(cleanCharsArray, delim);
+	int* numArr = malloc(sizeof(int) * numbers);
+	if (numArr == NULL) {
+		printf("Malloc 'numArr' error !!!\n");
+		exit(1);
+	}
+	while(ptr != NULL) {
+		numArr[c] = stringToInt(ptr);
+		ptr = strtok(NULL, delim);
+		c++;
+	}
+	
+	return numArr;
+}
+
+
+static int countTiledObjects(xmlNodePtr cur) {
+	cur = cur->xmlChildrenNode;
+	int objectsCounter = 0;
+	while (cur != NULL) {
+	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"object"))) {
+			objectsCounter++;
+ 	    }
+		cur = cur->next;
+	}
+	return objectsCounter;
+}
+
+
+static TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
+	
+	TiledObject* objects = malloc(sizeof(TiledObject) * tiledObjectsCounter);
+	if (objects == NULL) {
+		printf("Malloc (creating TiledObject) error !!!\n");
+		exit(1);
+	}
+	cur = cur->xmlChildrenNode;
+	int i = 0;
+	while (cur != NULL) {
+	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"object"))) {
+		    objects[i].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
+			objects[i].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
+			objects[i].type = (char *)xmlGetProp(cur, (const xmlChar *) "type");
+			objects[i].template = (char *)xmlGetProp(cur, (const xmlChar *) "template");
+			objects[i].x = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "x"));
+			objects[i].y = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "y"));
+
+
+			char tmp[50] = DIR_RES_IMAGES;
+			strcat(tmp, objects[i].template);
+			xmlDocPtr txDoc;
+			xmlNodePtr txCurNode;
+			txDoc = xmlParseFile(tmp);
+			if (txDoc == NULL) {
+				fprintf(stderr, "Document not parsed successfully.\n");
+				exit(0);
+			}
+			txCurNode = xmlDocGetRootElement(txDoc);
+			if (txCurNode == NULL) {
+				fprintf(stderr,"empty document\n");
+				xmlFreeDoc(txDoc);
+				exit(0);
+			}
+			if (xmlStrcmp(txCurNode->name, (const xmlChar *) "template")) {
+				fprintf(stderr,"document of the wrong type, root node != template !!! \n");
+				xmlFreeDoc(txDoc);
+				exit(0);
+			}
+			txCurNode = txCurNode->xmlChildrenNode;
+			while (txCurNode != NULL) {
+				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"tileset"))) {
+					objects[i].source = (char *)xmlGetProp(txCurNode, (const xmlChar *) "source");
+					objects[i].firstGid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "firstgid"));
+				}
+				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"object"))) {
+					objects[i].gid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "gid"));
+					objects[i].width = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "width"));
+					objects[i].height = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "height"));
+				}
+				txCurNode = txCurNode->next;
+			}
+			xmlFreeDoc(txDoc);
+			i++;
+ 	    }
+		cur = cur->next;
+	}
+	return objects;
+}
+
+
+static int* parseData(xmlDocPtr doc, xmlNodePtr cur) {
+	xmlChar* key;
+	cur = cur->xmlChildrenNode;
+	int* arr = NULL;
+	while (cur != NULL) {
+	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"data"))) {
+		    key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			arr = convertDataStringToArray(key);
+		    xmlFree(key);
+ 	    }
+		cur = cur->next;
+	}
+    return arr;
+}
+
+
+static TileSetSource* getTileSetSource(const char* tsxFileName) {
+	TileSetSource* tileSetSource = malloc(sizeof(TileSetSource));
+	if (tileSetSource == NULL) {
+		printf("Malloc (creating TileSetSource) error !!!\n");
+		exit(1);
+	}
+	char tmp[50] = DIR_RES_IMAGES;
+	strcat(tmp, tsxFileName);
+	
+	xmlDocPtr tsxDoc;
+	xmlNodePtr tsxCurNode;
+
+	tsxDoc = xmlParseFile(tmp);
+	if (tsxDoc == NULL) {
+		fprintf(stderr, "Document not parsed successfully.\n");
+        exit(0);
+    }
+	
+	tsxCurNode = xmlDocGetRootElement(tsxDoc);
+    if (tsxCurNode == NULL) {
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(tsxDoc);
+		exit(0);
+	}
+	
+	if (xmlStrcmp(tsxCurNode->name, (const xmlChar *) "tileset")) {
+		fprintf(stderr,"document of the wrong type, root node != tileset !!! \n");
+		xmlFreeDoc(tsxDoc);
+		exit(0);
+	}
+	tileSetSource->name = (char *)xmlGetProp(tsxCurNode, (const xmlChar *) "name");
+	tileSetSource->tileWidth = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilewidth"));
+	tileSetSource->tileHeight = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tileheight"));
+	tileSetSource->tileCount = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilecount"));
+	tileSetSource->columns = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "columns"));
+
+	tsxCurNode = tsxCurNode->xmlChildrenNode;
+	while (tsxCurNode != NULL) {
+		if ((!xmlStrcmp(tsxCurNode->name, (const xmlChar *) "image"))) {
+			tileSetSource->imageSource= (char *) xmlGetProp(tsxCurNode, (const xmlChar *) "source");
+			tileSetSource->width = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "width"));
+			tileSetSource->height = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "height"));
+		}
+		tsxCurNode = tsxCurNode->next;
+	}
+	xmlFreeDoc(tsxDoc);
+	return tileSetSource;
+}
+
+
+
+
+
+// ------------------------ "PUBLIC" FUNCTIONS ------------------------
 
 Engine* createEngine(void) {
     Engine* engine = malloc(sizeof(Engine));
-    if (engine == NULL) return NULL;
+    if (engine == NULL) {
+        fprintf(stderr, "Engine is NULL !!! \n");
+        exit(1);
+    }
     
     engine->started = 0;
     engine->quit = 0;
@@ -102,63 +488,15 @@ Engine* createEngine(void) {
     return engine;
 }
 
-int initSDL(Engine* engine) {
-    engine->started = ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0 );
-    if (!engine->started) printf( "SDL_Init() Error: %s\n", SDL_GetError() );
-    atexit(SDL_Quit);
-    return engine->started;
-}
 
-int createWindow(Engine* engine) {
-    engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (engine->window == NULL) {
-        printf( "SDL_CreateWindow() Error: %s\n", SDL_GetError());
-        engine->started = 0;
-    }
-    return (engine->window == NULL);
-}
-
-
-int createRenderer(Engine* engine) {
-    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED );// | SDL_RENDERER_PRESENTVSYNC);
-    if (engine->renderer == NULL) {
-        printf("SDL_CreateRenderer() Error: %s\n", SDL_GetError());
-        engine->started = 0;
-    } else {
-        SDL_SetRenderDrawColor(engine->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-    }
-    return (engine->renderer == NULL);
-}
-
-int initializePngImages(Engine* engine) {
-    int imgFlags = IMG_INIT_PNG;
-    if (!(IMG_Init(imgFlags) & imgFlags)) {
-        printf( "IMG_Init() Error: %s\n", IMG_GetError());
-        engine->started = 0;
-    }
-    return engine->started;
-}
-
-int initializeAudioSystem(Engine* engine) {
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        printf("SDL_mixer Mix_OpenAudio() Error: %s\n", Mix_GetError());
-        engine->started = 0;
-    }
-    return engine->started;
-}
-
-int initializeTTFFonts(Engine* engine) {
-    if(TTF_Init() == -1) {
-        printf( "SDL_ttf TTF_Init() Error: %s\n", TTF_GetError() );
-        engine->started = 0;
-    }
-    return engine->started;
-}
 
 
 Engine* engineStart(void) {
     Engine* engine = createEngine();
-    if (engine == NULL) return NULL;
+    if (engine == NULL) {
+        fprintf(stderr, "Engine is NULL !!! \n");
+        exit(1);
+    }
     initSDL(engine);
     createWindow(engine);
     createRenderer(engine);
@@ -170,7 +508,10 @@ Engine* engineStart(void) {
     
     // engine->assets = createAssets();
     
-    if (engine->started == 0) return NULL;
+    if (engine->started == 0) {
+        fprintf(stderr, "Engine is NULL !!! \n");
+        exit(1);
+    }
    
     return engine;
 }
@@ -272,7 +613,7 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
     SpriteSheet* t = malloc(sizeof(SpriteSheet));
     if (t == NULL) {
         fprintf(stderr, "Cannot load sprite sheet: %s !\n", fileName);
-        return NULL;
+        exit(1);
     }
     SDL_Texture* newTexture = NULL;
     t->name = fileName;
@@ -295,8 +636,8 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
         }
         SDL_FreeSurface(loadedSurface);
     }
-    t->mTexture = newTexture;
-    t->tileWidth = tileWidth;
+    t->mTexture   = newTexture;
+    t->tileWidth  = tileWidth;
     t->tileHeight = tileHeight;
     return t;
 }
@@ -325,11 +666,12 @@ SDL_Rect* createRectsForSprites(Level* level, unsigned short layerCount, SpriteS
     return rects;
 }
 
-Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, unsigned int* frames)
-{
+Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames) {
     Animation* anim = malloc(sizeof(Animation));
-    if (anim == NULL) return NULL;
-
+    if (anim == NULL) {
+        fprintf(stderr, "Animation is NULL !!!\n");
+        exit(1);
+    }
     anim->size = size;
     anim->speed = speed;
     anim->counter = 0;
@@ -337,7 +679,10 @@ Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw,
     anim->spriteSheet = t;
 
     anim->frames = malloc(sizeof(SDL_Rect) * size);
-    if (anim->frames == NULL) return NULL;
+    if (anim->frames == NULL) {
+        fprintf(stderr, "Animation frames are NULL !!!\n");
+        exit(1);
+    }
     for (unsigned int i = 0; i < size; i++) {
         int col = t->width / t->tileWidth;
         SDL_Rect r = {
@@ -380,26 +725,21 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
         fprintf(stderr, "Malloc error while creating Player!!!\n");
         return NULL;
     }
-    
     p->name = name;
     p->width = width;
 	p->height = height;
     p->direction = DIR_RIGHT;
     p->speed = 2.0f;
-
     p->tileIndex = 0;
     p->tileX = 0;
     p->tileY = 0;
-    
     p->vec = setVector(x, y);
     p->moveVec = setVector(0, 0);
-
     p->isMoving = 0;
     SDL_Rect c = { p->vec.x, p->vec.y, p->width, p->height };
     p->col = c;
     return p;
 }
-
 
 
 int getTileX(Player* p, unsigned int tileWidth) {
@@ -428,16 +768,6 @@ void updateCollisionsPlayer(Player* p, const Camera* cam, const float scale) {
 }
 
 
-int randomNPCActivity_move() {
-    return random(60, 160);
-}
-
-
-int randomNPCActivity_wait() {
-    return random(20, 150);
-}
-
-
 int updateNPC(NPC* npc, Level* level) {
 
     // COUNTING ACTIONS TIME
@@ -451,57 +781,61 @@ int updateNPC(NPC* npc, Level* level) {
     if (npc->takingActionCounter == 0) { // ANOTHER RANDOM ACTION
         if (npc->takingAction == 0) {
             switch (random(0, 8)) {
-            // Basic directions
-            case DIR_UP:
-                npc->moveVec.x = 0;
-                npc->moveVec.y = -NPC_SPEED;
-                npc->direction = DIR_UP;
-                npc->maxTakingActionCounter = randomNPCActivity_move();
-                break;
-            case DIR_RIGHT:
-                npc->moveVec.x = NPC_SPEED;
-                npc->moveVec.y = 0;
-                npc->direction = DIR_RIGHT;
-                npc->maxTakingActionCounter = randomNPCActivity_move();
-                break;
-            case DIR_DOWN:
-                npc->moveVec.x = 0;
-                npc->moveVec.y = NPC_SPEED;
-                npc->direction = DIR_DOWN;
-                npc->maxTakingActionCounter = randomNPCActivity_move();
-                break;
-            case DIR_LEFT:
-                npc->moveVec.x = -NPC_SPEED;
-                npc->moveVec.y = 0;
-                npc->direction = DIR_LEFT;
-                npc->maxTakingActionCounter = randomNPCActivity_move();
-                break;
-            // Additional directions
-            case DIR_UP_RIGHT:
-                npc->moveVec.x = NPC_SPEED;
-                npc->moveVec.y = -NPC_SPEED;
-                npc->direction = DIR_RIGHT;
-                npc->maxTakingActionCounter = randomNPCActivity_move();
-                break;
-            case DIR_DOWN_RIGHT:
-                npc->moveVec.x = NPC_SPEED;
-                npc->moveVec.y = NPC_SPEED;
-                npc->direction = DIR_RIGHT;
-                npc->maxTakingActionCounter = randomNPCActivity_move();
-                break;
-            case DIR_DOWN_LEFT:
-                npc->moveVec.x = -NPC_SPEED;
-                npc->moveVec.y = NPC_SPEED;
-                npc->direction = DIR_LEFT;
-                npc->maxTakingActionCounter = randomNPCActivity_move();
-                break;
-            case DIR_UP_LEFT:
-                npc->moveVec.x = -NPC_SPEED;
-                npc->moveVec.y = -NPC_SPEED;
-                npc->direction = DIR_LEFT;
-                npc->maxTakingActionCounter = randomNPCActivity_move();
-                break;
+                // Basic directions
+                case DIR_UP:
+                    npc->moveVec.x = 0;
+                    npc->moveVec.y = -NPC_SPEED;
+                    npc->direction = DIR_UP;
+                    npc->maxTakingActionCounter = randomNPCActivity_move();
+                    break;
+                case DIR_RIGHT:
+                    npc->moveVec.x = NPC_SPEED;
+                    npc->moveVec.y = 0;
+                    npc->direction = DIR_RIGHT;
+                    npc->maxTakingActionCounter = randomNPCActivity_move();
+                    break;
+                case DIR_DOWN:
+                    npc->moveVec.x = 0;
+                    npc->moveVec.y = NPC_SPEED;
+                    npc->direction = DIR_DOWN;
+                    npc->maxTakingActionCounter = randomNPCActivity_move();
+                    break;
+                case DIR_LEFT:
+                    npc->moveVec.x = -NPC_SPEED;
+                    npc->moveVec.y = 0;
+                    npc->direction = DIR_LEFT;
+                    npc->maxTakingActionCounter = randomNPCActivity_move();
+                    break;
+                // Additional directions
+                case DIR_UP_RIGHT:
+                    npc->moveVec.x = NPC_SPEED;
+                    npc->moveVec.y = -NPC_SPEED;
+                    npc->direction = DIR_RIGHT;
+                    npc->maxTakingActionCounter = randomNPCActivity_move();
+                    break;
+                case DIR_DOWN_RIGHT:
+                    npc->moveVec.x = NPC_SPEED;
+                    npc->moveVec.y = NPC_SPEED;
+                    npc->direction = DIR_RIGHT;
+                    npc->maxTakingActionCounter = randomNPCActivity_move();
+                    break;
+                case DIR_DOWN_LEFT:
+                    npc->moveVec.x = -NPC_SPEED;
+                    npc->moveVec.y = NPC_SPEED;
+                    npc->direction = DIR_LEFT;
+                    npc->maxTakingActionCounter = randomNPCActivity_move();
+                    break;
+                case DIR_UP_LEFT:
+                    npc->moveVec.x = -NPC_SPEED;
+                    npc->moveVec.y = -NPC_SPEED;
+                    npc->direction = DIR_LEFT;
+                    npc->maxTakingActionCounter = randomNPCActivity_move();
+                    break;
             }
+            
+            printf("NPC new direction: %i\n", npc->direction);
+            printf("NPC anim:  %i\n", npc->walkingAnimation->curFrame);
+            
             npc->takingAction = 1;
         } else {
             npc->takingAction = 0;
@@ -563,6 +897,48 @@ Ground* setGround(float x, float y, short width, short height) {
 }
 
 
+int xmlCharToInt(const xmlChar a[]) {
+	int c = 0, sign = 0, offset = 0, n = 0;
+	if (a[0] == '-') {
+		sign = -1;
+	}
+	if (sign == -1) {
+		offset = 1;
+	} else {
+		offset = 0;
+	}
+  	n = 0;
+  	for (c = offset; a[c] != '\0'; c++) {
+		  n = n * 10 + a[c] - '0';
+	}
+	if (sign == -1) {
+		n = -n;
+	}
+	return n;
+}
+
+
+int stringToInt(const char a[]) {
+	int c = 0, sign = 0, offset = 0, n = 0;
+	if (a[0] == '-') {
+		sign = -1;
+	}
+	if (sign == -1) {
+		offset = 1;
+	} else {
+		offset = 0;
+	}
+  	n = 0;
+  	for (c = offset; a[c] != '\0'; c++) {
+		  n = n * 10 + a[c] - '0';
+	}
+	if (sign == -1) {
+		n = -n;
+	}
+	return n;
+}
+
+
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer) {
     SDL_RenderDrawRect(renderer, &npc->col);
 }
@@ -591,6 +967,7 @@ void freeTiledMap(TiledMap* tiledMap) {
 		tiledMap->tileSet[i].tileSetSource->tileWidth = 0;
 	}
 }
+
 
 Level* getLevel(char* fileName) {
 	// char tmp[50] = DIR_RES_IMAGES;
@@ -636,349 +1013,6 @@ Level* getLevel(char* fileName) {
 	level->columns = level->size / level->height;
     return level;
 }
-
-
-
-// ------------------ "PRIVATE" FUNCTIONS ------------------
-
-TiledMap* parseMap(const char* fileName) {
-	
-	xmlDocPtr doc;
-	xmlNodePtr cur;
-
-	doc = xmlParseFile(fileName);
-    if (doc == NULL) {
-		fprintf(stderr,"Document not parsed successfully.\n");
-        exit(0);
-    }
-
-    cur = xmlDocGetRootElement(doc);
-    
-    if (cur == NULL) {
-		fprintf(stderr,"empty document\n");
-		xmlFreeDoc(doc);
-		exit(0);
-	}
-
-    if (xmlStrcmp(cur->name, (const xmlChar *) "map")) {
-		fprintf(stderr,"Document of the wrong type, root node != map !!! \n");
-		xmlFreeDoc(doc);
-		exit(0);
-	}
-
-	TiledMap* tiledMap = malloc(sizeof (TiledMap));
-	if (tiledMap == NULL) {
-		printf("Malloc (creating TiledMap) error !!!\n");
-		return NULL;
-	}
-	tiledMap->width = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "width"));
-	tiledMap->height = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "height"));
-	tiledMap->tileWidth = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tilewidth"));
-	tiledMap->tileHeight = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tileheight"));
-
-    cur = cur->xmlChildrenNode;
-
-	int layersCount = 0;
-	int tileSetCount = 0;
-	int objectGroupCount = 0;
-
-	xmlNodePtr firstForCounter = cur;
-	
-	// Counting layers and tilesets
-	while(firstForCounter != NULL) {
-		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"tileset"))) {
-			tileSetCount++;
-		}
-		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"layer"))) {
-			layersCount++;
-		}
-		if ((!xmlStrcmp(firstForCounter->name, (const xmlChar *)"objectgroup"))) {
-			objectGroupCount++;
-		}
-		firstForCounter = firstForCounter->next;
-	}
-	
-	int lc = 0, tc = 0, ogc = 0;
-
-	TileSet* tileSet = malloc(sizeof(TileSet) * tileSetCount);
-	if (tileSet == NULL) {
-		printf("Malloc (creating TileSet) error !!!\n");
-		return NULL;
-	}
-
-	Layer* layers = malloc(sizeof(Layer) * layersCount);
-	if (layers == NULL) {
-		printf("Malloc (creating Layer) error !!!\n");
-		return NULL;
-	}
-
-	ObjectGroup* objectGroups = malloc(sizeof(ObjectGroup) * objectGroupCount);
-	if (layers == NULL) {
-		printf("Malloc (creating ObjectGroup) error !!!\n");
-		return NULL;
-	}
-
-
-    while (cur != NULL) {
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"tileset"))) {
-			tileSet[tc].firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
-			tileSet[tc].source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
-			TileSetSource* tss = getTileSetSource(tileSet[tc].source);
-			tileSet[tc].tileSetSource = tss;
-			tc++;
-		}
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"layer"))) {
-			layers[lc].id = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "id"));
-			layers[lc].name = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
-			layers[lc].width = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "width"));
-			layers[lc].height = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "height"));
-			layers[lc].data = parseData(doc, cur);
-			lc++;
-		}
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"objectgroup"))) {
-			objectGroups[ogc].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
-			objectGroups[ogc].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
-			objectGroups[ogc].objectsCount = countTiledObjects(cur);
-			objectGroups[ogc].objects = getTiledObjects(cur, objectGroups[ogc].objectsCount);
-			ogc++;
-		}
-	    cur = cur->next;
-	}
-	tiledMap->tileSet = tileSet;
-	tiledMap->layer = layers;
-	tiledMap->ObjectGroup = objectGroups;
-	tiledMap->layersCount = lc;
-	tiledMap->tileSetCount = tc;
-	tiledMap->objectGroupCount = ogc;
-
-	xmlFreeDoc(doc);
-	xmlCleanupMemory();
-	xmlCleanupParser();
-	
-	return tiledMap;
-} 
-
-int xmlCharToInt(const xmlChar a[]) {
-	int c = 0, sign = 0, offset = 0, n = 0;
-	if (a[0] == '-') {
-		sign = -1;
-	}
-	if (sign == -1) {
-		offset = 1;
-	} else {
-		offset = 0;
-	}
-  	n = 0;
-  	for (c = offset; a[c] != '\0'; c++) {
-		  n = n * 10 + a[c] - '0';
-	}
-	if (sign == -1) {
-		n = -n;
-	}
-	return n;
-}
-
-int stringToInt(const char a[]) {
-	int c = 0, sign = 0, offset = 0, n = 0;
-	if (a[0] == '-') {
-		sign = -1;
-	}
-	if (sign == -1) {
-		offset = 1;
-	} else {
-		offset = 0;
-	}
-  	n = 0;
-  	for (c = offset; a[c] != '\0'; c++) {
-		  n = n * 10 + a[c] - '0';
-	}
-	if (sign == -1) {
-		n = -n;
-	}
-	return n;
-}
-
-int* convertDataStringToArray(const xmlChar* s) {
-	unsigned int numbers = 0;
-	unsigned int c = 0;
-	int cleanCharsNumber = 0;
-	// Counting comas
-	while(s[c] != '\0') {
-		if (s[c] == ',') numbers++;
-		// CHECK CR/LF
-		if (s[c] != 13 && s[c] != 32 && s[c] != 10) cleanCharsNumber++;
-		c++;
-	}
-	// How many numbers = comas + 1
-	numbers++;
-	c = 0;
-	char cleanCharsArray[cleanCharsNumber];
-	cleanCharsNumber = 0;
-	while(s[c] != '\0') {
-		// CHECK CR/LF AND SPACES
-		if (s[c] != 13 && s[c] != 32 && s[c] != 10) {
-			cleanCharsArray[cleanCharsNumber] = s[c];
-			cleanCharsNumber++;
-		}
-		c++;
-	}
-
-	c = 0;
-	char delim[] = ",";
-	char *ptr = strtok(cleanCharsArray, delim);
-	int* numArr = malloc(sizeof(int) * numbers);
-	if (numArr == NULL) {
-		printf("Malloc 'numArr' error !!!\n");
-		return NULL;
-	}
-	while(ptr != NULL) {
-		numArr[c] = stringToInt(ptr);
-		ptr = strtok(NULL, delim);
-		c++;
-	}
-	
-	return numArr;
-}
-
-
-int countTiledObjects(xmlNodePtr cur) {
-	cur = cur->xmlChildrenNode;
-	int objectsCounter = 0;
-	while (cur != NULL) {
-	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"object"))) {
-			objectsCounter++;
- 	    }
-		cur = cur->next;
-	}
-	return objectsCounter;
-}
-
-TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
-	
-	TiledObject* objects = malloc(sizeof(TiledObject) * tiledObjectsCounter);
-	if (objects == NULL) {
-		printf("Malloc (creating TiledObject) error !!!\n");
-		return NULL;
-	}
-	cur = cur->xmlChildrenNode;
-	int i = 0;
-	while (cur != NULL) {
-	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"object"))) {
-		    objects[i].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
-			objects[i].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
-			objects[i].type = (char *)xmlGetProp(cur, (const xmlChar *) "type");
-			objects[i].template = (char *)xmlGetProp(cur, (const xmlChar *) "template");
-			objects[i].x = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "x"));
-			objects[i].y = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "y"));
-
-
-			char tmp[50] = DIR_RES_IMAGES;
-			strcat(tmp, objects[i].template);
-			xmlDocPtr txDoc;
-			xmlNodePtr txCurNode;
-			txDoc = xmlParseFile(tmp);
-			if (txDoc == NULL) {
-				fprintf(stderr, "Document not parsed successfully.\n");
-				exit(0);
-			}
-			txCurNode = xmlDocGetRootElement(txDoc);
-			if (txCurNode == NULL) {
-				fprintf(stderr,"empty document\n");
-				xmlFreeDoc(txDoc);
-				exit(0);
-			}
-			if (xmlStrcmp(txCurNode->name, (const xmlChar *) "template")) {
-				fprintf(stderr,"document of the wrong type, root node != template !!! \n");
-				xmlFreeDoc(txDoc);
-				exit(0);
-			}
-			txCurNode = txCurNode->xmlChildrenNode;
-			while (txCurNode != NULL) {
-				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"tileset"))) {
-					objects[i].source = (char *)xmlGetProp(txCurNode, (const xmlChar *) "source");
-					objects[i].firstGid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "firstgid"));
-				}
-				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"object"))) {
-					objects[i].gid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "gid"));
-					objects[i].width = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "width"));
-					objects[i].height = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "height"));
-				}
-				txCurNode = txCurNode->next;
-			}
-			xmlFreeDoc(txDoc);
-			i++;
- 	    }
-		cur = cur->next;
-	}
-	return objects;
-}
-
-
-int* parseData(xmlDocPtr doc, xmlNodePtr cur) {
-	xmlChar* key;
-	cur = cur->xmlChildrenNode;
-	int* arr = NULL;
-	while (cur != NULL) {
-	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"data"))) {
-		    key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			arr = convertDataStringToArray(key);
-		    xmlFree(key);
- 	    }
-		cur = cur->next;
-	}
-    return arr;
-}
-
-TileSetSource* getTileSetSource(const char* tsxFileName) {
-	
-	TileSetSource* tileSetSource = malloc(sizeof(TileSetSource));
-	if (tileSetSource == NULL) {
-		printf("Malloc (creating TileSetSource) error !!!\n");
-		return NULL;
-	}
-	char tmp[50] = DIR_RES_IMAGES;
-	strcat(tmp, tsxFileName);
-	
-	xmlDocPtr tsxDoc;
-	xmlNodePtr tsxCurNode;
-
-	tsxDoc = xmlParseFile(tmp);
-	if (tsxDoc == NULL) {
-		fprintf(stderr, "Document not parsed successfully.\n");
-        exit(0);
-    }
-	
-	tsxCurNode = xmlDocGetRootElement(tsxDoc);
-    if (tsxCurNode == NULL) {
-		fprintf(stderr,"empty document\n");
-		xmlFreeDoc(tsxDoc);
-		exit(0);
-	}
-	
-	if (xmlStrcmp(tsxCurNode->name, (const xmlChar *) "tileset")) {
-		fprintf(stderr,"document of the wrong type, root node != tileset !!! \n");
-		xmlFreeDoc(tsxDoc);
-		exit(0);
-	}
-	tileSetSource->name = (char *)xmlGetProp(tsxCurNode, (const xmlChar *) "name");
-	tileSetSource->tileWidth = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilewidth"));
-	tileSetSource->tileHeight = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tileheight"));
-	tileSetSource->tileCount = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilecount"));
-	tileSetSource->columns = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "columns"));
-
-	tsxCurNode = tsxCurNode->xmlChildrenNode;
-	while (tsxCurNode != NULL) {
-		if ((!xmlStrcmp(tsxCurNode->name, (const xmlChar *) "image"))) {
-			tileSetSource->imageSource= (char *) xmlGetProp(tsxCurNode, (const xmlChar *) "source");
-			tileSetSource->width = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "width"));
-			tileSetSource->height = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "height"));
-		}
-		tsxCurNode = tsxCurNode->next;
-	}
-	xmlFreeDoc(tsxDoc);
-	return tileSetSource;
-}
-
 
 
 void renderText(TextFont* t, SDL_Renderer* renderer, int x, int y, int w, int h) {

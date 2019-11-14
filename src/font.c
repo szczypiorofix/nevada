@@ -7,6 +7,7 @@
 #include "engine.h"
 
 
+
 // ---------------------- CONSTATNS ------------------------
 
 const float FONT_SPACE_WIDTH = 0.06f;
@@ -14,6 +15,8 @@ const float FONT_SPACE_WIDTH = 0.06f;
 
 // ------------------ FORWARD DECLARATION ------------------
 BitmapFont* parseBitmapFile(char* pngFileName, char* xmlFileName, SDL_Renderer* renderer);
+
+
 
 
 BitmapFont* parseBitmapFile(char* pngFileName, char* xmlFileName, SDL_Renderer* renderer) {

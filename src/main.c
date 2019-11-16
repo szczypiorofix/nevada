@@ -9,10 +9,6 @@
 #include "font.h"
 #include "resources.h"
 
-// EXEC's ICON
-#define NEVADA 101
-#define NEVADA_VERSION "0.5.3"
-
 
 
 void render(SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, NPC** npcs) {
@@ -25,7 +21,6 @@ void render(SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, NPC** n
 	SDL_SetRenderDrawColor(engine->renderer, 0x7F, 0x6F, 0x7F, 0xFF);
 
 	/** Tilesy */
-
 	for (int i = -engine->tilesOnScreenFromCenterX; i < engine->tilesOnScreenFromCenterX; i++) {
 		for (int j = -engine->tilesOnScreenFromCenterY; j < engine->tilesOnScreenFromCenterY; j++) {
 			for (int layer = 0; layer < level->layers; layer++) {
@@ -139,7 +134,6 @@ int main(int argc, char* args[]) {
 
 
 
-
 	char buffor[10];
 	LoadString(GetModuleHandleA(NULL), 5001, buffor, 10);
 	printf("Buforek: ");
@@ -158,28 +152,14 @@ int main(int argc, char* args[]) {
 
 	loadMusic("res/a_funny_moment.mod");
 
+
 	// ------------------- BITMAP FONT -------------------
 
 	BitmapFont* bitmapFont = parseBitmapFile("vingue.png", "res/images/vingue.xml", engine->renderer);
 	printf("Bitmap font: %i\n", bitmapFont->bitmapFontChar[0].ascii);
 
-
-	// FILE *binfile;
-
-	// binfile = fopen("font.dat", "wb");
-	// fwrite(&bitmapFont->bitmapFontChar[0], sizeof(BitmapFontChar), 1, binfile);
-	// fclose(binfile);
-
-	
-	// BitmapFontChar fontChars[1];
-
-	// binfile = fopen("font.dat", "rb");
-	// fread(&fontChars, sizeof(BitmapFontChar), 1, binfile);
-	// fclose(binfile);
-
-	// printf("Width: %i\n" ,fontChars[0].width);
-
 	// ---------------------------------------------------
+
 
 	player = NULL;
 
@@ -194,76 +174,7 @@ int main(int argc, char* args[]) {
 		fprintf(stderr, "SpriteSheet cannot be null. Stop.");
 		exit(1);
 	}
-	
-	// for (int i = 0; i < level->layers; i++) {
-	// 	printf("Level: %i = %s\n", i, level->textureName[0]);
-	// }
 
-	// printf("Content data: %s\n", level->textureName[0] );
-
-	// FILE *binfile;
-
-	// binfile = fopen("worldmap.dat", "wb");
-
-	// const unsigned char firstCharacter = 'q';
-	// fwrite(&firstCharacter, sizeof(unsigned char), 1, binfile);
-	// fwrite(&level->layers, sizeof(unsigned short), 1, binfile);
-	// fwrite(&level->size, sizeof(unsigned int), 1, binfile);
-	// fwrite(&level->columns, sizeof(unsigned short), 1, binfile);
-	// fwrite(&level->width, sizeof(unsigned short), 1, binfile);
-	// fwrite(&level->height, sizeof(unsigned short), 1, binfile);
-	// fwrite(&level->textureNameCount, sizeof(unsigned short), 1, binfile);
-	// unsigned short textureNameLength = 0;
-
-	// for (int i = 0; i < level->textureNameCount; i++) {
-	// 	if (strlen(level->textureName[i]) > textureNameLength) 
-	// 		textureNameLength = strlen(level->textureName[i]);
-	// }
-
-	// fwrite(&textureNameLength, sizeof(unsigned short), 1, binfile);
-	// for (int i = 0; i < level->textureNameCount; i++) {
-	// 	fwrite(&level->textureName[i], textureNameLength, 1, binfile);
-	// }
-	
-	// fclose(binfile);
-
-
-	// binfile = fopen("worldmap.dat", "rb");
-	
-	// unsigned char* testChar;
-	// fread(&testChar, sizeof(unsigned char), 1, binfile);
-	// printf("Test character: %c\n", testChar);
-	// unsigned short* layers;
-	// fread(&layers, sizeof(unsigned short), 1, binfile);
-	// printf("Layers: %i\n", layers);
-	// unsigned int* size;
-	// fread(&size, sizeof(unsigned int), 1, binfile);
-	// printf("Size: %i\n", size);
-	// unsigned short columns;
-	// fread(&columns, sizeof(unsigned short), 1, binfile);
-	// printf("Columns: %i\n", columns);
-	// unsigned short* width = 0;
-	// fread(&width, sizeof(unsigned short), 1, binfile);
-	// printf("Width: %i\n", width);
-	// unsigned short* height = 0;
-	// fread(&height, sizeof(unsigned short), 1, binfile);
-	// printf("Height: %i\n", height);
-	// unsigned short textureNameCount;
-	// fread(&textureNameCount, sizeof(unsigned short), 1, binfile);
-	// printf("textureNameCount: %i\n", textureNameCount);
-	// // unsigned short textureNameLength;
-	// fread(&textureNameLength, sizeof(unsigned short), 1, binfile);
-	// printf("textureNameLength: %i\n", textureNameLength);
-	// for (int i = 0; i < textureNameCount; i++) {
-	// 	unsigned char* textureName;
-	// 	fread(&textureName, textureNameLength, 1, binfile);
-	// 	printf("textureName [%i]:  %s\n", i, textureName);
-	// }
-
-	// fclose(binfile);
-	// exit(0);
-
-	// ===================================================== //
 
 	for (int i = 0; i < level->map->objectGroupCount; i++) {
 		for (int j = 0; j < level->map->ObjectGroup[i].objectsCount; j++) {
@@ -298,7 +209,6 @@ int main(int argc, char* args[]) {
 		16
 	);
 
-
 	spriteSheetAssets[SS_BACKGROUND] = loadSpriteSheet(
 		*level->textureName,
 		engine->renderer,
@@ -332,7 +242,6 @@ int main(int argc, char* args[]) {
 		grounds[l] = g;
 	}
 
-
 	player->walkingAnimation = malloc(sizeof(Animation) * 4);
 
 	player->walkingAnimation[WALK_UP]    = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerUp);
@@ -340,8 +249,6 @@ int main(int argc, char* args[]) {
 	player->walkingAnimation[WALK_DOWN]  = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerDown);
 	player->walkingAnimation[WALK_LEFT]  = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerLeft);		
 
-	// const int npcCount = 1; // 30
-	// NPC* npcs[NPC_COUNT];
 
 	for (int i = 0; i < NPC_COUNT; i++) {
 		npcs[i] = setNPC(
@@ -361,17 +268,15 @@ int main(int argc, char* args[]) {
 		npcs[i]->walkingAnimation[WALK_RIGHT] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Right);
 		npcs[i]->walkingAnimation[WALK_DOWN] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Down);
 		npcs[i]->walkingAnimation[WALK_LEFT] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Left);
-
 	}
-
 
 
 	player->direction = DIR_RIGHT;
 	player->walkingAnimation[player->direction].curFrame = 1;
-	
 
-	engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2) + 2;
-	engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) + 2;
+
+	engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2);
+	engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) ;
 
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == 0) {	
@@ -512,15 +417,17 @@ int main(int argc, char* args[]) {
 
 			// ###### PLAYER ######
 
-			for (int i = 0; i < NPC_COUNT; i++)
+			for (int i = 0; i < NPC_COUNT; i++) {
 				updateCollisionsNPC(npcs[i], engine->camera, engine->scale);
+			}
 						
 			// // ##########################
 
 
 			// /** ------------------- COLLISSIONS -------------- */
-			for (int i = 0; i < NPC_COUNT; i++)
+			for (int i = 0; i < NPC_COUNT; i++) {
 				updateCollisionsNPC(npcs[i], engine->camera, engine->scale);
+			}
 
 			
 			// // ###### NPCs UPDATE #######
@@ -605,8 +512,8 @@ int main(int argc, char* args[]) {
 			player->tileIndex = (player->tileY * level->width) + player->tileX;
 
 			// ---------------------- ENGINE UPDATE ----------------------
-			engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2) + 2 - 5;
-			engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) + 2 - 4;
+			engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2) + 2 ;
+			engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) + 2 ;
 			if (Mix_PlayingMusic() == 0) {
 				Mix_PlayMusic(engine->music, -1);
 			}		
@@ -657,7 +564,6 @@ int main(int argc, char* args[]) {
 	free(spriteSheetAssets[SS_BACKGROUND]);
 	spriteSheetAssets[SS_BACKGROUND] = NULL;
 
-
 	SDL_DestroyTexture(spriteSheetAssets[SS_PLAYER]->mTexture);
 	spriteSheetAssets[SS_PLAYER]->mTexture = NULL;
 	free(spriteSheetAssets[SS_PLAYER]->name);
@@ -682,16 +588,12 @@ int main(int argc, char* args[]) {
 	}
 
 	for (int i = 0; i < level->map->layersCount; i++) {
-		
 		free( &(level->map->layer[i]).data );
 		level->map->layer[i].data = NULL;
-		
 		free( &level->map->layer[i].name );
 		level->map->layer[i].name = NULL;
-		
 		free( &level->map->layer[i].encoding );
 		level->map->layer[i].encoding = NULL;
-		
 	}
 
 	free(level->map);
@@ -700,8 +602,6 @@ int main(int argc, char* args[]) {
 	free(level->content);
 	level->content = NULL;
 
-
-	// FREE NPCs
 	for (int i = 0; i < NPC_COUNT; i++) {
 		free(npcs[i]->walkingAnimation);
 		npcs[i]->walkingAnimation = NULL;
@@ -711,15 +611,12 @@ int main(int argc, char* args[]) {
 		npcs[i] = NULL;
 	}
 	// free(npcs);
-
-	// FREE PLAYER
 	
 	free(player->walkingAnimation);
 	player->walkingAnimation = NULL;
 	free(player->name);
 	player->name = NULL;
 
-	
 	engineStop(&engine);
 
 	printf("Game engine has stopped.\n");

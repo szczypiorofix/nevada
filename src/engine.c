@@ -68,12 +68,12 @@ void changeText(TextFont* t, SDL_Renderer* renderer, char* text);
 
 static int random(int min, int max) {
     int tmp;
-    if (max>=min)
-        max-= min;
+    if (max >= min)
+        max -= min;
     else{
-        tmp= min - max;
-        min= max;
-        max= tmp;
+        tmp = min - max;
+        min = max;
+        max = tmp;
     }
     return max ? (rand() % max + min) : min;
 }
@@ -554,17 +554,17 @@ int loadMusic(char* musicFile) {
 
 
 void updateCamera(const Player* player, const Level* level) {
-    if ( (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2)  > 0 
-        && (player->vec.x * engine->scale) < (level->width * level->map->tileWidth * engine->scale) - (SCREEN_WIDTH / 2)
-    ) {
+    // if ( (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2)  > 0 
+    //     && (player->vec.x * engine->scale) < (level->width * level->map->tileWidth * engine->scale) - (SCREEN_WIDTH / 2)
+    // ) {
         engine->camera->vec.x = (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2);
-    }
+    // }
     
-    if ( (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2) > 0 
-        && (player->vec.y * engine->scale) < (level->height * level->map->tileHeight * engine->scale) - (SCREEN_HEIGHT / 2)
-    ) {
+    // if ( (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2) > 0 
+    //     && (player->vec.y * engine->scale) < (level->height * level->map->tileHeight * engine->scale) - (SCREEN_HEIGHT / 2)
+    // ) {
         engine->camera->vec.y = (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2);
-    }
+    // }
 }
 
 

@@ -38,8 +38,9 @@ bin/debug/nevada.exe: $(FILE_TO_COMPILE)
 
 
 # ALL FILES BUT NO ADDITIONAL PREREQUISITES
-#$(ODIR)/%.o: $(SDIR)/%.c
+# $(ODIR)/%.o: $(SDIR)/%.c
 #	$(DEBUG_STM) $(CFLAGS) $< $(CC_LIBS) -o $@
+
 
 
 #main.o
@@ -68,4 +69,4 @@ $(ODIR)/compare.o: $(SDIR)/compare.asm
 
 # res.o
 $(ODIR)/res.o: nevada.rc
-	windres nevada.rc -o $(ODIR)/res.o
+	windres -i nevada.rc -o $(ODIR)/res.o -O coff

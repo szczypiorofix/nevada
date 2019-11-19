@@ -11,14 +11,14 @@
 
 
 
-void render(SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, NPC** npcs) {
+void render(SpriteSheet *ss[], SDL_Rect *layersRects[], Ground *grounds[]) {
+
 	/** ---------- Render part ---------- */
 	SDL_SetRenderDrawColor(engine->renderer, 0x0, 0x0, 0x0, 0xFF);
 	SDL_RenderClear(engine->renderer);
-	
 
 	// ------------------ RENDER START ------------------
-	SDL_SetRenderDrawColor(engine->renderer, 0x7F, 0x6F, 0x7F, 0xFF);
+	if (engine->displayMode > 0)  SDL_SetRenderDrawColor(engine->renderer, 0x7F, 0x6F, 0x7F, 0xFF);
 
 	/** Tilesy */
 	for (int i = -engine->tilesOnScreenFromCenterX; i < engine->tilesOnScreenFromCenterX; i++) {
@@ -26,10 +26,10 @@ void render(SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, NPC** n
 			for (int layer = 0; layer < level->layers; layer++) {
 
 				if (
-					((player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) >= 0 &&
-					((player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) < level->map->width &&
-					((player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) >= 0 &&
-					((player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) < level->map->height
+					(( player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) >= 0 &&
+					(( player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) < level->map->width &&
+					(( player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) >= 0 &&
+					(( player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) < level->map->height
 					) {
 
 					if ((player->tileY + j) * level->width + player->tileX + i >= 0) {
@@ -53,29 +53,6 @@ void render(SpriteSheet* ss[], SDL_Rect** layersRects, Ground** grounds, NPC** n
 				}
 			}
 		}
-	}
-
-
-	// NPCs
-	for (int n = 0; n < NPC_COUNT; n++) {
-		Animation* curAnim = npcs[n]->walkingAnimation;
-		SDL_Rect* clip;
-		if (npcs[n]->takingAction == 1)
-			clip = &curAnim->frames[nextFrame(curAnim)];
-		else
-			clip = &curAnim->frames[curAnim->curFrame];
-		renderTexture(
-			curAnim->spriteSheet,
-			engine->renderer,
-			clip,
-			( (npcs[n]->vec.x - (npcs[n]->width / 2) ) * engine->scale) - engine->camera->vec.x,
-			( (npcs[n]->vec.y - (npcs[n]->height / 2) ) * engine->scale) - engine->camera->vec.y,
-			engine->scale,
-			0,
-			NULL,
-			SDL_FLIP_NONE,
-			engine->displayMode
-		);
 	}
 
 
@@ -139,7 +116,6 @@ int main(int argc, char* args[]) {
 	printf("Buforek: ");
 	printf(buffor);
 	printf("\n");	
-
 
 
 
@@ -250,33 +226,13 @@ int main(int argc, char* args[]) {
 	player->walkingAnimation[WALK_LEFT]  = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, player->width, player->height, 3, framesPlayerLeft);		
 
 
-	for (int i = 0; i < NPC_COUNT; i++) {
-		npcs[i] = setNPC(
-			10 + (i * 17),
-			10 + (i * 17),
-			spriteSheetAssets[SS_PLAYER]->tileWidth,
-			spriteSheetAssets[SS_PLAYER]->tileHeight,
-			DIR_DOWN);
-		
-		unsigned int framesNPC1Left[]  = {13, 14, 15};
-		unsigned int framesNPC1Right[] = {25, 26, 27};
-		unsigned int framesNPC1Up[]    = {37, 38, 39};
-		unsigned int framesNPC1Down[]  = {1,  2,  3};
-
-		npcs[i]->walkingAnimation = malloc(sizeof(Animation) * 4);
-		npcs[i]->walkingAnimation[WALK_UP] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Up);
-		npcs[i]->walkingAnimation[WALK_RIGHT] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Right);
-		npcs[i]->walkingAnimation[WALK_DOWN] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Down);
-		npcs[i]->walkingAnimation[WALK_LEFT] = *prepareAnimation(spriteSheetAssets[SS_PLAYER], 6, npcs[i]->width, npcs[i]->height, 3, framesNPC1Left);
-	}
-
-
 	player->direction = DIR_RIGHT;
 	player->walkingAnimation[player->direction].curFrame = 1;
 
-
 	engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2);
 	engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) ;
+
+	lockCameraOnObject(&player->vec);
 
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == 0) {	
@@ -294,9 +250,29 @@ int main(int argc, char* args[]) {
 					engine->quit = 1;
 				} else {
 					if (engine->event.type == SDL_MOUSEMOTION ) {
-						engine->mouseX = engine->event.motion.x;
-						engine->mouseY = engine->event.motion.y;
+
+						Vector2 tempMouseVector = { engine->event.motion.x, engine->event.motion.y };
+						engine->mouseVetor = &tempMouseVector;
+						
+						if (engine->mouseRightButtonPressed == 1) {
+
+							// printf("Move : %i:%i\n", engine->event.motion.x, engine->event.motion.y);
+							Vector2 tempViewVector = { engine->event.motion.x * 1.0f, engine->event.motion.y * 1.0f};
+							engine->viewVector = &tempViewVector;
+							// printf("View Vector: %f\n", engine->viewVector->x);
+
+						}
+						
 					}
+
+					if (engine->event.button.type == SDL_MOUSEBUTTONDOWN) {
+						if (engine->event.button.button == SDL_BUTTON_RIGHT)
+							engine->mouseRightButtonPressed = 1;
+					} else if (engine->event.button.type == SDL_MOUSEBUTTONUP) {
+						if (engine->event.button.button == SDL_BUTTON_RIGHT)
+							engine->mouseRightButtonPressed = 0;
+					}
+
 					// ZOOM
 					if (engine->event.type == SDL_MOUSEWHEEL) {
 						if (engine->event.button.x == 1) {
@@ -338,6 +314,23 @@ int main(int argc, char* args[]) {
 							case SDLK_2:
 								if (engine->musicVolume > 0) engine->musicVolume--;
 								Mix_VolumeMusic(engine->musicVolume);
+								break;
+							case SDLK_F12:
+								setFullScreen( engine->fullScreen == ENGINE_FULLSCREEN ? ENGINE_WINDOW : ENGINE_FULLSCREEN );
+								break;
+							case SDLK_i:
+								printf("CPU cores: %i\nRAM: %ikb\n", SDL_GetCPUCount(), SDL_GetSystemRAM());
+								break;
+							case SDLK_p:
+								printf("Locking camera on player.\n");
+								lockCameraOnObject(&player->vec);
+								break;
+							case SDLK_o:
+								printf("Locking camera on mouse.\n");
+								
+								// Vector2 tv = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+								// engine->viewVector = &tv;
+								lockCameraOnObject(engine->viewVector);
 								break;
 							case SDLK_SPACE:
 								if (Mix_PlayingMusic() == 0) {
@@ -415,93 +408,17 @@ int main(int argc, char* args[]) {
 			if (player->vec.y > (level->height * level->map->tileHeight) - player->height)
 				player->vec.y = (level->height * level->map->tileHeight) - player->height;
 
-			// ###### PLAYER ######
 
-			for (int i = 0; i < NPC_COUNT; i++) {
-				updateCollisionsNPC(npcs[i], engine->camera, engine->scale);
-			}
-						
-			// // ##########################
+			// if (engine->mouseButtonPressed == 1) printf("MOUSE PRESSED !!!\n");
 
 
-			// /** ------------------- COLLISSIONS -------------- */
-			for (int i = 0; i < NPC_COUNT; i++) {
-				updateCollisionsNPC(npcs[i], engine->camera, engine->scale);
-			}
-
-			
-			// // ###### NPCs UPDATE #######
-			for (int i = 0; i < NPC_COUNT; i++) {
-			
-				updateNPC(npcs[i], level);
-
-				for (int n = i + 1; n < NPC_COUNT; n++) {
-					SDL_Rect npc1TempRect = {
-						( (npcs[i]->vec.x + npcs[i]->moveVec.x ) * engine->scale) - engine->camera->vec.x,
-						( (npcs[i]->vec.y + npcs[i]->moveVec.y ) * engine->scale) - engine->camera->vec.y,
-						npcs[i]->width * engine->scale,
-						npcs[i]->height * engine->scale
-					};
-					SDL_Rect npc2TempRect = {
-						( (npcs[n]->vec.x + npcs[n]->moveVec.x ) * engine->scale) - engine->camera->vec.x,
-						( (npcs[n]->vec.y + npcs[n]->moveVec.y ) * engine->scale) - engine->camera->vec.y,
-						npcs[n]->width * engine->scale,
-						npcs[n]->height * engine->scale
-					};
-					
-					SDL_Rect pTempCol = {
-					( (player->vec.x + player->moveVec.x ) * engine->scale) - engine->camera->vec.x,
-					( (player->vec.y + player->moveVec.y ) * engine->scale) - engine->camera->vec.y,
-					player->width * engine->scale,
-					player->height * engine->scale};
-
-					if (checkCollision(npc1TempRect, npc2TempRect) != 0 || checkCollision(npc2TempRect, pTempCol) != 0) {
-						npcs[i]->moveVec = setVector(0, 0);
-						npcs[n]->moveVec = setVector(0, 0);
-						
-						int rx = rand() % 3;
-						if (rx > 0) {
-							npcs[i]->maxTakingActionCounter = 0;
-							npcs[n]->maxTakingActionCounter = 0;
-						}
-						if (rx > 1) {
-							npcs[i]->takingActionCounter = 0;
-							npcs[n]->takingActionCounter = 0;
-						}
-						npcs[i]->takingAction = 0;
-						npcs[n]->takingAction = 0;
-					}
-					
-				}
-				addVector(&npcs[i]->vec, &npcs[i]->moveVec);
-			}
-
-			SDL_Rect pTempCol = {
-				( (player->vec.x - (player->width / 2) + player->moveVec.x ) * engine->scale) - engine->camera->vec.x,
-				( (player->vec.y - (player->height / 2) + player->moveVec.y ) * engine->scale) - engine->camera->vec.y,
-				player->width * engine->scale,
-				player->height * engine->scale};
-			
-			int collisionsPlayerAndNPC = 0;
-
-			for (int i = 0; i < NPC_COUNT; i++) {
-				if (checkCollision(pTempCol, (npcs[i])->col) != 0)
-					collisionsPlayerAndNPC = 1;
-			}
-			
-			if (collisionsPlayerAndNPC == 0) {
-				addVector(&player->vec, &player->moveVec);
-			}
-
+			addVector(&player->vec, &player->moveVec);
 
 			// --------------------------------------------
-
-
-			updateCollisionsPlayer(player, engine->camera, engine->scale);
 			
 
 			// ###### CAMERA UPDATE ######
-			updateCamera(player, level);
+			updateCamera();
 			// ###########################
 
 
@@ -521,14 +438,14 @@ int main(int argc, char* args[]) {
 
 
 			// ---------------------------- TEXT UPDATE ------------------------
-			sprintf(engine->coordinatesText, "FPS: %d, MOUSE: %d : %d", engine->fps_count, engine->mouseX, engine->mouseY);
+			sprintf(engine->coordinatesText, "FPS: %d, MOUSE: %d : %d", engine->fps_count, (short) (*engine->mouseVetor).x, (short) (*engine->mouseVetor).y);
 			changeText(engine->coordinates, engine->renderer, engine->coordinatesText);
 			// -----------------------------------------------------------------
 
 
 			// ############## UPDATE END ##############
 			if (engine->fpsCap) {
-				render(spriteSheetAssets, layersRects, grounds, npcs);
+				render(spriteSheetAssets, layersRects, grounds);
 				engine->frames++;
 			}
 			engine->updates++;
@@ -536,7 +453,7 @@ int main(int argc, char* args[]) {
 		}
 
 		if (!engine->fpsCap) {
-			render(spriteSheetAssets, layersRects, grounds, npcs);
+			render(spriteSheetAssets, layersRects, grounds);
 			engine->frames++;
 		}
 
@@ -571,7 +488,16 @@ int main(int argc, char* args[]) {
 	free(spriteSheetAssets[SS_PLAYER]);
 	spriteSheetAssets[SS_PLAYER] = NULL;
 
-	releaseAnimation( &((*player).walkingAnimation) );
+	// releaseAnimation( (player->walkingAnimation)[WALK_UP] );
+
+	for (int i = 0; i < 4; i++) {
+		free(player->walkingAnimation[i].frames);
+		player->walkingAnimation[i].frames = NULL;
+
+		// free(&player->walkingAnimation[i]);
+
+	}
+	
 
 	for (int i = 0; i < level->layers; i++) {
 		free(layersRects[i]);
@@ -601,16 +527,6 @@ int main(int argc, char* args[]) {
 
 	free(level->content);
 	level->content = NULL;
-
-	for (int i = 0; i < NPC_COUNT; i++) {
-		free(npcs[i]->walkingAnimation);
-		npcs[i]->walkingAnimation = NULL;
-		free(npcs[i]->name);
-		npcs[i]->name = NULL;
-		free(npcs[i]);
-		npcs[i] = NULL;
-	}
-	// free(npcs);
 	
 	free(player->walkingAnimation);
 	player->walkingAnimation = NULL;

@@ -8,7 +8,6 @@
 #include "engine.h"
 
 
-// ------------------ FORWARD DECLARATION ------------------
 
 // --- STATIC ---
 static int random(int min, int max);
@@ -33,12 +32,13 @@ Engine* createEngine(void);
 struct Engine* engineStart();
 void engineStop(Engine** engine);
 int loadMusic(char* musicFile);
-void updateCamera(const Player* player, const Level* level);
+void updateCamera();
+int setFullScreen(WindowFullScreen flag);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames);
-int releaseAnimation(Animation** a);
+int releaseAnimation(Animation* a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
 int getTileX(Player* p, unsigned int tileWith);
@@ -86,7 +86,9 @@ static int initSDL(Engine* engine) {
 }
 
 static int createWindow(Engine* engine) {
-    engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    short windowMode = 0;
+    windowMode = engine->fullScreen == ENGINE_WINDOW ? SDL_WINDOW_SHOWN : SDL_WINDOW_FULLSCREEN;
+    engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, windowMode);
     if (engine->window == NULL) {
         printf( "SDL_CreateWindow() Error: %s\n", SDL_GetError());
         engine->started = 0;
@@ -96,7 +98,7 @@ static int createWindow(Engine* engine) {
 
 
 static int createRenderer(Engine* engine) {
-    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED );// | SDL_RENDERER_PRESENTVSYNC);
+    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
     if (engine->renderer == NULL) {
         printf("SDL_CreateRenderer() Error: %s\n", SDL_GetError());
         engine->started = 0;
@@ -466,12 +468,22 @@ Engine* createEngine(void) {
     engine->maxScale = 5.0f;
     engine->tilesOnScreenFromCenterX = 0;
     engine->tilesOnScreenFromCenterY = 0;
-    engine->mouseX = 0;
-    engine->mouseY = 0;
     engine->coordinatesText[0] = ' ';
     
+    engine->mouseRightButtonPressed = 0;
+    
+    Vector2 initialCameraLockVector = {0, 0};
+    engine->lockCameraOnObjectVector = &initialCameraLockVector;
+
+    Vector2 initialMouseVector = {0, 0};
+    engine->mouseVetor = &initialMouseVector;
+    
+    Vector2 initialViewVector = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+    engine->viewVector = &initialViewVector;
+
     // GAME LOOP
     engine->fpsCap = VSYNC_ON;
+    engine->fullScreen = ENGINE_WINDOW;
     engine->lastTime = SDL_GetTicks();
 	engine->delta = 0.0f;
 	engine->timer = SDL_GetTicks();
@@ -489,6 +501,12 @@ Engine* createEngine(void) {
 }
 
 
+int setFullScreen(WindowFullScreen flag) {
+    int s = SDL_SetWindowFullscreen(engine->window, flag);
+    engine->fullScreen = flag;
+    if (s == 0) return 1;
+    else return 0;
+}
 
 
 Engine* engineStart(void) {
@@ -552,31 +570,26 @@ int loadMusic(char* musicFile) {
     return 1;
 }
 
+void lockCameraOnObject(Vector2* v) {
+    engine->lockCameraOnObjectVector = v;
+}
 
-void updateCamera(const Player* player, const Level* level) {
-    // if ( (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2)  > 0 
-    //     && (player->vec.x * engine->scale) < (level->width * level->map->tileWidth * engine->scale) - (SCREEN_WIDTH / 2)
-    // ) {
-        engine->camera->vec.x = (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2);
-    // }
-    
-    // if ( (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2) > 0 
-    //     && (player->vec.y * engine->scale) < (level->height * level->map->tileHeight * engine->scale) - (SCREEN_HEIGHT / 2)
-    // ) {
-        engine->camera->vec.y = (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2);
-    // }
+void updateCamera() {
+    engine->camera->vec.x = ((*engine->lockCameraOnObjectVector).x * engine->scale) - (SCREEN_WIDTH / 2);
+    engine->camera->vec.y = ((*engine->lockCameraOnObjectVector).y * engine->scale) - (SCREEN_HEIGHT / 2);
 }
 
 
-int releaseAnimation(Animation** a) {
-    // printf("Animation size: %hi\n", (*an)->size);
-    for (int i = 0; i < (*a)->size; i++) {
-        printf("Releasing animation on address: %p\n", &(*a)->frames[i] );
-        // free( &((*an)->frames[i]) );
-    }
+int releaseAnimation(Animation *a) {
+    // for (int i = 0; i < a->size; i++) {
+    //     printf("Releasing animation on address: %p\n", &a->frames[i] );
+    //     free( &a->frames[i] );
+    // }
 
-    free( (*a)->frames );
-    (*a)->frames = NULL;
+    // printf("Releasing animation on %p\n", &a)
+
+    // free( a->frames );
+    // a->frames = NULL;
     return 1;
 }
 
@@ -600,8 +613,7 @@ void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x
     if (mode == 1) {
         SDL_RenderCopyEx(renderer, t->mTexture, clip, &renderQuad, angle, center, flip);
         SDL_RenderDrawRect(renderer, &renderQuad);
-    }
-    else if (mode == 2) {
+    } else if (mode == 2) {
         SDL_RenderDrawRect(renderer, &renderQuad);
     } else {
         SDL_RenderCopyEx(renderer, t->mTexture, clip, &renderQuad, angle, center, flip);

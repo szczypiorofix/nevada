@@ -13,8 +13,8 @@
 
 #define VSYNC_ON  1
 #define VSYNC_OFF 0
-#define TARGET_FPS = 60.0f;
-#define OPTIMAL_TIME = 1000.0f / TARGET_FPS;
+#define TARGET_FPS 60.0f
+#define OPTIMAL_TIME 1000.0f / TARGET_FPS
 
 
 // ------------------- ENUMS -------------------
@@ -30,10 +30,17 @@ typedef enum {
     DIR_UP_LEFT
 } Direction;
 
+
 typedef enum {
     SS_BACKGROUND,
     SS_PLAYER
 } SpriteSheets;
+
+
+typedef enum {
+    ENGINE_WINDOW = 0x00000000,
+    ENGINE_FULLSCREEN = 0x00000001
+} WindowFullScreen;
 
 
 // ------------------ STRUCTS ------------------
@@ -124,7 +131,11 @@ typedef struct Engine {
     SDL_Renderer* renderer;
     Mix_Music *music;
     Camera* camera;
+    Vector2* lockCameraOnObjectVector;
+    Vector2* mouseVetor;
+    Vector2* viewVector;
 
+    short fullScreen;
     int musicVolume;
     long lastTime;
 	double delta;
@@ -138,10 +149,9 @@ typedef struct Engine {
 	double ns;
     short int fpsCap;
     int displayMode;
-    short mouseX;
-    short mouseY;
     TextFont* coordinates;
     char coordinatesText[35];
+    short mouseRightButtonPressed;
 } Engine;
 
 
@@ -232,14 +242,16 @@ Engine* engine;
 Engine* engineStart(void);
 void engineStop(Engine** engine);
 int loadMusic(char* musicFile);
-void updateCamera(const Player* player, const Level* level);
+void updateCamera();
+void lockCameraOnObject(Vector2* v);
+int setFullScreen(WindowFullScreen flag);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 SDL_Rect* createRectsForSprites(Level* level, unsigned short layerCount, SpriteSheet* t);
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames);
 int nextFrame(Animation* a);
-int releaseAnimation(Animation** a);
+int releaseAnimation(Animation* a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short width, short height);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);

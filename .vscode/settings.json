@@ -1,12 +1,6 @@
 {
     "files.associations": {
-        "main.h": "c",
-        "defines.h": "c",
-        "grassland.tsx": "xml",
-        "animals1.tsx": "xml",
-        "engine.h": "c",
-        "level.h": "c",
-        "textures.h": "c",
-        "luac.h": "c"
+        "*.tsx": "xml",
+        "*.h": "c"
     }
 }

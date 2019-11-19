@@ -61,7 +61,8 @@ REM Clean
 ECHO Cleaning up project
 IF EXIST "bin\debug\nevada.exe" DEL "bin\debug\nevada.exe"
 IF EXIST "bin\release\nevada.exe" DEL "bin\release\nevada.exe"
-DEL obj\*.* /q
+DEL obj\debug\*.* /q
+DEL obj\release\*.* /q
 GOTO eof
 
 

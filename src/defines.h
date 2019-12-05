@@ -5,20 +5,14 @@
 
 // ------------------ CONSTANTS ------------------
 
-#define WALK_UP 0
-#define WALK_RIGHT 1
-#define WALK_DOWN 2
-#define WALK_LEFT 3
-
-
-#define NPC_SPEED 1
-
-
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
-
-#define DIR_RES_IMAGES "res/images/"
-#define DIR_RES "res/"
+extern const int SCREEN_WIDTH;
+extern const int SCREEN_HEIGHT;
+extern const char* DIR_RES_IMAGES;
+extern const short WALK_UP;
+extern const short WALK_RIGHT;
+extern const short WALK_DOWN;
+extern const short WALK_LEFT;
+extern const short NPC_SPEED;
 
 
 
@@ -27,6 +21,7 @@ typedef struct Vector2 {
     float x;
     float y;
 } Vector2;
+
 
 Vector2 setVector(float x, float y);
 void rotateVector(Vector2* vector, float angle);

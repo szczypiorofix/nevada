@@ -6,6 +6,18 @@
 #include "defines.h"
 
 
+// ----------------------- CONSTANTS -----------------------
+const int SCREEN_WIDTH		= 800;
+const int SCREEN_HEIGHT		= 600;
+const char* DIR_RES_IMAGES = "res/images/";
+const short WALK_UP = 0;
+const short WALK_RIGHT = 1;
+const short WALK_DOWN = 2;
+const short WALK_LEFT = 3;
+const short NPC_SPEED = 1;
+
+
+
 // ------------------ FORWARD DECLARATION ------------------
 int fromBinary(const char *s);
 char* copyStringFromPointer(const char* s);
@@ -23,7 +35,6 @@ void normalizeVetor(Vector2* v);
 
 
 // ------------------ VECTOR2 FUNCTIONS ------------------
-
 
 Vector2 setVector(float x, float y) {
 	Vector2 v = {x, y};

@@ -7,6 +7,14 @@
 
 #include "engine.h"
 
+// --- CONSTANTS --
+const short VSYNC_ON = 1;
+const short VSYNC_OFF = 0;
+const short TARGET_FPS = 60.0f;
+const float OPTIMAL_TIME = 1000.0f / TARGET_FPS;
+
+const short VIEW_LOCKED_ON_PLAYER = 1;
+const short VIEW_LOCKED_ON_MOUSE = 2;
 
 
 // --- STATIC ---
@@ -38,11 +46,10 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames);
-int releaseAnimation(Animation* a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
-int getTileX(Player* p, unsigned int tileWith);
-int getTileY(Player* p, unsigned int tileHeight);
+int getTileX(float x, unsigned int width, unsigned int tileWidth);
+int getTileY(float y, unsigned int height, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale);
@@ -336,8 +343,8 @@ static TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
 			objects[i].y = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "y"));
 
 
-			char tmp[50] = DIR_RES_IMAGES;
-			strcat(tmp, objects[i].template);
+            char tmp[50];
+            sprintf(tmp, "%s%s", DIR_RES_IMAGES, objects[i].template);
 			xmlDocPtr txDoc;
 			xmlNodePtr txCurNode;
 			txDoc = xmlParseFile(tmp);
@@ -400,8 +407,8 @@ static TileSetSource* getTileSetSource(const char* tsxFileName) {
 		printf("Malloc (creating TileSetSource) error !!!\n");
 		exit(1);
 	}
-	char tmp[50] = DIR_RES_IMAGES;
-	strcat(tmp, tsxFileName);
+    char tmp[50];
+    sprintf(tmp, "%s%s", DIR_RES_IMAGES, tsxFileName);
 	
 	xmlDocPtr tsxDoc;
 	xmlNodePtr tsxCurNode;
@@ -471,22 +478,21 @@ Engine* createEngine(void) {
     engine->coordinatesText[0] = ' ';
     
     engine->mouseRightButtonPressed = 0;
-    
-    Vector2 initialCameraLockVector = {0, 0};
-    engine->lockCameraOnObjectVector = &initialCameraLockVector;
 
-    Vector2 initialMouseVector = {0, 0};
-    engine->mouseVetor = &initialMouseVector;
+    engine->viewLockedOn = VIEW_LOCKED_ON_PLAYER;
+
+    Vector2 tempScrollVector = {0.0f, 0.0f};
+    engine->scrollVector = &tempScrollVector;
+    engine->scrollVector->x = 0.0f;
+    engine->scrollVector->y = 0.0f;
     
-    Vector2 initialViewVector = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
-    engine->viewVector = &initialViewVector;
 
     // GAME LOOP
     engine->fpsCap = VSYNC_ON;
     engine->fullScreen = ENGINE_WINDOW;
-    engine->lastTime = SDL_GetTicks();
-	engine->delta = 0.0f;
-	engine->timer = SDL_GetTicks();
+    engine->lastTime = 0L;
+	engine->timer = 0L;
+    engine->delta = 0.0f;
 	engine->updates = 0;
 	engine->frames = 0;
 	engine->now = 0L;
@@ -570,27 +576,14 @@ int loadMusic(char* musicFile) {
     return 1;
 }
 
-void lockCameraOnObject(Vector2* v) {
-    engine->lockCameraOnObjectVector = v;
+void lockCameraOnObject(float* x, float* y) {
+    engine->lockCameraOnObjectX = x;
+    engine->lockCameraOnObjectY = y;
 }
 
 void updateCamera() {
-    engine->camera->vec.x = ((*engine->lockCameraOnObjectVector).x * engine->scale) - (SCREEN_WIDTH / 2);
-    engine->camera->vec.y = ((*engine->lockCameraOnObjectVector).y * engine->scale) - (SCREEN_HEIGHT / 2);
-}
-
-
-int releaseAnimation(Animation *a) {
-    // for (int i = 0; i < a->size; i++) {
-    //     printf("Releasing animation on address: %p\n", &a->frames[i] );
-    //     free( &a->frames[i] );
-    // }
-
-    // printf("Releasing animation on %p\n", &a)
-
-    // free( a->frames );
-    // a->frames = NULL;
-    return 1;
+    engine->camera->vec.x = ( *engine->lockCameraOnObjectX  * engine->scale) - (SCREEN_WIDTH / 2);
+    engine->camera->vec.y = ( *engine->lockCameraOnObjectY * engine->scale) - (SCREEN_HEIGHT / 2);
 }
 
 
@@ -629,9 +622,11 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
     }
     SDL_Texture* newTexture = NULL;
     t->name = fileName;
-    char str[50] = DIR_RES_IMAGES;
-    const char *strFrom = fileName;
-    strcat(str, strFrom);
+
+    char str[50];
+    sprintf(str, "%s%s", DIR_RES_IMAGES, fileName);
+
+    printf("Loading file %s...\n", str);
 
     SDL_Surface* loadedSurface = IMG_Load(str);
     if (loadedSurface == NULL) {
@@ -754,13 +749,13 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
 }
 
 
-int getTileX(Player* p, unsigned int tileWidth) {
-    return ( (p->vec.x + (p->width / 2)) / tileWidth );
+int getTileX(float x, unsigned int width, unsigned int tileWidth) {
+    return ( (x + (width / 2)) / tileWidth );
 }
 
 
-int getTileY(Player* p, unsigned int tileHeight) {
-    return ( (p->vec.y + (p->height / 2)) / tileHeight );
+int getTileY(float y, unsigned int height, unsigned int tileHeight) {
+    return ( (y + (height / 2)) / tileHeight );
 }
 
 
@@ -982,8 +977,6 @@ void freeTiledMap(TiledMap* tiledMap) {
 
 
 Level* getLevel(char* fileName) {
-	// char tmp[50] = DIR_RES_IMAGES;
-	// strcat(tmp, "map.tmx");
     TiledMap* tiledMap = parseMap(fileName);
     // printf("TiledMap width: %i x height:%i, tileWidth:%i, tileHeight:%i\n", tiledMap->width, tiledMap->height, tiledMap->tileWidth, tiledMap->tileHeight);
 

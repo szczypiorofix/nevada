@@ -11,78 +11,12 @@
 
 
 
-void render(SpriteSheet *ss[], SDL_Rect *layersRects[], Ground *grounds[]) {
+// ------------------ FORWARD DECLARATION ------------------
 
-	/** ---------- Render part ---------- */
-	SDL_SetRenderDrawColor(engine->renderer, 0x0, 0x0, 0x0, 0xFF);
-	SDL_RenderClear(engine->renderer);
-
-	// ------------------ RENDER START ------------------
-	if (engine->displayMode > 0)  SDL_SetRenderDrawColor(engine->renderer, 0x7F, 0x6F, 0x7F, 0xFF);
-
-	/** Tilesy */
-	for (int i = -engine->tilesOnScreenFromCenterX; i < engine->tilesOnScreenFromCenterX; i++) {
-		for (int j = -engine->tilesOnScreenFromCenterY; j < engine->tilesOnScreenFromCenterY; j++) {
-			for (int layer = 0; layer < level->layers; layer++) {
-
-				if (
-					(( player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) >= 0 &&
-					(( player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) < level->map->width &&
-					(( player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) >= 0 &&
-					(( player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) < level->map->height
-					) {
-
-					if ((player->tileY + j) * level->width + player->tileX + i >= 0) {
-						if (layersRects[layer][(player->tileY + j) * level->width + player->tileX + i].w > 0) {
-
-							renderTexture(
-								ss[SS_BACKGROUND],
-								engine->renderer,
-								&layersRects[layer][(player->tileY + j) * level->width + player->tileX + i],
-								( (( ( grounds[layer][player->tileIndex].vec.x )  + (i*ss[SS_BACKGROUND]->tileWidth  )) * engine->scale) - engine->camera->vec.x),
-								( (( ( grounds[layer][player->tileIndex].vec.y )  + (j*ss[SS_BACKGROUND]->tileHeight )) * engine->scale) - engine->camera->vec.y),
-								engine->scale,
-								0,
-								NULL,
-								SDL_FLIP_NONE,
-								engine->displayMode
-							);
-
-						}
-					}
-				}
-			}
-		}
-	}
+void render(SpriteSheet *ss[], SDL_Rect *layersRects[], Ground *grounds[]);
 
 
-	/** RENDER PLAYER */
-	Animation* curAnim = &player->walkingAnimation[player->direction];
-	renderTexture(
-		ss[SS_PLAYER],
-		engine->renderer,
-		&curAnim->frames[curAnim->curFrame],
-		( (player->vec.x - (player->width / 2) ) * engine->scale) - engine->camera->vec.x,
-		( (player->vec.y - (player->height / 2) ) * engine->scale) - engine->camera->vec.y,
-		engine->scale,
-		0,
-		NULL,
-		SDL_FLIP_NONE,
-		engine->displayMode
-	);
-
-	renderText(engine->coordinates, engine->renderer, 10, 10, 240, 30);
-
-	// ------------------- RENDER END -------------------
-	
-	SDL_RenderPresent(engine->renderer);
-}
-
-
-char* strdup(const char* p) {
-    char* np = (char*)malloc(strlen(p)+1);
-    return np ? strcpy(np, p) : np;
-}
+// ---------------------------------------------------------
 
 
 
@@ -104,18 +38,17 @@ int main(int argc, char* args[]) {
 
 	// luaScriptTest();
 	
-	// ASM test
-    // printf("%i\n", compare(2, 4));
+	// /* ASM test */
+    // printf("Compare 2 to 4: %i\n", compare(2, 4));
 
 
 
 
-
-	char buffor[10];
-	LoadString(GetModuleHandleA(NULL), 5001, buffor, 10);
-	printf("Buforek: ");
-	printf(buffor);
-	printf("\n");	
+	// char buffor[10];
+	// LoadString(GetModuleHandleA(NULL), 5001, buffor, 10);
+	// printf("Buforek: ");
+	// printf(buffor);
+	// printf("\n");	
 
 
 
@@ -232,7 +165,19 @@ int main(int argc, char* args[]) {
 	engine->tilesOnScreenFromCenterX = (SCREEN_WIDTH /  (spriteSheetAssets[SS_BACKGROUND]->tileWidth * engine->scale) / 2);
 	engine->tilesOnScreenFromCenterY = (SCREEN_HEIGHT /  (spriteSheetAssets[SS_BACKGROUND]->tileHeight * engine->scale) / 2) ;
 
-	lockCameraOnObject(&player->vec);
+	
+	// Vector2 tv = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+	// Vector2* tempVec = &tv;
+	// engine->viewVector = &tempVec;
+
+	lockCameraOnObject(&player->vec.x, &player->vec.y);
+
+	short mouseClicked = 0;
+	short scrollNow = 0;
+	Vector2 clickVector = {0.0f, 0.0f};
+
+	engine->lastTime = SDL_GetTicks();
+	engine->timer = SDL_GetTicks();
 
 	/* ------------------------------ GAME LOOP ------------------------------ */
 	while(engine->quit == 0) {	
@@ -251,26 +196,27 @@ int main(int argc, char* args[]) {
 				} else {
 					if (engine->event.type == SDL_MOUSEMOTION ) {
 
-						Vector2 tempMouseVector = { engine->event.motion.x, engine->event.motion.y };
-						engine->mouseVetor = &tempMouseVector;
-						
 						if (engine->mouseRightButtonPressed == 1) {
-
-							// printf("Move : %i:%i\n", engine->event.motion.x, engine->event.motion.y);
-							Vector2 tempViewVector = { engine->event.motion.x * 1.0f, engine->event.motion.y * 1.0f};
-							engine->viewVector = &tempViewVector;
-							// printf("View Vector: %f\n", engine->viewVector->x);
-
+							// tempMouseVector = { engine->event.motion.x, engine->event.motion.y};
+							
+							Vector2 tempMouseVector = { engine->event.motion.x, engine->event.motion.y};
+							engine->scrollVector = &tempMouseVector;
 						}
-						
 					}
 
 					if (engine->event.button.type == SDL_MOUSEBUTTONDOWN) {
-						if (engine->event.button.button == SDL_BUTTON_RIGHT)
+						if (engine->event.button.button == SDL_BUTTON_RIGHT) {
 							engine->mouseRightButtonPressed = 1;
+							SDL_SetRelativeMouseMode(SDL_TRUE);
+							mouseClicked = 1;
+						}
 					} else if (engine->event.button.type == SDL_MOUSEBUTTONUP) {
-						if (engine->event.button.button == SDL_BUTTON_RIGHT)
+						if (engine->event.button.button == SDL_BUTTON_RIGHT) {
 							engine->mouseRightButtonPressed = 0;
+							SDL_SetRelativeMouseMode(SDL_FALSE);
+							mouseClicked = 0;
+							scrollNow = 0;
+						}
 					}
 
 					// ZOOM
@@ -322,15 +268,16 @@ int main(int argc, char* args[]) {
 								printf("CPU cores: %i\nRAM: %ikb\n", SDL_GetCPUCount(), SDL_GetSystemRAM());
 								break;
 							case SDLK_p:
+								engine->viewLockedOn = VIEW_LOCKED_ON_PLAYER;
 								printf("Locking camera on player.\n");
-								lockCameraOnObject(&player->vec);
+								
+								lockCameraOnObject(&player->vec.x, &player->vec.y);
 								break;
 							case SDLK_o:
+								engine->viewLockedOn = VIEW_LOCKED_ON_MOUSE;
 								printf("Locking camera on mouse.\n");
-								
-								// Vector2 tv = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
-								// engine->viewVector = &tv;
-								lockCameraOnObject(engine->viewVector);
+
+								lockCameraOnObject(&engine->scrollVector->x, &engine->scrollVector->y);
 								break;
 							case SDLK_SPACE:
 								if (Mix_PlayingMusic() == 0) {
@@ -409,8 +356,17 @@ int main(int argc, char* args[]) {
 				player->vec.y = (level->height * level->map->tileHeight) - player->height;
 
 
-			// if (engine->mouseButtonPressed == 1) printf("MOUSE PRESSED !!!\n");
+			// if (engine->mouseRightButtonPressed == 1) {
+			// 	printf("Lock on: %.2f : %.2f\n", *engine->lockCameraOnObjectX, *engine->lockCameraOnObjectY);
+			// }
 
+
+			if (mouseClicked == 1) {
+				clickVector.x = (float) engine->event.motion.x;
+				clickVector.y = (float) engine->event.motion.y;
+				printf("Mouse clicked at %.1f:%.1f\n", clickVector.x, clickVector.y);
+				mouseClicked = 0;
+			}
 
 			addVector(&player->vec, &player->moveVec);
 
@@ -424,8 +380,8 @@ int main(int argc, char* args[]) {
 
 			if (player->isMoving) nextFrame( &((player)->walkingAnimation[player->direction]) );
 
-			player->tileX = getTileX(player, spriteSheetAssets[SS_BACKGROUND]->tileWidth);
-			player->tileY = getTileY(player, spriteSheetAssets[SS_BACKGROUND]->tileHeight);
+			player->tileX = getTileX(player->vec.x, player->width, spriteSheetAssets[SS_BACKGROUND]->tileWidth);
+			player->tileY = getTileY(player->vec.y, player->height, spriteSheetAssets[SS_BACKGROUND]->tileHeight);
 			player->tileIndex = (player->tileY * level->width) + player->tileX;
 
 			// ---------------------- ENGINE UPDATE ----------------------
@@ -438,7 +394,8 @@ int main(int argc, char* args[]) {
 
 
 			// ---------------------------- TEXT UPDATE ------------------------
-			sprintf(engine->coordinatesText, "FPS: %d, MOUSE: %d : %d", engine->fps_count, (short) (*engine->mouseVetor).x, (short) (*engine->mouseVetor).y);
+			// sprintf(engine->coordinatesText, "FPS: %d, MOUSE: %d : %d view locked on: %s", engine->fps_count, (short) engine->event.motion.x, (short) engine->event.motion.y, engine->viewLockedOn == VIEW_LOCKED_ON_MOUSE ? "mouse" : "player");
+			sprintf(engine->coordinatesText, "M: %d:%d C: %.0f:%.0f L: %.0f:%.0f", engine->event.motion.x, engine->event.motion.y,  engine->camera->vec.x, engine->camera->vec.y, *engine->lockCameraOnObjectX, *engine->lockCameraOnObjectY);
 			changeText(engine->coordinates, engine->renderer, engine->coordinatesText);
 			// -----------------------------------------------------------------
 
@@ -493,7 +450,6 @@ int main(int argc, char* args[]) {
 	for (int i = 0; i < 4; i++) {
 		free(player->walkingAnimation[i].frames);
 		player->walkingAnimation[i].frames = NULL;
-
 		// free(&player->walkingAnimation[i]);
 
 	}
@@ -539,4 +495,70 @@ int main(int argc, char* args[]) {
 	// getchar();
 	
 	return 0;
+}
+
+void render(SpriteSheet *ss[], SDL_Rect *layersRects[], Ground *grounds[]) {
+
+	SDL_SetRenderDrawColor(engine->renderer, 0x0, 0x0, 0x0, 0xFF);
+	SDL_RenderClear(engine->renderer);
+
+	// ------------------ RENDER START ------------------
+	if (engine->displayMode > 0)  SDL_SetRenderDrawColor(engine->renderer, 0x7F, 0x6F, 0x7F, 0xFF);
+
+	/** Tilesy */
+	for (int i = -engine->tilesOnScreenFromCenterX; i < engine->tilesOnScreenFromCenterX; i++) {
+		for (int j = -engine->tilesOnScreenFromCenterY; j < engine->tilesOnScreenFromCenterY; j++) {
+			for (int layer = 0; layer < level->layers; layer++) {
+
+				if (
+					(( player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) >= 0 &&
+					(( player->vec.x + (i * ss[SS_BACKGROUND]->tileWidth) + (player->width / 2)) / ss[SS_BACKGROUND]->tileWidth) < level->map->width &&
+					(( player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) >= 0 &&
+					(( player->vec.y + (j * ss[SS_BACKGROUND]->tileHeight) + (player->height / 2)) / ss[SS_BACKGROUND]->tileHeight) < level->map->height
+					) {
+
+					if ((player->tileY + j) * level->width + player->tileX + i >= 0) {
+						if (layersRects[layer][(player->tileY + j) * level->width + player->tileX + i].w > 0) {
+
+							renderTexture(
+								ss[SS_BACKGROUND],
+								engine->renderer,
+								&layersRects[layer][(player->tileY + j) * level->width + player->tileX + i],
+								( (( ( grounds[layer][player->tileIndex].vec.x )  + (i*ss[SS_BACKGROUND]->tileWidth  )) * engine->scale) - engine->camera->vec.x),
+								( (( ( grounds[layer][player->tileIndex].vec.y )  + (j*ss[SS_BACKGROUND]->tileHeight )) * engine->scale) - engine->camera->vec.y),
+								engine->scale,
+								0,
+								NULL,
+								SDL_FLIP_NONE,
+								engine->displayMode
+							);
+
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	/** RENDER PLAYER */
+	Animation* curAnim = &player->walkingAnimation[player->direction];
+	renderTexture(
+		ss[SS_PLAYER],
+		engine->renderer,
+		&curAnim->frames[curAnim->curFrame],
+		( (player->vec.x - (player->width / 2) ) * engine->scale) - engine->camera->vec.x,
+		( (player->vec.y - (player->height / 2) ) * engine->scale) - engine->camera->vec.y,
+		engine->scale,
+		0,
+		NULL,
+		SDL_FLIP_NONE,
+		engine->displayMode
+	);
+
+	renderText(engine->coordinates, engine->renderer, 10, 10, 400, 30);
+
+	// ------------------- RENDER END -------------------	
+	SDL_RenderPresent(engine->renderer);
+
 }

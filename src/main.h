@@ -10,6 +10,7 @@
 short compare(int, int);
 
 
+
 extern Engine* engine;
 Player* player;
 SDL_Renderer* renderer;

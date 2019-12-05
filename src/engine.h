@@ -10,11 +10,16 @@
 
 #include "defines.h"
 
+// ------------------- CONSTANTS -------------------
 
-#define VSYNC_ON  1
-#define VSYNC_OFF 0
-#define TARGET_FPS 60.0f
-#define OPTIMAL_TIME 1000.0f / TARGET_FPS
+extern const short VSYNC_ON;
+extern const short VSYNC_OFF;
+extern const short TARGET_FPS;
+extern const float OPTIMAL_TIME;
+
+extern const short VIEW_LOCKED_ON_PLAYER;
+extern const short VIEW_LOCKED_ON_MOUSE;
+
 
 
 // ------------------- ENUMS -------------------
@@ -131,11 +136,13 @@ typedef struct Engine {
     SDL_Renderer* renderer;
     Mix_Music *music;
     Camera* camera;
-    Vector2* lockCameraOnObjectVector;
-    Vector2* mouseVetor;
-    Vector2* viewVector;
+
+    Vector2* scrollVector;
+    float* lockCameraOnObjectX;
+    float* lockCameraOnObjectY;
 
     short fullScreen;
+    short viewLockedOn;
     int musicVolume;
     long lastTime;
 	double delta;
@@ -150,7 +157,7 @@ typedef struct Engine {
     short int fpsCap;
     int displayMode;
     TextFont* coordinates;
-    char coordinatesText[35];
+    char coordinatesText[80];
     short mouseRightButtonPressed;
 } Engine;
 
@@ -243,7 +250,7 @@ Engine* engineStart(void);
 void engineStop(Engine** engine);
 int loadMusic(char* musicFile);
 void updateCamera();
-void lockCameraOnObject(Vector2* v);
+void lockCameraOnObject(float* x, float* y);
 int setFullScreen(WindowFullScreen flag);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
@@ -251,13 +258,12 @@ void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x
 SDL_Rect* createRectsForSprites(Level* level, unsigned short layerCount, SpriteSheet* t);
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames);
 int nextFrame(Animation* a);
-int releaseAnimation(Animation* a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short width, short height);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 Ground* setGround(float x, float y, short width, short height);
-int getTileX(Player* p, unsigned int tileWidth);
-int getTileY(Player* p, unsigned int tileHeight);
+int getTileX(float x, unsigned int width, unsigned int tileWidth);
+int getTileY(float y, unsigned int height, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
 void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale);
 void updateCollisionsPlayer(Player* p, const Camera* cam, const float scale);

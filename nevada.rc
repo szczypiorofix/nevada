@@ -49,7 +49,7 @@ END
 
  
 // ------------------ EXEC's ICON ------------------
-IDI_ICON1 ICON "nevada.ico"
+IDI_ICON1 ICON "res/nevada.ico"
 
 
 

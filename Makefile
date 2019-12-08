@@ -31,7 +31,7 @@ $(ODIR_DEBUG)/engine.o\
 $(ODIR_DEBUG)/luac.o\
 $(ODIR_DEBUG)/font.o\
 $(ODIR_DEBUG)/compare.o\
-# $(ODIR_DEBUG)/res.o\
+$(ODIR_DEBUG)/res.o\
 
 
 FILE_TO_COMPILE_RELEASE=$(ODIR_RELEASE)/main.o\
@@ -40,7 +40,7 @@ $(ODIR_RELEASE)/engine.o\
 $(ODIR_RELEASE)/luac.o\
 $(ODIR_RELEASE)/font.o\
 $(ODIR_RELEASE)/compare.o\
-# $(ODIR_RELEASE)/res.o\
+$(ODIR_RELEASE)/res.o\
 
 
 # STARTING TARGETS

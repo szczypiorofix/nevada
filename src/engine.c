@@ -7,8 +7,15 @@
 
 #include "engine.h"
 
+// --- CONSTANTS --
+const short VSYNC_ON = 1;
+const short VSYNC_OFF = 0;
+const short TARGET_FPS = 60.0f;
+const float OPTIMAL_TIME = 1000.0f / TARGET_FPS;
 
-// ------------------ FORWARD DECLARATION ------------------
+const short VIEW_LOCKED_ON_PLAYER = 1;
+const short VIEW_LOCKED_ON_MOUSE = 2;
+
 
 // --- STATIC ---
 static int random(int min, int max);
@@ -33,16 +40,16 @@ Engine* createEngine(void);
 struct Engine* engineStart();
 void engineStop(Engine** engine);
 int loadMusic(char* musicFile);
-void updateCamera(const Player* player, const Level* level);
+void updateCamera();
+int setFullScreen(WindowFullScreen flag);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames);
-int releaseAnimation(Animation** a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short int width, short int height);
-int getTileX(Player* p, unsigned int tileWith);
-int getTileY(Player* p, unsigned int tileHeight);
+int getTileX(float x, unsigned int width, unsigned int tileWidth);
+int getTileY(float y, unsigned int height, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale);
@@ -86,7 +93,9 @@ static int initSDL(Engine* engine) {
 }
 
 static int createWindow(Engine* engine) {
-    engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    short windowMode = 0;
+    windowMode = engine->fullScreen == ENGINE_WINDOW ? SDL_WINDOW_SHOWN : SDL_WINDOW_FULLSCREEN;
+    engine->window = SDL_CreateWindow("Nevada", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, windowMode);
     if (engine->window == NULL) {
         printf( "SDL_CreateWindow() Error: %s\n", SDL_GetError());
         engine->started = 0;
@@ -96,7 +105,7 @@ static int createWindow(Engine* engine) {
 
 
 static int createRenderer(Engine* engine) {
-    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED );// | SDL_RENDERER_PRESENTVSYNC);
+    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
     if (engine->renderer == NULL) {
         printf("SDL_CreateRenderer() Error: %s\n", SDL_GetError());
         engine->started = 0;
@@ -171,10 +180,10 @@ static TiledMap* parseMap(const char* fileName) {
 		printf("Malloc (creating TiledMap) error !!!\n");
 		exit(1);
 	}
-	tiledMap->width = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "width"));
-	tiledMap->height = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "height"));
-	tiledMap->tileWidth = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tilewidth"));
-	tiledMap->tileHeight = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tileheight"));
+	tiledMap->width         = readPropInt(cur, (const xmlChar *) "width");
+	tiledMap->height        = readPropInt(cur, (const xmlChar *) "height");
+	tiledMap->tileWidth     = readPropInt(cur, (const xmlChar *) "tilewidth");
+	tiledMap->tileHeight    = readPropInt(cur, (const xmlChar *) "tileheight");
 
     cur = cur->xmlChildrenNode;
 
@@ -221,25 +230,25 @@ static TiledMap* parseMap(const char* fileName) {
 
     while (cur != NULL) {
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"tileset"))) {
-			tileSet[tc].firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
-			tileSet[tc].source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
-			TileSetSource* tss = getTileSetSource(tileSet[tc].source);
+			tileSet[tc].firstGid    = readPropInt(cur, (const xmlChar *) "firstgid");
+			tileSet[tc].source      = (char *)xmlGetProp(cur, (const xmlChar *) "source");
+			TileSetSource* tss      = getTileSetSource(tileSet[tc].source);
 			tileSet[tc].tileSetSource = tss;
 			tc++;
 		}
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"layer"))) {
-			layers[lc].id = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "id"));
-			layers[lc].name = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
-			layers[lc].width = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "width"));
-			layers[lc].height = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "height"));
-			layers[lc].data = parseData(doc, cur);
+			layers[lc].id       = readPropInt(cur,  (const xmlChar *) "id");
+			layers[lc].name     = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
+			layers[lc].width    = readPropInt(cur,  (const xmlChar *) "width");
+			layers[lc].height   = readPropInt(cur,  (const xmlChar *) "height");
+			layers[lc].data     = parseData(doc, cur);
 			lc++;
 		}
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"objectgroup"))) {
-			objectGroups[ogc].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
-			objectGroups[ogc].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
-			objectGroups[ogc].objectsCount = countTiledObjects(cur);
-			objectGroups[ogc].objects = getTiledObjects(cur, objectGroups[ogc].objectsCount);
+			objectGroups[ogc].id            = readPropInt(cur, (const xmlChar *) "id");
+			objectGroups[ogc].name          = (char *)xmlGetProp(cur, (const xmlChar *) "name");
+			objectGroups[ogc].objectsCount  = countTiledObjects(cur);
+			objectGroups[ogc].objects       = getTiledObjects(cur, objectGroups[ogc].objectsCount);
 			ogc++;
 		}
 	    cur = cur->next;
@@ -326,16 +335,16 @@ static TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
 	int i = 0;
 	while (cur != NULL) {
 	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"object"))) {
-		    objects[i].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
-			objects[i].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
-			objects[i].type = (char *)xmlGetProp(cur, (const xmlChar *) "type");
+		    objects[i].id       = readPropInt(cur, (const xmlChar *) "id");
+			objects[i].name     = (char *)xmlGetProp(cur, (const xmlChar *) "name");
+			objects[i].type     = (char *)xmlGetProp(cur, (const xmlChar *) "type");
 			objects[i].template = (char *)xmlGetProp(cur, (const xmlChar *) "template");
-			objects[i].x = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "x"));
-			objects[i].y = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "y"));
+			objects[i].x        = readPropInt(cur, (const xmlChar *) "x");
+			objects[i].y        = readPropInt(cur, (const xmlChar *) "y");
 
 
-			char tmp[50] = DIR_RES_IMAGES;
-			strcat(tmp, objects[i].template);
+            char tmp[50];
+            sprintf(tmp, "%s%s", DIR_RES_IMAGES, objects[i].template);
 			xmlDocPtr txDoc;
 			xmlNodePtr txCurNode;
 			txDoc = xmlParseFile(tmp);
@@ -357,13 +366,13 @@ static TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
 			txCurNode = txCurNode->xmlChildrenNode;
 			while (txCurNode != NULL) {
 				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"tileset"))) {
-					objects[i].source = (char *)xmlGetProp(txCurNode, (const xmlChar *) "source");
-					objects[i].firstGid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "firstgid"));
+					objects[i].source   = (char *)xmlGetProp(txCurNode, (const xmlChar *) "source");
+					objects[i].firstGid = readPropInt(txCurNode, (const xmlChar *) "firstgid");
 				}
 				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"object"))) {
-					objects[i].gid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "gid"));
-					objects[i].width = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "width"));
-					objects[i].height = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "height"));
+					objects[i].gid      = readPropInt(txCurNode, (const xmlChar *) "gid");
+					objects[i].width    = readPropInt(txCurNode, (const xmlChar *) "width");
+					objects[i].height   = readPropInt(txCurNode, (const xmlChar *) "height");
 				}
 				txCurNode = txCurNode->next;
 			}
@@ -398,8 +407,8 @@ static TileSetSource* getTileSetSource(const char* tsxFileName) {
 		printf("Malloc (creating TileSetSource) error !!!\n");
 		exit(1);
 	}
-	char tmp[50] = DIR_RES_IMAGES;
-	strcat(tmp, tsxFileName);
+    char tmp[50];
+    sprintf(tmp, "%s%s", DIR_RES_IMAGES, tsxFileName);
 	
 	xmlDocPtr tsxDoc;
 	xmlNodePtr tsxCurNode;
@@ -422,18 +431,18 @@ static TileSetSource* getTileSetSource(const char* tsxFileName) {
 		xmlFreeDoc(tsxDoc);
 		exit(0);
 	}
-	tileSetSource->name = (char *)xmlGetProp(tsxCurNode, (const xmlChar *) "name");
-	tileSetSource->tileWidth = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilewidth"));
-	tileSetSource->tileHeight = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tileheight"));
-	tileSetSource->tileCount = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilecount"));
-	tileSetSource->columns = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "columns"));
+	tileSetSource->name         = (char *)xmlGetProp(tsxCurNode, (const xmlChar *) "name");
+	tileSetSource->tileWidth    = readPropInt(tsxCurNode, (const xmlChar *) "tilewidth");
+	tileSetSource->tileHeight   = readPropInt(tsxCurNode, (const xmlChar *) "tileheight");
+	tileSetSource->tileCount    = readPropInt(tsxCurNode, (const xmlChar *) "tilecount");
+	tileSetSource->columns      = readPropInt(tsxCurNode, (const xmlChar *) "columns");
 
 	tsxCurNode = tsxCurNode->xmlChildrenNode;
 	while (tsxCurNode != NULL) {
 		if ((!xmlStrcmp(tsxCurNode->name, (const xmlChar *) "image"))) {
-			tileSetSource->imageSource= (char *) xmlGetProp(tsxCurNode, (const xmlChar *) "source");
-			tileSetSource->width = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "width"));
-			tileSetSource->height = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "height"));
+			tileSetSource->imageSource  = (char *) xmlGetProp(tsxCurNode, (const xmlChar *) "source");
+			tileSetSource->width        = readPropInt(tsxCurNode, (const xmlChar *) "width");
+			tileSetSource->height       = readPropInt(tsxCurNode, (const xmlChar *) "height");
 		}
 		tsxCurNode = tsxCurNode->next;
 	}
@@ -466,15 +475,24 @@ Engine* createEngine(void) {
     engine->maxScale = 5.0f;
     engine->tilesOnScreenFromCenterX = 0;
     engine->tilesOnScreenFromCenterY = 0;
-    engine->mouseX = 0;
-    engine->mouseY = 0;
     engine->coordinatesText[0] = ' ';
     
+    engine->mouseRightButtonPressed = 0;
+
+    engine->viewLockedOn = VIEW_LOCKED_ON_PLAYER;
+
+    Vector2 tempScrollVector = {0.0f, 0.0f};
+    engine->scrollVector = &tempScrollVector;
+    engine->scrollVector->x = 0.0f;
+    engine->scrollVector->y = 0.0f;
+    
+
     // GAME LOOP
     engine->fpsCap = VSYNC_ON;
-    engine->lastTime = SDL_GetTicks();
-	engine->delta = 0.0f;
-	engine->timer = SDL_GetTicks();
+    engine->fullScreen = ENGINE_WINDOW;
+    engine->lastTime = 0L;
+	engine->timer = 0L;
+    engine->delta = 0.0f;
 	engine->updates = 0;
 	engine->frames = 0;
 	engine->now = 0L;
@@ -489,6 +507,12 @@ Engine* createEngine(void) {
 }
 
 
+int setFullScreen(WindowFullScreen flag) {
+    int s = SDL_SetWindowFullscreen(engine->window, flag);
+    engine->fullScreen = flag;
+    if (s == 0) return 1;
+    else return 0;
+}
 
 
 Engine* engineStart(void) {
@@ -552,32 +576,14 @@ int loadMusic(char* musicFile) {
     return 1;
 }
 
-
-void updateCamera(const Player* player, const Level* level) {
-    // if ( (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2)  > 0 
-    //     && (player->vec.x * engine->scale) < (level->width * level->map->tileWidth * engine->scale) - (SCREEN_WIDTH / 2)
-    // ) {
-        engine->camera->vec.x = (player->vec.x * engine->scale) - (SCREEN_WIDTH / 2);
-    // }
-    
-    // if ( (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2) > 0 
-    //     && (player->vec.y * engine->scale) < (level->height * level->map->tileHeight * engine->scale) - (SCREEN_HEIGHT / 2)
-    // ) {
-        engine->camera->vec.y = (player->vec.y * engine->scale) - (SCREEN_HEIGHT / 2);
-    // }
+void lockCameraOnObject(float* x, float* y) {
+    engine->lockCameraOnObjectX = x;
+    engine->lockCameraOnObjectY = y;
 }
 
-
-int releaseAnimation(Animation** a) {
-    // printf("Animation size: %hi\n", (*an)->size);
-    for (int i = 0; i < (*a)->size; i++) {
-        printf("Releasing animation on address: %p\n", &(*a)->frames[i] );
-        // free( &((*an)->frames[i]) );
-    }
-
-    free( (*a)->frames );
-    (*a)->frames = NULL;
-    return 1;
+void updateCamera() {
+    engine->camera->vec.x = ( *engine->lockCameraOnObjectX  * engine->scale) - (SCREEN_WIDTH / 2);
+    engine->camera->vec.y = ( *engine->lockCameraOnObjectY * engine->scale) - (SCREEN_HEIGHT / 2);
 }
 
 
@@ -600,8 +606,7 @@ void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x
     if (mode == 1) {
         SDL_RenderCopyEx(renderer, t->mTexture, clip, &renderQuad, angle, center, flip);
         SDL_RenderDrawRect(renderer, &renderQuad);
-    }
-    else if (mode == 2) {
+    } else if (mode == 2) {
         SDL_RenderDrawRect(renderer, &renderQuad);
     } else {
         SDL_RenderCopyEx(renderer, t->mTexture, clip, &renderQuad, angle, center, flip);
@@ -617,9 +622,11 @@ SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned in
     }
     SDL_Texture* newTexture = NULL;
     t->name = fileName;
-    char str[50] = DIR_RES_IMAGES;
-    const char *strFrom = fileName;
-    strcat(str, strFrom);
+
+    char str[50];
+    sprintf(str, "%s%s", DIR_RES_IMAGES, fileName);
+
+    printf("Loading file %s...\n", str);
 
     SDL_Surface* loadedSurface = IMG_Load(str);
     if (loadedSurface == NULL) {
@@ -742,13 +749,13 @@ Player* resetPlayer(char* name, float x, float y, short int width, short int hei
 }
 
 
-int getTileX(Player* p, unsigned int tileWidth) {
-    return ( (p->vec.x + (p->width / 2)) / tileWidth );
+int getTileX(float x, unsigned int width, unsigned int tileWidth) {
+    return ( (x + (width / 2)) / tileWidth );
 }
 
 
-int getTileY(Player* p, unsigned int tileHeight) {
-    return ( (p->vec.y + (p->height / 2)) / tileHeight );
+int getTileY(float y, unsigned int height, unsigned int tileHeight) {
+    return ( (y + (height / 2)) / tileHeight );
 }
 
 
@@ -897,7 +904,7 @@ Ground* setGround(float x, float y, short width, short height) {
 }
 
 
-int xmlCharToInt(const xmlChar a[]) {
+int xmlCharToInt(const xmlChar* a) {
 	int c = 0, sign = 0, offset = 0, n = 0;
 	if (a[0] == '-') {
 		sign = -1;
@@ -917,8 +924,29 @@ int xmlCharToInt(const xmlChar a[]) {
 	return n;
 }
 
+short xmlCharToShort(const xmlChar* a) {
+	short c = 0, sign = 0, offset = 0, n = 0;
+	if (a[0] == '-') {
+		sign = -1;
+	}
+	if (sign == -1) {
+		offset = 1;
+	} else {
+		offset = 0;
+	}
+  	n = 0;
+  	for (c = offset; a[c] != '\0'; c++) {
+		  n = n * 10 + a[c] - '0';
+	}
+	if (sign == -1) {
+		n = -n;
+	}
+	return n;
+}
 
-int stringToInt(const char a[]) {
+
+
+int stringToInt(const char* a) {
 	int c = 0, sign = 0, offset = 0, n = 0;
 	if (a[0] == '-') {
 		sign = -1;
@@ -938,6 +966,25 @@ int stringToInt(const char a[]) {
 	return n;
 }
 
+int readPropInt(xmlNodePtr node, const xmlChar* prop) {
+	xmlChar* c = xmlGetProp(node, prop);
+	int s = 0;
+	if (c != NULL) {
+		s = xmlCharToInt(c);
+		xmlFree(c);
+	}
+	return s;
+}
+
+short readPropShort(xmlNodePtr node, const xmlChar* prop) {
+	xmlChar* c = xmlGetProp(node, prop);
+	short s = 0;
+	if (c != NULL) {
+		s = xmlCharToShort(c);
+		xmlFree(c);
+	}
+	return s;
+}
 
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer) {
     SDL_RenderDrawRect(renderer, &npc->col);
@@ -970,8 +1017,6 @@ void freeTiledMap(TiledMap* tiledMap) {
 
 
 Level* getLevel(char* fileName) {
-	// char tmp[50] = DIR_RES_IMAGES;
-	// strcat(tmp, "map.tmx");
     TiledMap* tiledMap = parseMap(fileName);
     // printf("TiledMap width: %i x height:%i, tileWidth:%i, tileHeight:%i\n", tiledMap->width, tiledMap->height, tiledMap->tileWidth, tiledMap->tileHeight);
 

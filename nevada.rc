@@ -30,7 +30,7 @@ BEGIN
     BEGIN
         BLOCK "040904E4"
         BEGIN
-            VALUE "CompanyName", "ScavCoders"
+            VALUE "CompanyName", "szczypiorofix"
             VALUE "FileDescription", "Nevada - simple 2D game"
             VALUE "FileVersion", VER_FILEVERSION_STR
             VALUE "InternalName", "Nevada"
@@ -49,7 +49,7 @@ END
 
  
 // ------------------ EXEC's ICON ------------------
-IDI_ICON1 ICON "nevada.ico"
+IDI_ICON1 ICON "res/nevada.ico"
 
 
 

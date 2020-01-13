@@ -10,11 +10,16 @@
 
 #include "defines.h"
 
+// ------------------- CONSTANTS -------------------
 
-#define VSYNC_ON  1
-#define VSYNC_OFF 0
-#define TARGET_FPS = 60.0f;
-#define OPTIMAL_TIME = 1000.0f / TARGET_FPS;
+extern const short VSYNC_ON;
+extern const short VSYNC_OFF;
+extern const short TARGET_FPS;
+extern const float OPTIMAL_TIME;
+
+extern const short VIEW_LOCKED_ON_PLAYER;
+extern const short VIEW_LOCKED_ON_MOUSE;
+
 
 
 // ------------------- ENUMS -------------------
@@ -30,10 +35,17 @@ typedef enum {
     DIR_UP_LEFT
 } Direction;
 
+
 typedef enum {
     SS_BACKGROUND,
     SS_PLAYER
 } SpriteSheets;
+
+
+typedef enum {
+    ENGINE_WINDOW = 0x00000000,
+    ENGINE_FULLSCREEN = 0x00000001
+} WindowFullScreen;
 
 
 // ------------------ STRUCTS ------------------
@@ -125,6 +137,12 @@ typedef struct Engine {
     Mix_Music *music;
     Camera* camera;
 
+    Vector2* scrollVector;
+    float* lockCameraOnObjectX;
+    float* lockCameraOnObjectY;
+
+    short fullScreen;
+    short viewLockedOn;
     int musicVolume;
     long lastTime;
 	double delta;
@@ -138,10 +156,9 @@ typedef struct Engine {
 	double ns;
     short int fpsCap;
     int displayMode;
-    short mouseX;
-    short mouseY;
     TextFont* coordinates;
-    char coordinatesText[35];
+    char coordinatesText[80];
+    short mouseRightButtonPressed;
 } Engine;
 
 
@@ -232,20 +249,21 @@ Engine* engine;
 Engine* engineStart(void);
 void engineStop(Engine** engine);
 int loadMusic(char* musicFile);
-void updateCamera(const Player* player, const Level* level);
+void updateCamera();
+void lockCameraOnObject(float* x, float* y);
+int setFullScreen(WindowFullScreen flag);
 SpriteSheet* loadSpriteSheet(char* fileName, SDL_Renderer* renderer, unsigned int spriteWidth, unsigned int spriteHeigth);
 void freeTexture(SpriteSheet* t);
 void renderTexture(SpriteSheet* t, SDL_Renderer* renderer, SDL_Rect* clip, int x, int y, float scale, double angle, SDL_Point* center, SDL_RendererFlip flip, int mode);
 SDL_Rect* createRectsForSprites(Level* level, unsigned short layerCount, SpriteSheet* t);
 Animation* prepareAnimation(SpriteSheet* t, unsigned int speed, unsigned int sw, unsigned int sh, const unsigned short size, const unsigned int* frames);
 int nextFrame(Animation* a);
-int releaseAnimation(Animation** a);
 int checkCollision(SDL_Rect r1, SDL_Rect r2);
 Player* resetPlayer(char* name, float x, float y, short width, short height);
 NPC* setNPC(int x, int y, int width, int height, Direction direction);
 Ground* setGround(float x, float y, short width, short height);
-int getTileX(Player* p, unsigned int tileWidth);
-int getTileY(Player* p, unsigned int tileHeight);
+int getTileX(float x, unsigned int width, unsigned int tileWidth);
+int getTileY(float y, unsigned int height, unsigned int tileHeight);
 int updateNPC(NPC* npc, Level* level);
 void updateCollisionsNPC(NPC* npc, const Camera* cam, const float scale);
 void updateCollisionsPlayer(Player* p, const Camera* cam, const float scale);
@@ -255,7 +273,9 @@ void freeTiledMap(TiledMap* tiledMap);
 TextFont* loadFromRenderedText(const char* textureText, SDL_Renderer* renderer);
 void renderText(TextFont* t, SDL_Renderer* renderer, int x, int y, int w, int h);
 void changeText(TextFont* t, SDL_Renderer* renderer, char* text);
-int xmlCharToInt(const xmlChar a[]);
-int stringToInt(const char a[]);
+int xmlCharToInt(const xmlChar* a);
+int stringToInt(const char* a);
+int readPropInt(xmlNodePtr node, const xmlChar* prop);
+short readPropShort(xmlNodePtr node, const xmlChar* prop);
 
 #endif

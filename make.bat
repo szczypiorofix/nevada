@@ -52,7 +52,7 @@ REM Rebuild
 :reb
 ECHO Rebuilding whole project
 mingw32-make -B debug
-mingw32-make release
+mingw32-make -B release
 GOTO eof
 
 
@@ -61,7 +61,8 @@ REM Clean
 ECHO Cleaning up project
 IF EXIST "bin\debug\nevada.exe" DEL "bin\debug\nevada.exe"
 IF EXIST "bin\release\nevada.exe" DEL "bin\release\nevada.exe"
-DEL obj\*.* /q
+DEL obj\debug\*.* /q
+DEL obj\release\*.* /q
 GOTO eof
 
 

@@ -5,6 +5,11 @@
 
 #include "engine.h"
 
+// ----------------- CONSTANTS -----------------
+
+extern const float FONT_SPACE_WIDTH;
+
+
 // ------------------ STRUCTS ------------------
 
 typedef struct BitmapFontChar {

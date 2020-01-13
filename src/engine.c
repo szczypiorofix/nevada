@@ -180,10 +180,10 @@ static TiledMap* parseMap(const char* fileName) {
 		printf("Malloc (creating TiledMap) error !!!\n");
 		exit(1);
 	}
-	tiledMap->width = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "width"));
-	tiledMap->height = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "height"));
-	tiledMap->tileWidth = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tilewidth"));
-	tiledMap->tileHeight = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "tileheight"));
+	tiledMap->width         = readPropInt(cur, (const xmlChar *) "width");
+	tiledMap->height        = readPropInt(cur, (const xmlChar *) "height");
+	tiledMap->tileWidth     = readPropInt(cur, (const xmlChar *) "tilewidth");
+	tiledMap->tileHeight    = readPropInt(cur, (const xmlChar *) "tileheight");
 
     cur = cur->xmlChildrenNode;
 
@@ -230,25 +230,25 @@ static TiledMap* parseMap(const char* fileName) {
 
     while (cur != NULL) {
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"tileset"))) {
-			tileSet[tc].firstGid = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "firstgid"));
-			tileSet[tc].source = (char *)xmlGetProp(cur, (const xmlChar *) "source");
-			TileSetSource* tss = getTileSetSource(tileSet[tc].source);
+			tileSet[tc].firstGid    = readPropInt(cur, (const xmlChar *) "firstgid");
+			tileSet[tc].source      = (char *)xmlGetProp(cur, (const xmlChar *) "source");
+			TileSetSource* tss      = getTileSetSource(tileSet[tc].source);
 			tileSet[tc].tileSetSource = tss;
 			tc++;
 		}
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"layer"))) {
-			layers[lc].id = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "id"));
-			layers[lc].name = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
-			layers[lc].width = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "width"));
-			layers[lc].height = xmlCharToInt(xmlGetProp(cur,  (const xmlChar *) "height"));
-			layers[lc].data = parseData(doc, cur);
+			layers[lc].id       = readPropInt(cur,  (const xmlChar *) "id");
+			layers[lc].name     = (char *)xmlGetProp(cur,  (const xmlChar *) "name");
+			layers[lc].width    = readPropInt(cur,  (const xmlChar *) "width");
+			layers[lc].height   = readPropInt(cur,  (const xmlChar *) "height");
+			layers[lc].data     = parseData(doc, cur);
 			lc++;
 		}
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"objectgroup"))) {
-			objectGroups[ogc].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
-			objectGroups[ogc].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
-			objectGroups[ogc].objectsCount = countTiledObjects(cur);
-			objectGroups[ogc].objects = getTiledObjects(cur, objectGroups[ogc].objectsCount);
+			objectGroups[ogc].id            = readPropInt(cur, (const xmlChar *) "id");
+			objectGroups[ogc].name          = (char *)xmlGetProp(cur, (const xmlChar *) "name");
+			objectGroups[ogc].objectsCount  = countTiledObjects(cur);
+			objectGroups[ogc].objects       = getTiledObjects(cur, objectGroups[ogc].objectsCount);
 			ogc++;
 		}
 	    cur = cur->next;
@@ -335,12 +335,12 @@ static TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
 	int i = 0;
 	while (cur != NULL) {
 	    if ((!xmlStrcmp(cur->name, (const xmlChar *)"object"))) {
-		    objects[i].id = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "id"));
-			objects[i].name = (char *)xmlGetProp(cur, (const xmlChar *) "name");
-			objects[i].type = (char *)xmlGetProp(cur, (const xmlChar *) "type");
+		    objects[i].id       = readPropInt(cur, (const xmlChar *) "id");
+			objects[i].name     = (char *)xmlGetProp(cur, (const xmlChar *) "name");
+			objects[i].type     = (char *)xmlGetProp(cur, (const xmlChar *) "type");
 			objects[i].template = (char *)xmlGetProp(cur, (const xmlChar *) "template");
-			objects[i].x = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "x"));
-			objects[i].y = xmlCharToInt(xmlGetProp(cur, (const xmlChar *) "y"));
+			objects[i].x        = readPropInt(cur, (const xmlChar *) "x");
+			objects[i].y        = readPropInt(cur, (const xmlChar *) "y");
 
 
             char tmp[50];
@@ -366,13 +366,13 @@ static TiledObject* getTiledObjects(xmlNodePtr cur, int tiledObjectsCounter) {
 			txCurNode = txCurNode->xmlChildrenNode;
 			while (txCurNode != NULL) {
 				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"tileset"))) {
-					objects[i].source = (char *)xmlGetProp(txCurNode, (const xmlChar *) "source");
-					objects[i].firstGid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "firstgid"));
+					objects[i].source   = (char *)xmlGetProp(txCurNode, (const xmlChar *) "source");
+					objects[i].firstGid = readPropInt(txCurNode, (const xmlChar *) "firstgid");
 				}
 				if (!(xmlStrcmp(txCurNode->name, (const xmlChar *)"object"))) {
-					objects[i].gid = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "gid"));
-					objects[i].width = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "width"));
-					objects[i].height = xmlCharToInt(xmlGetProp(txCurNode, (const xmlChar *) "height"));
+					objects[i].gid      = readPropInt(txCurNode, (const xmlChar *) "gid");
+					objects[i].width    = readPropInt(txCurNode, (const xmlChar *) "width");
+					objects[i].height   = readPropInt(txCurNode, (const xmlChar *) "height");
 				}
 				txCurNode = txCurNode->next;
 			}
@@ -431,18 +431,18 @@ static TileSetSource* getTileSetSource(const char* tsxFileName) {
 		xmlFreeDoc(tsxDoc);
 		exit(0);
 	}
-	tileSetSource->name = (char *)xmlGetProp(tsxCurNode, (const xmlChar *) "name");
-	tileSetSource->tileWidth = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilewidth"));
-	tileSetSource->tileHeight = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tileheight"));
-	tileSetSource->tileCount = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "tilecount"));
-	tileSetSource->columns = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "columns"));
+	tileSetSource->name         = (char *)xmlGetProp(tsxCurNode, (const xmlChar *) "name");
+	tileSetSource->tileWidth    = readPropInt(tsxCurNode, (const xmlChar *) "tilewidth");
+	tileSetSource->tileHeight   = readPropInt(tsxCurNode, (const xmlChar *) "tileheight");
+	tileSetSource->tileCount    = readPropInt(tsxCurNode, (const xmlChar *) "tilecount");
+	tileSetSource->columns      = readPropInt(tsxCurNode, (const xmlChar *) "columns");
 
 	tsxCurNode = tsxCurNode->xmlChildrenNode;
 	while (tsxCurNode != NULL) {
 		if ((!xmlStrcmp(tsxCurNode->name, (const xmlChar *) "image"))) {
-			tileSetSource->imageSource= (char *) xmlGetProp(tsxCurNode, (const xmlChar *) "source");
-			tileSetSource->width = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "width"));
-			tileSetSource->height = xmlCharToInt(xmlGetProp(tsxCurNode, (const xmlChar *) "height"));
+			tileSetSource->imageSource  = (char *) xmlGetProp(tsxCurNode, (const xmlChar *) "source");
+			tileSetSource->width        = readPropInt(tsxCurNode, (const xmlChar *) "width");
+			tileSetSource->height       = readPropInt(tsxCurNode, (const xmlChar *) "height");
 		}
 		tsxCurNode = tsxCurNode->next;
 	}
@@ -904,7 +904,7 @@ Ground* setGround(float x, float y, short width, short height) {
 }
 
 
-int xmlCharToInt(const xmlChar a[]) {
+int xmlCharToInt(const xmlChar* a) {
 	int c = 0, sign = 0, offset = 0, n = 0;
 	if (a[0] == '-') {
 		sign = -1;
@@ -924,8 +924,29 @@ int xmlCharToInt(const xmlChar a[]) {
 	return n;
 }
 
+short xmlCharToShort(const xmlChar* a) {
+	short c = 0, sign = 0, offset = 0, n = 0;
+	if (a[0] == '-') {
+		sign = -1;
+	}
+	if (sign == -1) {
+		offset = 1;
+	} else {
+		offset = 0;
+	}
+  	n = 0;
+  	for (c = offset; a[c] != '\0'; c++) {
+		  n = n * 10 + a[c] - '0';
+	}
+	if (sign == -1) {
+		n = -n;
+	}
+	return n;
+}
 
-int stringToInt(const char a[]) {
+
+
+int stringToInt(const char* a) {
 	int c = 0, sign = 0, offset = 0, n = 0;
 	if (a[0] == '-') {
 		sign = -1;
@@ -945,6 +966,25 @@ int stringToInt(const char a[]) {
 	return n;
 }
 
+int readPropInt(xmlNodePtr node, const xmlChar* prop) {
+	xmlChar* c = xmlGetProp(node, prop);
+	int s = 0;
+	if (c != NULL) {
+		s = xmlCharToInt(c);
+		xmlFree(c);
+	}
+	return s;
+}
+
+short readPropShort(xmlNodePtr node, const xmlChar* prop) {
+	xmlChar* c = xmlGetProp(node, prop);
+	short s = 0;
+	if (c != NULL) {
+		s = xmlCharToShort(c);
+		xmlFree(c);
+	}
+	return s;
+}
 
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer) {
     SDL_RenderDrawRect(renderer, &npc->col);

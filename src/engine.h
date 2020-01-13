@@ -273,7 +273,9 @@ void freeTiledMap(TiledMap* tiledMap);
 TextFont* loadFromRenderedText(const char* textureText, SDL_Renderer* renderer);
 void renderText(TextFont* t, SDL_Renderer* renderer, int x, int y, int w, int h);
 void changeText(TextFont* t, SDL_Renderer* renderer, char* text);
-int xmlCharToInt(const xmlChar a[]);
-int stringToInt(const char a[]);
+int xmlCharToInt(const xmlChar* a);
+int stringToInt(const char* a);
+int readPropInt(xmlNodePtr node, const xmlChar* prop);
+short readPropShort(xmlNodePtr node, const xmlChar* prop);
 
 #endif

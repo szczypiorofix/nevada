@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <tileset firstgid="1" source="animals1.tsx"/>
- <object gid="28" width="52" height="72"/>
+ <tileset firstgid="1" source="characters.tsx"/>
+ <object gid="4" width="16" height="16"/>
 </template>

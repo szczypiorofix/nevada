@@ -58,7 +58,6 @@ void updateCollisionsPlayer(Player* p, const Camera* cam, const float scale);
 void drawNPCCollisions(NPC* npc, SDL_Renderer* renderer);
 Level* getLevel(char* fileName);
 int xmlCharToInt(const xmlChar a[]);
-int* parseData(xmlDocPtr doc, xmlNodePtr cur);
 int xmlCharToInt(const xmlChar a[]);
 int stringToInt(const char a[]);
 void freeTiledMap(TiledMap* tiledMap);

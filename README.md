@@ -9,7 +9,15 @@ Just to learn C and SDL.
 - libxml2
 - lua53
 
-[Example video](https://www.youtube.com/watch?v=b6En8dlul6A)
+## Examples
+
+- previous assets
+![alt text](/doc/nevada_2019-02-15_09-02-33-17.png "Screenshot 3")
+- current assets
+![alt text](/doc/nevada_2020-02-06_11-27-51-51.png "Screenshot 1")
+![alt text](/doc/nevada_2019-03-11_23-16-01-98.png "Screenshot 2")
+
+[Example video](https://youtu.be/frHvnh2pkSk)
 
 ## Main goals
 

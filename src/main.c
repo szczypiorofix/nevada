@@ -556,7 +556,8 @@ void render(SpriteSheet *ss[], SDL_Rect *layersRects[], Ground *grounds[]) {
 		engine->displayMode
 	);
 
-	renderText(engine->coordinates, engine->renderer, 10, 10, 400, 30);
+	// Rendering some text just for in-game debugging
+	// renderText(engine->coordinates, engine->renderer, 10, 10, 400, 30);
 
 	// ------------------- RENDER END -------------------	
 	SDL_RenderPresent(engine->renderer);

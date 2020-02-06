@@ -18,6 +18,9 @@ Just to learn C and SDL.
 ![alt text](/doc/nevada_2019-03-11_23-16-01-98.png "Screenshot 2")
 
 [Example video](https://youtu.be/frHvnh2pkSk)
+<a href="https://www.youtube.com/watch?feature=player_embedded&v=frHvnh2pkSk
+" target="_blank"><img src="https://img.youtube.com/vi/frHvnh2pkSk/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
 ## Main goals
 
